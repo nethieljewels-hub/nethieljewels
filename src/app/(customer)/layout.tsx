@@ -1,0 +1,32 @@
+import React from "react";
+import { createClient } from "@/utils/supabase/server";
+import CustomerHeader from "@/components/layout/CustomerHeader";
+import CustomerFooter from "@/components/layout/CustomerFooter";
+import ScrollToTopButton from "@/app/(customer)/ScrollToTopButton";
+
+export default async function CustomerLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient();
+
+  // Fetch settings singleton row on the server
+  const { data: settings } = await supabase
+    .from("settings")
+    .select("*")
+    .eq("id", true)
+    .maybeSingle();
+
+  // Fetch active categories for footer & global navigation
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("id, name, slug")
+    .eq("active", true)
+    .order("created_at", { ascending: true });
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans select-none" suppressHydrationWarning>
+      <CustomerHeader settings={settings} />
+      <main className="flex-1 flex flex-col">{children}</main>
+      <CustomerFooter settings={settings} categories={categories || []} />
+      <ScrollToTopButton />
+    </div>
+  );
+}
