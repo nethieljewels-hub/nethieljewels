@@ -44,9 +44,9 @@ export default function AdminSidebar({ isOpen = false, onClose }: SidebarProps) 
       <div className="space-y-8">
         <div>
           <img
-            src="/images/logo.png"
-            alt="TEEX Logo"
-            className="h-8 sm:h-10 w-auto object-contain dark:invert"
+            src="/images/logo-nethiel.jpeg"
+            alt="NETHIEL Logo"
+            className="h-8 sm:h-10 w-auto object-contain"
           />
           <p className="text-[9px] tracking-[0.2em] text-neutral-500 uppercase mt-1">
             Management Console

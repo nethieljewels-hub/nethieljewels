@@ -59,12 +59,12 @@ export default function OrderSummaryCard({
           <div className="flex flex-wrap gap-2 pt-1">
             {selectedSize && (
               <span className="text-[8px] uppercase tracking-widest bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-300 px-2 py-0.5 rounded-sm">
-                Size: {selectedSize}
+                Size/Length: {selectedSize}
               </span>
             )}
             {selectedColor && (
               <span className="text-[8px] uppercase tracking-widest bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-300 px-2 py-0.5 rounded-sm">
-                Color: {selectedColor}
+                Metal/Gemstone: {selectedColor}
               </span>
             )}
             <span className="text-[8px] uppercase tracking-widest bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-300 px-2 py-0.5 rounded-sm">

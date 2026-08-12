@@ -73,9 +73,9 @@ export default function MediaUpload({
 
         uploadedUrls.push(publicUrl);
         setProgress(Math.round(((i + 1) / files.length) * 100));
-      } catch (err: any) {
+      } catch (err) {
         console.error("Upload error:", err);
-        alert(`Failed to upload media: ${err?.message || "Unknown error"}`);
+        alert(`Failed to upload media: ${(err as Error)?.message || "Unknown error"}`);
         setUploading(false);
         return;
       }

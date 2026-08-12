@@ -19,10 +19,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Read from localStorage on client side mount
     const savedTheme = localStorage.getItem("theme") as Theme | null;
     if (savedTheme === "dark") {
-      setThemeState("dark");
+      setTimeout(() => setThemeState("dark"), 0);
       document.documentElement.classList.add("dark");
     } else {
-      setThemeState("light");
+      setTimeout(() => setThemeState("light"), 0);
       document.documentElement.classList.remove("dark");
     }
   }, []);

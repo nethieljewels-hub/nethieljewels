@@ -69,7 +69,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
   useEffect(() => {
     const saved = loadDeliveryDetails();
     if (saved?.state) {
-      setSelectedState(saved.state);
+      setTimeout(() => setSelectedState(saved.state), 0);
       const fetchShipping = async () => {
         try {
           const supabase = createClient();
@@ -184,21 +184,21 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
     setColorError("");
 
     if (product.sizes.length > 0 && !selectedSize) {
-      setSizeError("Please select a size");
+      setSizeError("Please select a size / length");
       hasError = true;
     }
     if (product.colors.length > 0 && !selectedColor) {
-      setColorError("Please select a color");
+      setColorError("Please select a metal / gemstone");
       hasError = true;
     }
 
     if (hasError) {
       const errorMsg =
         product.sizes.length > 0 && !selectedSize && product.colors.length > 0 && !selectedColor
-          ? "Please select size and color"
+          ? "Please select size/length and metal/gemstone"
           : product.sizes.length > 0 && !selectedSize
-          ? "Please select a size"
-          : "Please select a color";
+          ? "Please select a size / length"
+          : "Please select a metal / gemstone";
 
       setToastError(errorMsg);
 
@@ -420,7 +420,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
             {product.sizes.length > 0 && (
               <div className="space-y-3">
                 <h4 className="text-[10px] sm:text-[9px] uppercase tracking-widest text-neutral-500 font-semibold">
-                  Select Size
+                  Select Size / Length
                 </h4>
                 <div className="flex flex-wrap gap-2.5">
                   {product.sizes.map((sz) => (
@@ -433,7 +433,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
                       }}
                       className={`px-5 sm:px-4 py-2.5 sm:py-2 border text-xs sm:text-[9px] font-mono font-semibold uppercase rounded-sm transition-all cursor-pointer active:animate-scale-tap ${
                         selectedSize === sz
-                          ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
+                          ? "bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark border-brand-brown-dark dark:border-brand-gold shadow-md"
                           : "bg-transparent text-neutral-600 dark:text-neutral-450 border-neutral-300 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 hover:text-black dark:hover:text-white"
                       } ${product.is_out_of_stock ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
@@ -453,7 +453,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
             {product.colors.length > 0 && (
               <div className="space-y-3">
                 <h4 className="text-[10px] sm:text-[9px] uppercase tracking-widest text-neutral-500 font-semibold">
-                  Available Colors
+                  Metal / Gemstone
                 </h4>
                 <div className="flex flex-wrap gap-2.5">
                   {product.colors.map((col) => (
@@ -466,8 +466,8 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
                       }}
                       className={`px-5 sm:px-4 py-2.5 sm:py-2 border text-xs sm:text-[9px] uppercase tracking-widest font-semibold rounded-sm transition-all cursor-pointer active:animate-scale-tap ${
                         selectedColor === col
-                          ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
-                          : "bg-transparent text-neutral-600 dark:text-neutral-450 border-neutral-300 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 hover:text-black dark:hover:text-white"
+                          ? "bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark border-brand-brown-dark dark:border-brand-gold shadow-md"
+                          : "bg-transparent text-neutral-600 dark:text-neutral-455 border-neutral-300 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 hover:text-black dark:hover:text-white"
                       } ${product.is_out_of_stock ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       {col}
@@ -595,7 +595,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
             )}
 
             {/* Desktop Buy Now button / Out of Stock Banner */}
-            <div className="hidden md:block sticky bottom-0 z-40 bg-white dark:bg-black py-4 border-t border-neutral-200 dark:border-neutral-850 safe-area-bottom w-full max-w-md">
+            <div className="hidden md:block sticky bottom-0 z-40 bg-background py-4 border-t border-neutral-200 dark:border-neutral-850 safe-area-bottom w-full max-w-md">
               {product.is_out_of_stock ? (
                 <button
                   type="button"
@@ -608,7 +608,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
                 <button
                   type="button"
                   onClick={handleBuyNow}
-                  className="flex w-full items-center justify-center space-x-2 bg-black dark:bg-white text-white dark:text-black py-4 text-[10px] font-semibold tracking-widest uppercase transition-all hover:bg-neutral-800 dark:hover:bg-neutral-200 rounded-sm cursor-pointer active:animate-scale-tap"
+                  className="flex w-full items-center justify-center space-x-2 bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark py-4 text-[10px] font-semibold tracking-widest uppercase transition-all hover:bg-brand-brown-medium dark:hover:bg-brand-gold-dark rounded-sm cursor-pointer active:animate-scale-tap shadow-md"
                 >
                   <ShoppingBag size={14} />
                   <span>Buy Now</span>
@@ -620,7 +620,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
       </div>
 
       {/* Fixed Mobile Bottom Bar for Buy Now */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-black/95 backdrop-blur-md px-4 py-3 border-t border-neutral-200 dark:border-neutral-850 shadow-2xl safe-area-bottom">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md px-4 py-3 border-t border-neutral-200 dark:border-neutral-850 shadow-2xl safe-area-bottom">
         {product.is_out_of_stock ? (
           <button
             type="button"
@@ -633,7 +633,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
           <button
             type="button"
             onClick={handleBuyNow}
-            className="flex w-full items-center justify-center space-x-2 bg-black dark:bg-white text-white dark:text-black py-3.5 text-xs font-bold tracking-widest uppercase transition-all hover:bg-neutral-800 dark:hover:bg-neutral-200 rounded-sm cursor-pointer active:animate-scale-tap shadow-lg"
+            className="flex w-full items-center justify-center space-x-2 bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark py-3.5 text-xs font-bold tracking-widest uppercase transition-all hover:bg-brand-brown-medium dark:hover:bg-brand-gold-dark rounded-sm cursor-pointer active:animate-scale-tap shadow-lg"
           >
             <ShoppingBag size={16} />
             <span>Buy Now</span>

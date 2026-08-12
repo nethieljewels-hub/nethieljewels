@@ -34,7 +34,7 @@ interface ProductsClientProps {
   initialSearch?: string;
 }
 
-const AVAILABLE_SIZES = ["S", "M", "L", "XL", "XXL"];
+const AVAILABLE_SIZES = ["6", "7", "8", "9", "16\"", "18\"", "20\"", "One Size"];
 
 export default function ProductsClient({
   initialCategories,
@@ -66,7 +66,7 @@ export default function ProductsClient({
 
   // Sync state when URL query parameter changes
   useEffect(() => {
-    setSelectedCategory(categoryQuery);
+    setTimeout(() => setSelectedCategory(categoryQuery), 0);
   }, [categoryQuery]);
 
   // Click outside to close desktop popover
@@ -239,13 +239,13 @@ export default function ProductsClient({
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-neutral-200 dark:border-neutral-850 pb-6 gap-6">
         <div>
           <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 uppercase">
-            {targetCategory ? targetCategory.name : "Silhouettes"}
+            {targetCategory ? targetCategory.name : "Collections"}
           </span>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-black dark:text-white uppercase mt-1">
+          <h1 className="text-3xl md:text-4xl font-serif-luxury font-light tracking-wide text-brand-brown-dark dark:text-brand-cream uppercase mt-1">
             {targetCategory ? targetCategory.name : "All Products"}
           </h1>
           <p className="text-xs text-neutral-500 font-light mt-1">
-            Showing {sorted.length} {sorted.length === 1 ? "product" : "products"}
+            Showing {sorted.length} {sorted.length === 1 ? "piece" : "pieces"}
           </p>
         </div>
 
@@ -448,13 +448,13 @@ export default function ProductsClient({
 
       {/* Grid List */}
       {sorted.length === 0 ? (
-        <div className="rounded-xs border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 p-16 text-center space-y-2">
-          <SlidersHorizontal className="mx-auto text-neutral-400" size={32} />
-          <h3 className="text-xs uppercase font-bold tracking-widest text-black dark:text-white">
-            No silhouettes matched
+        <div className="rounded-sm border border-brand-brown-medium/20 bg-white dark:bg-brand-brown-dark/20 p-16 text-center space-y-2">
+          <SlidersHorizontal className="mx-auto text-brand-gold" size={32} />
+          <h3 className="text-xs uppercase font-bold tracking-widest text-brand-brown-dark dark:text-brand-cream font-serif-luxury">
+            No jewelry matched
           </h3>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 font-light">
-            Try adjusting your search criteria, size, or category filter.
+            Try adjusting your search criteria, size/length, or collection filter.
           </p>
         </div>
       ) : (

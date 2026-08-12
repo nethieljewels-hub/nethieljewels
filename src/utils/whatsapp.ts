@@ -23,18 +23,18 @@ export function generateWhatsAppMessage(params: WhatsAppMessageParams): string {
   const line = "━━━━━━━━━━━━━━━━━━";
 
   return [
-    `🛍️ *New Product Inquiry*`,
+    `✨ *New Jewelry Inquiry*`,
     "",
     line,
     "",
-    `👕 *${params.productName.toUpperCase()}*`,
+    `💍 *${params.productName.toUpperCase()}*`,
     "------------------",
     `🏷️ Category: ${params.category}`,
     `💰 Price: ₹${params.productPrice.toFixed(2)}`,
     `📦 Quantity: ${params.quantity}`,
     `💵 Subtotal: ₹${subtotal.toFixed(2)}`,
-    `📏 Size: ${params.selectedSize}`,
-    `🎨 Color: ${params.selectedColor}`,
+    `📏 Size/Length: ${params.selectedSize}`,
+    `🎨 Metal/Gemstone: ${params.selectedColor}`,
     "------------------",
     "",
     line,

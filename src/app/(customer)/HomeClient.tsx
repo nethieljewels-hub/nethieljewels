@@ -141,37 +141,37 @@ export default function HomeClient({
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className="relative w-full aspect-[16/9] md:aspect-[21/9] min-h-[460px] max-h-[640px] bg-neutral-100 dark:bg-neutral-900 overflow-hidden select-none"
+        className="relative w-full aspect-[16/9] md:aspect-[21/9] min-h-[460px] max-h-[640px] bg-neutral-150 dark:bg-neutral-950 overflow-hidden select-none"
       >
         {initialBanners.length === 0 ? (
           /* Default Banner Placeholder layout if no banner is added in Admin yet */
-          <div className="relative inset-0 h-full w-full flex flex-col md:flex-row items-center justify-between px-5 sm:px-14 md:px-24 lg:px-28 py-12 bg-neutral-100 dark:bg-neutral-900">
+          <div className="relative inset-0 h-full w-full flex flex-col md:flex-row items-center justify-between px-5 sm:px-14 md:px-24 lg:px-28 py-12 bg-white dark:bg-[#120905]">
             <div className="max-w-[55%] sm:max-w-md md:max-w-xl space-y-2 sm:space-y-4 z-10 text-left">
-              <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.25em] text-neutral-500 uppercase">
-                NEW DROP
+              <span className="text-[10px] sm:text-xs font-bold tracking-[0.3em] text-brand-gold uppercase">
+                THE SIGNATURE COLLECTION
               </span>
-              <h1 className="text-xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-black dark:text-white uppercase leading-tight sm:leading-none">
-                PREMIUM <br /> STREETWEAR
+              <h1 className="text-2xl sm:text-5xl md:text-6xl font-serif-luxury font-light tracking-wide text-brand-brown-dark dark:text-brand-cream uppercase leading-tight sm:leading-none">
+                Timeless Elegance, <br /> Crafted for You
               </h1>
-              <p className="text-[10px] sm:text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Minimal designs. Maximum impact.
+              <p className="text-[10px] sm:text-sm font-light text-neutral-600 dark:text-neutral-400">
+                Discover beautifully crafted jewelry designed to celebrate life&apos;s most precious moments.
               </p>
-              <div className="pt-1 sm:pt-2">
+              <div className="pt-2 sm:pt-4">
                 <Link
                   href="/products"
-                  className="inline-flex items-center space-x-3 bg-black text-white dark:bg-white dark:text-black px-7 py-3 text-xs font-bold tracking-widest uppercase hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all rounded-xs"
+                  className="inline-flex items-center space-x-3 bg-brand-brown-dark text-white dark:bg-[#faf7f2] dark:text-brand-brown-dark px-7 py-3 text-xs font-semibold tracking-widest uppercase hover:bg-brand-brown-medium dark:hover:bg-brand-cream/95 transition-all rounded-sm shadow-md"
                 >
-                  <span>EXPLORE COLLECTION</span>
+                  <span>SHOP COLLECTION</span>
                   <ArrowRight size={14} />
                 </Link>
               </div>
             </div>
 
             {/* Pure SVG Placeholder Frame */}
-            <div className="hidden md:flex w-1/2 h-full relative items-center justify-center bg-neutral-200/60 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-xs">
+            <div className="hidden md:flex w-1/2 h-full relative items-center justify-center bg-brand-cream/40 dark:bg-brand-brown-dark border border-brand-brown-medium/10 rounded-sm">
               <div className="flex flex-col items-center justify-center space-y-2 text-neutral-400">
-                <ImageIcon size={48} strokeWidth={1} />
-                <span className="text-[10px] font-mono tracking-widest uppercase text-neutral-500 dark:text-neutral-400">
+                <ImageIcon size={48} strokeWidth={1} className="text-brand-gold" />
+                <span className="text-[10px] font-mono tracking-widest uppercase text-brand-brown-medium dark:text-brand-cream/60">
                   HERO BANNER MEDIA PLACEHOLDER
                 </span>
                 <span className="text-[9px] text-neutral-400">
@@ -252,24 +252,24 @@ export default function HomeClient({
                   );
                 })()}
 
-                {/* Light Overlay gradient for high copy legibility */}
-                <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 to-transparent sm:from-white/80 dark:from-black/90 dark:via-black/40" />
+                {/* Subtle dark overlay for text legibility without white wash */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/10 to-transparent dark:from-black/60 dark:via-black/20" />
 
                 {/* Banner Content Copy */}
                 <div className="absolute inset-0 flex items-center justify-start px-5 sm:px-14 md:px-24 lg:px-28 text-left">
                   <div className="max-w-[55%] sm:max-w-md md:max-w-xl space-y-2 sm:space-y-4 animate-slide-up">
-                    <span className="block text-[10px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.25em] text-neutral-700 dark:text-neutral-300 uppercase">
-                      {banner.subtitle || "NEW DROP"}
+                    <span className="block text-[10px] sm:text-xs font-bold tracking-[0.3em] text-brand-gold uppercase">
+                      {banner.subtitle || "EXCLUSIVELY CRAFTED"}
                     </span>
 
                     {banner.title && (
-                      <h1 className="text-xl sm:text-4xl md:text-6xl font-extrabold tracking-tight text-black dark:text-white uppercase leading-tight sm:leading-none whitespace-pre-line">
+                      <h1 className="text-2xl sm:text-5xl md:text-6xl font-serif-luxury font-light tracking-wide text-white uppercase leading-tight sm:leading-none whitespace-pre-line drop-shadow-md">
                         {banner.title}
                       </h1>
                     )}
 
                     {banner.button_text && (
-                      <p className="text-[10px] sm:text-sm font-medium text-neutral-600 dark:text-neutral-400 whitespace-pre-line leading-normal sm:leading-relaxed line-clamp-3">
+                      <p className="text-[10px] sm:text-sm font-light text-white/80 whitespace-pre-line leading-normal sm:leading-relaxed line-clamp-3 drop-shadow-sm">
                         {banner.button_text}
                       </p>
                     )}
@@ -277,7 +277,7 @@ export default function HomeClient({
                     <div className="pt-1 sm:pt-2">
                       <Link
                         href="/products"
-                        className="inline-flex items-center space-x-2 sm:space-x-3 bg-black text-white dark:bg-white dark:text-black px-4 py-2 sm:px-7 sm:py-3 text-[10px] sm:text-xs font-bold tracking-widest uppercase hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all rounded-xs shadow-xs"
+                        className="inline-flex items-center space-x-2 sm:space-x-3 bg-brand-brown-dark text-white dark:bg-[#faf7f2] dark:text-brand-brown-dark px-4 py-2 sm:px-7 sm:py-3 text-[10px] sm:text-xs font-semibold tracking-widest uppercase hover:bg-brand-brown-medium dark:hover:bg-brand-cream/95 transition-all rounded-sm shadow-md"
                       >
                         <span>EXPLORE COLLECTION</span>
                         <ArrowRight size={13} className="sm:w-[14px] sm:h-[14px]" />
@@ -455,32 +455,32 @@ export default function HomeClient({
 
       {/* 4. VALUE PROPOSITIONS / FEATURES BAR */}
       <section className="mx-auto max-w-7xl px-3 sm:px-6">
-        <div className="grid grid-cols-3 gap-1 sm:gap-6 rounded-xs border border-neutral-200 dark:border-neutral-850 bg-neutral-50/80 dark:bg-neutral-900/50 p-3 sm:p-8 text-center items-start">
+        <div className="grid grid-cols-3 gap-1 sm:gap-6 rounded-sm border border-brand-brown-medium/20 bg-neutral-50/80 dark:bg-brand-brown-dark/20 p-3 sm:p-8 text-center items-start">
           <div className="flex flex-col items-center space-y-1 sm:space-y-2 px-0.5 sm:px-4">
-            <Sparkles className="text-black dark:text-white mb-1 w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.5} />
-            <h3 className="text-[9px] sm:text-xs font-extrabold tracking-wider uppercase text-black dark:text-white leading-tight">
-              PREMIUM QUALITY
+            <Sparkles className="text-brand-gold mb-1 w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.5} />
+            <h3 className="text-[9px] sm:text-xs font-bold tracking-wider uppercase text-brand-brown-dark dark:text-brand-cream leading-tight">
+              PREMIUM CRAFTSMANSHIP
             </h3>
             <p className="text-[8px] sm:text-xs font-light text-neutral-500 dark:text-neutral-400 max-w-xs leading-tight sm:leading-relaxed">
-              100% premium cotton fabric.
+              Meticulously designed with precious metals and fine gems.
             </p>
           </div>
-          <div className="flex flex-col items-center space-y-1 sm:space-y-2 px-0.5 sm:px-4 border-l border-neutral-200 dark:border-neutral-800">
-            <Truck className="text-black dark:text-white mb-1 w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.5} />
-            <h3 className="text-[9px] sm:text-xs font-extrabold tracking-wider uppercase text-black dark:text-white leading-tight">
-              EXPRESS SHIPPING
+          <div className="flex flex-col items-center space-y-1 sm:space-y-2 px-0.5 sm:px-4 border-l border-brand-brown-medium/20">
+            <Truck className="text-brand-gold mb-1 w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.5} />
+            <h3 className="text-[9px] sm:text-xs font-bold tracking-wider uppercase text-brand-brown-dark dark:text-brand-cream leading-tight">
+              INSURED SHIPPING
             </h3>
             <p className="text-[8px] sm:text-xs font-light text-neutral-500 dark:text-neutral-400 max-w-xs leading-tight sm:leading-relaxed">
-              Fast delivery across India.
+              Complimentary shipping on orders above ₹5,000.
             </p>
           </div>
-          <div className="flex flex-col items-center space-y-1 sm:space-y-2 px-0.5 sm:px-4 border-l border-neutral-200 dark:border-neutral-800">
-            <ShieldCheck className="text-black dark:text-white mb-1 w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.5} />
-            <h3 className="text-[9px] sm:text-xs font-extrabold tracking-wider uppercase text-black dark:text-white leading-tight">
-              SECURE ORDERING
+          <div className="flex flex-col items-center space-y-1 sm:space-y-2 px-0.5 sm:px-4 border-l border-brand-brown-medium/20">
+            <ShieldCheck className="text-brand-gold mb-1 w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.5} />
+            <h3 className="text-[9px] sm:text-xs font-bold tracking-wider uppercase text-brand-brown-dark dark:text-brand-cream leading-tight">
+              SECURE CHECKOUT
             </h3>
             <p className="text-[8px] sm:text-xs font-light text-neutral-500 dark:text-neutral-400 max-w-xs leading-tight sm:leading-relaxed">
-              Direct WhatsApp checkout.
+              Direct checkout and inquiry via WhatsApp.
             </p>
           </div>
         </div>
@@ -493,8 +493,8 @@ export default function HomeClient({
             <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
               SHOP THE LOOK
             </span>
-            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase mt-0.5">
-              {extractInstagramHandle(settings?.instagram) || "@_TEEX"}
+            <h2 className="text-2xl md:text-3xl font-serif-luxury font-light tracking-wide text-brand-brown-dark dark:text-brand-cream uppercase mt-0.5">
+              {extractInstagramHandle(settings?.instagram) || "@nethieljewelry"}
             </h2>
           </div>
           <a
@@ -605,24 +605,24 @@ export default function HomeClient({
 
       {/* 6. WHATSAPP ORDER CTA SECTION */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-xs border border-neutral-200 dark:border-neutral-850 bg-gradient-to-r from-neutral-50 via-white to-neutral-100 dark:from-neutral-900 dark:via-neutral-950 dark:to-neutral-900 p-5 sm:p-8 md:p-12 flex flex-row items-center justify-between gap-3 sm:gap-6">
+        <div className="relative overflow-hidden rounded-sm border border-brand-brown-medium/20 bg-gradient-to-r from-brand-cream via-[#fcfbf9] to-brand-cream dark:from-brand-brown-dark/40 dark:via-neutral-950 dark:to-brand-brown-dark/40 p-5 sm:p-8 md:p-12 flex flex-row items-center justify-between gap-3 sm:gap-6">
           {/* Left Text Content */}
           <div className="w-7/12 sm:w-1/2 space-y-2 sm:space-y-3 text-left z-10">
-            <span className="block text-[9px] sm:text-[10px] font-bold tracking-[0.2em] sm:tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
+            <span className="block text-[9px] sm:text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
               HAVE QUESTIONS?
             </span>
-            <h2 className="text-base sm:text-2xl md:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase leading-tight">
+            <h2 className="text-base sm:text-2xl md:text-3xl font-serif-luxury font-light tracking-wide text-brand-brown-dark dark:text-brand-cream uppercase leading-tight">
               ORDER ON WHATSAPP
             </h2>
-            <p className="text-[10px] sm:text-xs font-light text-neutral-600 dark:text-neutral-400 leading-normal sm:leading-relaxed">
-              Chat with us directly and place your order in seconds.
+            <p className="text-[10px] sm:text-xs font-light text-neutral-600 dark:text-[#a6958a] leading-normal sm:leading-relaxed">
+              Connect with our design curators directly and place your order in seconds.
             </p>
             <div className="pt-1">
               <a
                 href={`https://wa.me/${settings?.whatsapp?.replace(/[^\d]/g, "") || ""}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center space-x-2 bg-black text-white dark:bg-white dark:text-black px-3.5 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-xs font-bold tracking-widest uppercase hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all rounded-xs shadow-xs"
+                className="inline-flex items-center space-x-2 bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark px-3.5 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-xs font-semibold tracking-widest uppercase hover:bg-brand-brown-medium dark:hover:bg-brand-gold-dark transition-all rounded-sm shadow-md"
               >
                 <span>CHAT NOW</span>
                 <MessageCircle size={13} className="sm:w-[15px] sm:h-[15px]" />

@@ -59,7 +59,7 @@ export default function PurchaseSheet({
   const [shippingCharge, setShippingCharge] = useState<number | null>(null);
   const [shippingLoading, setShippingLoading] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>(DEFAULT_WHATSAPP_NUMBER);
-  const [shopName, setShopName] = useState<string>("TEEX");
+  const [shopName, setShopName] = useState<string>("NETHIEL JEWELRY");
   const [settingsLoading, setSettingsLoading] = useState(true);
   const [settingsError, setSettingsError] = useState(false);
   const [sending, setSending] = useState(false);
@@ -86,7 +86,7 @@ export default function PurchaseSheet({
   useEffect(() => {
     if (!isOpen) return;
 
-    let isMounted = true;
+    const isMounted = true;
 
     async function fetchSettings() {
       setSettingsLoading(true);
@@ -102,7 +102,7 @@ export default function PurchaseSheet({
         if (error) throw error;
         if (data && isMounted) {
           setWhatsappNumber(data.whatsapp || DEFAULT_WHATSAPP_NUMBER);
-          setShopName(data.shop_name || "TEEX");
+          setShopName(data.shop_name || "NETHIEL JEWELRY");
         }
       } catch {
         setSettingsError(true);

@@ -10,7 +10,7 @@ export default function ThemeToggle() {
 
   // Avoid hydration mismatch by only rendering once client is mounted
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => setMounted(true), 0);
   }, []);
 
   if (!mounted) {

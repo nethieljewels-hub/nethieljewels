@@ -18,7 +18,7 @@ interface ProductFormProps {
   productId?: string;
 }
 
-const DEFAULT_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+const DEFAULT_SIZES = ["6", "7", "8", "9", "16\"", "18\"", "20\"", "One Size"];
 
 export default function ProductForm({ productId }: ProductFormProps) {
   const router = useRouter();
@@ -271,7 +271,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe craftsmanship, stitching, fit layout and material composition details..."
+            placeholder="Describe craftsmanship, metal specifications, gem details, size chart guidelines, and certifications..."
             className="mt-1 block w-full rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-sm text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
           />
         </div>
@@ -335,7 +335,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
         {/* Sizes */}
         <div>
           <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase mb-1">
-            Sizes
+            Sizes / Lengths
           </label>
           <div className="flex flex-wrap gap-2 mb-3">
             {sizes.map((s) => (
@@ -361,7 +361,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
               value={sizeInput}
               onChange={(e) => setSizeInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddSize(sizeInput))}
-              placeholder="Type custom size (e.g. S, Custom-Fit)"
+              placeholder="Type custom size (e.g. 6, 18 inch, Custom)"
               className="flex-1 rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-xs text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
             />
             <button
@@ -393,7 +393,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
         {/* Colors */}
         <div>
           <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase mb-1">
-            Colors
+            Metals / Gemstones
           </label>
           <div className="flex flex-wrap gap-2 mb-3">
             {colors.map((c) => (
@@ -421,7 +421,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
               onKeyDown={(e) =>
                 e.key === "Enter" && (e.preventDefault(), handleAddColor(colorInput))
               }
-              placeholder="Type color (e.g. Jet Black, #000000)"
+              placeholder="Type metal/gemstone (e.g. 18K Gold, Sterling Silver, Rose Gold)"
               className="flex-1 rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-xs text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
             />
             <button

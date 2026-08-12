@@ -36,13 +36,14 @@ export default function SettingsPage() {
       showToast(error.message, "error");
     } else if (data) {
       setShopName(data.shop_name);
-      setLogo(data.logo || "/images/logo.png");
+      // Store actual DB value — null means no custom logo set (fallback shown by UI only)
+      setLogo(data.logo || null);
       setEmail(data.email || "");
       setPhone(data.phone || DEFAULT_WHATSAPP_DISPLAY_PHONE);
       setWhatsapp(data.whatsapp || DEFAULT_WHATSAPP_NUMBER);
-      setInstagram(data.instagram || "https://instagram.com/__teex");
+      setInstagram(data.instagram || "https://instagram.com/nethieljewelry");
       setFacebook(data.facebook || "");
-      setAddress(data.address || "Vengara, Tharayittal 676304");
+      setAddress(data.address || "Nethiel Luxury Studio, Kochi, Kerala, 682020");
     }
     setLoading(false);
   }, [supabase, showToast]);
@@ -66,7 +67,7 @@ export default function SettingsPage() {
     const { error } = await supabase.from("settings").upsert({
       id: true,
       shop_name: shopName,
-      logo,
+      logo: logo ?? null,  // explicitly null when deleted \u2014 clears the DB field
       email: email || null,
       phone: phone || null,
       whatsapp: whatsapp || null,
@@ -108,6 +109,12 @@ export default function SettingsPage() {
             <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase mb-1">
               Shop Logo
             </label>
+            {/* Show fallback hint when no logo is saved */}
+            {!logo && (
+              <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-2 italic">
+                No custom logo set — using default Nethiel logo. Upload a new one below.
+              </p>
+            )}
             <MediaUpload
               bucket="settings"
               value={logo}

@@ -8,7 +8,7 @@ export default function ScrollToTopButton() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => setMounted(true), 0);
     const toggleVisibility = () => {
       if (window.scrollY > 300) {
         setIsVisible(true);

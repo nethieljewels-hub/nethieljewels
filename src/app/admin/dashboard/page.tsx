@@ -59,7 +59,7 @@ export default function DashboardPage() {
           Overview Console
         </span>
         <h1 className="font-serif-luxury text-3xl font-light tracking-wider uppercase mt-1">
-          TEEX Control Desk
+          NETHIEL Control Desk
         </h1>
         <p className="mt-2 text-xs font-light leading-relaxed text-neutral-600 dark:text-neutral-400">
           Select a quick link below to update content, upload banners, edit categories, or adjust

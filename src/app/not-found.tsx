@@ -7,7 +7,7 @@ export default function NotFound() {
       {/* Header spacer */}
       <div className="w-full max-w-5xl">
         <Link href="/" className="font-serif-luxury text-xl tracking-[0.25em] uppercase text-white">
-          TEEX
+          NETHIEL
         </Link>
       </div>
 
@@ -38,7 +38,7 @@ export default function NotFound() {
 
       {/* Footer spacer */}
       <footer className="w-full max-w-5xl text-center text-[9px] tracking-widest uppercase text-neutral-600 font-light">
-        © {new Date().getFullYear()} TEEX CLOTHINGS. ALL RIGHTS RESERVED.
+        © {new Date().getFullYear()} NETHIEL JEWELRY. ALL RIGHTS RESERVED.
       </footer>
     </div>
   );

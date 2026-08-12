@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 /**
- * Premium splash/welcome animation for Teex Clothings.
+ * Premium splash/welcome animation for Nethiel Jewelry.
  * Renders immediately (no flash), plays once per browser session.
  */
 export default function SplashScreen() {
@@ -13,8 +13,8 @@ export default function SplashScreen() {
 
   useEffect(() => {
     // If already shown this session, dismiss immediately
-    if (sessionStorage.getItem("teex_splash_shown")) {
-      setShow(false);
+    if (sessionStorage.getItem("nethiel_splash_shown")) {
+      setTimeout(() => setShow(false), 0);
       return;
     }
 
@@ -25,7 +25,7 @@ export default function SplashScreen() {
     //  3200ms   – unmount overlay
     const taglineTimer = setTimeout(() => setPhase("tagline"), 1200);
     const exitTimer = setTimeout(() => {
-      sessionStorage.setItem("teex_splash_shown", "1");
+      sessionStorage.setItem("nethiel_splash_shown", "1");
       setPhase("exit");
     }, 2400);
     const unmountTimer = setTimeout(() => setShow(false), 3200);

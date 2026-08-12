@@ -39,7 +39,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   // Auto focus input when modal opens & fetch data
   useEffect(() => {
     if (!isOpen) {
-      setQuery("");
+      setTimeout(() => setQuery(""), 0);
       return;
     }
 
@@ -181,13 +181,16 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               {matchingProducts.length === 0 ? (
                 <div className="py-10 text-center space-y-2">
                   <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                    No products matching &quot;<span className="font-semibold text-black dark:text-white">{query}</span>&quot;
+                    No jewelry matching &quot;<span className="font-semibold text-black dark:text-white">{query}</span>&quot;
+                  </p>
+                  <p className="text-xs text-neutral-400 font-light">
+                    Try searching for another piece, collection, or category.
                   </p>
                   <button
                     onClick={() => handleSearchSubmit("")}
-                    className="text-xs font-semibold text-black dark:text-white underline hover:opacity-80 cursor-pointer"
+                    className="text-xs font-semibold text-brand-gold underline hover:opacity-80 cursor-pointer pt-1 block mx-auto"
                   >
-                    View all products
+                    View all collections
                   </button>
                 </div>
               ) : (

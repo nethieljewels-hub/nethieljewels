@@ -6,8 +6,8 @@ import { DEFAULT_WHATSAPP_NUMBER, DEFAULT_WHATSAPP_DISPLAY_PHONE } from "@/utils
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "Contact Us | TEEX Clothings",
-  description: "Get in touch with TEEX Clothings via WhatsApp, Phone, Email, or Instagram. Direct order & customer support lines.",
+  title: "Contact Us | Nethiel Jewelry",
+  description: "Get in touch with Nethiel Jewelry via WhatsApp, Phone, Email, or Instagram. Direct order & customer support lines.",
 };
 
 export default async function ContactPage() {
@@ -22,8 +22,8 @@ export default async function ContactPage() {
   const whatsappPhone = settings?.whatsapp || DEFAULT_WHATSAPP_NUMBER;
   const whatsappClean = whatsappPhone.replace(/[^\d]/g, "");
   const displayPhone = settings?.phone || settings?.whatsapp || DEFAULT_WHATSAPP_DISPLAY_PHONE;
-  const emailAddr = settings?.email || "teexclothings@gmail.com";
-  const instaUrl = settings?.instagram || "https://instagram.com/__teex";
+  const emailAddr = settings?.email || "support@nethieljewelry.com";
+  const instaUrl = settings?.instagram || "https://instagram.com/nethieljewelry";
   const addressText = settings?.address || "Vengara, Tharayittal 676304";
 
   return (
@@ -144,10 +144,20 @@ export default async function ContactPage() {
               INSTAGRAM DM
             </h2>
             <p className="text-xs text-neutral-500 dark:text-neutral-400 font-light leading-relaxed">
-              DM us on Instagram for latest drops, outfit features & support.
+              DM us on Instagram for latest collections, custom orders & support.
             </p>
             <p className="text-xs font-semibold text-black dark:text-white pt-1">
-              @__teex
+              {settings?.instagram
+                ? (() => {
+                    try {
+                      const path = new URL(settings.instagram).pathname.replace(/\/+$/, "");
+                      const handle = path.split("/").pop();
+                      return handle ? `@${handle}` : settings.instagram;
+                    } catch {
+                      return settings.instagram;
+                    }
+                  })()
+                : "@nethieljewelry"}
             </p>
           </div>
           <a
