@@ -43,21 +43,21 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
         href={`/products/${product.slug}`}
         className="block focus:outline-none"
       >
-        <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-850 rounded-xs flex items-center justify-center">
+        <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-850 rounded-xl sm:rounded-2xl flex items-center justify-center">
           {/* Top Left Badges */}
           <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1 items-start">
             {product.is_out_of_stock && (
-              <span className="bg-red-600 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-xs shadow-sm">
+              <span className="bg-red-600 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-sm">
                 OUT OF STOCK
               </span>
             )}
             {hasOffer && !product.is_out_of_stock && (
-              <span className="bg-emerald-600 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-xs shadow-sm">
+              <span className="bg-emerald-600 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-sm">
                 {discountPercentage}% OFF
               </span>
             )}
             {product.featured && !product.is_out_of_stock && (
-              <span className="bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-xs shadow-sm">
+              <span className="bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-sm">
                 BEST SELLER
               </span>
             )}

@@ -13,6 +13,7 @@ import {
   Settings,
   User,
   LogOut,
+  Video,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { href: "/admin/products", label: "Products", icon: ShoppingBag },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/hero-banners", label: "Hero Banners", icon: ImageIcon },
+  { href: "/admin/reels", label: "Video Reels", icon: Video },
   { href: "/admin/shipping", label: "Shipping Rates", icon: Truck },
   { href: "/admin/settings", label: "Shop Settings", icon: Settings },
   { href: "/admin/profile", label: "Profile", icon: User },
@@ -44,7 +46,7 @@ export default function AdminSidebar({ isOpen = false, onClose }: SidebarProps) 
       <div className="space-y-8">
         <div>
           <img
-            src="/images/logo-nethiel.jpeg"
+            src="/images/logo-latest.png"
             alt="NETHIEL Logo"
             className="h-8 sm:h-10 w-auto object-contain"
           />

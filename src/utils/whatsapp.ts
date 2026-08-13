@@ -3,8 +3,6 @@ interface WhatsAppMessageParams {
   category: string;
   productPrice: number;
   quantity: number;
-  selectedSize: string;
-  selectedColor: string;
   stateName: string;
   shippingCharge: number;
   grandTotal: number;
@@ -33,8 +31,6 @@ export function generateWhatsAppMessage(params: WhatsAppMessageParams): string {
     `💰 Price: ₹${params.productPrice.toFixed(2)}`,
     `📦 Quantity: ${params.quantity}`,
     `💵 Subtotal: ₹${subtotal.toFixed(2)}`,
-    `📏 Size/Length: ${params.selectedSize}`,
-    `🎨 Metal/Gemstone: ${params.selectedColor}`,
     "------------------",
     "",
     line,

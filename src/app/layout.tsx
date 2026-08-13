@@ -25,24 +25,24 @@ export const viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "TEEX | Premium Luxury Clothing",
-    template: "%s | TEEX",
+    default: "Nethiel Jewelry | Premium Handcrafted Jewelry",
+    template: "%s | Nethiel Jewelry",
   },
   description:
-    "Experience bespoke minimalist clothing. Timeless collections crafted for the contemporary wardrobe with elegant craftsmanship.",
-  metadataBase: new URL("https://teexclothings.com"),
+    "Discover timeless elegance at Nethiel Jewelry. Explore premium gold, silver, and gemstone jewelry collections crafted to celebrate life's most beautiful moments.",
+  metadataBase: new URL("https://nethieljewelry.com"),
   openGraph: {
-    title: "TEEX | Premium Luxury Clothing",
-    description: "Discover timeless minimalist silhouettes and premium quality clothing.",
-    url: "https://teexclothings.com",
-    siteName: "TEEX",
-    locale: "en_US",
+    title: "Nethiel Jewelry | Premium Handcrafted Jewelry",
+    description: "Explore premium gold, silver, and gemstone jewelry collections — crafted for life's most precious moments.",
+    url: "https://nethieljewelry.com",
+    siteName: "Nethiel Jewelry",
+    locale: "en_IN",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "TEEX | Premium Luxury Clothing",
-    description: "Discover timeless minimalist silhouettes and premium quality clothing.",
+    title: "Nethiel Jewelry | Premium Handcrafted Jewelry",
+    description: "Explore premium gold, silver, and gemstone jewelry collections — crafted for life's most precious moments.",
   },
   icons: {
     icon: "/icon.png",

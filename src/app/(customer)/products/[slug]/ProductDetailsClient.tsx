@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Star, ShoppingBag, ZoomIn, ZoomOut, AlertTriangle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, ShoppingBag, ZoomIn, ZoomOut } from "lucide-react";
 import PurchaseSheet from "@/components/purchase/PurchaseSheet";
 import StateDropdown from "@/components/ui/StateDropdown";
 import { createClient } from "@/utils/supabase/client";
@@ -20,8 +20,6 @@ interface Product {
   is_out_of_stock?: boolean;
   featured: boolean;
   images: string[];
-  sizes: string[];
-  colors: string[];
   categories?: {
     name: string;
   };
@@ -34,16 +32,11 @@ interface ProductDetailsClientProps {
 
 export default function ProductDetailsClient({ product, recommendedProducts }: ProductDetailsClientProps) {
   const [activeImage, setActiveImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
-  const [sizeError, setSizeError] = useState("");
-  const [colorError, setColorError] = useState("");
   const [zoomed, setZoomed] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedState, setSelectedState] = useState("");
   const [shippingCharge, setShippingCharge] = useState<number | null>(null);
-  const [toastError, setToastError] = useState("");
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const origPrice = product.original_price ?? product.price ?? 0;
@@ -178,45 +171,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
 
   function handleBuyNow() {
     if (product.is_out_of_stock) return;
-
-    let hasError = false;
-    setSizeError("");
-    setColorError("");
-
-    if (product.sizes.length > 0 && !selectedSize) {
-      setSizeError("Please select a size / length");
-      hasError = true;
-    }
-    if (product.colors.length > 0 && !selectedColor) {
-      setColorError("Please select a metal / gemstone");
-      hasError = true;
-    }
-
-    if (hasError) {
-      const errorMsg =
-        product.sizes.length > 0 && !selectedSize && product.colors.length > 0 && !selectedColor
-          ? "Please select size/length and metal/gemstone"
-          : product.sizes.length > 0 && !selectedSize
-          ? "Please select a size / length"
-          : "Please select a metal / gemstone";
-
-      setToastError(errorMsg);
-
-      // Smooth scroll to selection section
-      const section = document.getElementById("product-info-column");
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-
-      // Clear toast after 3.5 seconds
-      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-      toastTimeoutRef.current = setTimeout(() => {
-        setToastError("");
-      }, 3550);
-    } else {
-      setToastError("");
-      setSheetOpen(true);
-    }
+    setSheetOpen(true);
   }
 
   return (
@@ -416,73 +371,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
 
             <div className="hidden md:block h-[1px] bg-neutral-250 dark:bg-neutral-850" />
 
-            {/* Size picker */}
-            {product.sizes.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="text-[10px] sm:text-[9px] uppercase tracking-widest text-neutral-500 font-semibold">
-                  Select Size / Length
-                </h4>
-                <div className="flex flex-wrap gap-2.5">
-                  {product.sizes.map((sz) => (
-                    <button
-                      key={sz}
-                      disabled={product.is_out_of_stock}
-                      onClick={() => {
-                        setSelectedSize(sz);
-                        setSizeError("");
-                      }}
-                      className={`px-5 sm:px-4 py-2.5 sm:py-2 border text-xs sm:text-[9px] font-mono font-semibold uppercase rounded-sm transition-all cursor-pointer active:animate-scale-tap ${
-                        selectedSize === sz
-                          ? "bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark border-brand-brown-dark dark:border-brand-gold shadow-md"
-                          : "bg-transparent text-neutral-600 dark:text-neutral-450 border-neutral-300 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 hover:text-black dark:hover:text-white"
-                      } ${product.is_out_of_stock ? "opacity-50 cursor-not-allowed" : ""}`}
-                    >
-                      {sz}
-                    </button>
-                  ))}
-                </div>
-                {sizeError && (
-                  <p className="text-[10px] text-red-655 dark:text-red-450 font-light tracking-wide" role="alert">
-                    {sizeError}
-                  </p>
-                )}
-              </div>
-            )}
 
-            {/* Color picker */}
-            {product.colors.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="text-[10px] sm:text-[9px] uppercase tracking-widest text-neutral-500 font-semibold">
-                  Metal / Gemstone
-                </h4>
-                <div className="flex flex-wrap gap-2.5">
-                  {product.colors.map((col) => (
-                    <button
-                      key={col}
-                      disabled={product.is_out_of_stock}
-                      onClick={() => {
-                        setSelectedColor(col);
-                        setColorError("");
-                      }}
-                      className={`px-5 sm:px-4 py-2.5 sm:py-2 border text-xs sm:text-[9px] uppercase tracking-widest font-semibold rounded-sm transition-all cursor-pointer active:animate-scale-tap ${
-                        selectedColor === col
-                          ? "bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark border-brand-brown-dark dark:border-brand-gold shadow-md"
-                          : "bg-transparent text-neutral-600 dark:text-neutral-455 border-neutral-300 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 hover:text-black dark:hover:text-white"
-                      } ${product.is_out_of_stock ? "opacity-50 cursor-not-allowed" : ""}`}
-                    >
-                      {col}
-                    </button>
-                  ))}
-                </div>
-                {colorError && (
-                  <p className="text-[10px] text-red-655 dark:text-red-450 font-light tracking-wide" role="alert">
-                    {colorError}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Mobile-only Price */}
             <div className="md:hidden space-y-1">
               <h4 className="text-[9px] uppercase tracking-widest text-neutral-500 font-semibold">
                 Price
@@ -645,10 +534,10 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
       {recommendedProducts && recommendedProducts.length > 0 && (
         <div className="mx-auto max-w-7xl px-6 pb-16 space-y-8 select-none">
           <div className="border-t border-neutral-200 dark:border-neutral-850 pt-16">
-            <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 uppercase">
+            <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
               Curated For You
             </span>
-            <h2 className="text-2xl font-serif-luxury font-light tracking-wide text-black dark:text-white uppercase mt-1">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase mt-0.5">
               Recommended Products
             </h2>
           </div>
@@ -666,20 +555,12 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
         onClose={() => setSheetOpen(false)}
         product={product}
         productSlug={product.slug}
-        selectedSize={selectedSize || "Not specified"}
-        selectedColor={selectedColor || "Not specified"}
         quantity={quantity}
         initialState={selectedState}
         initialShippingCharge={shippingCharge}
       />
 
-      {/* Floating Error Toast */}
-      {toastError && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[2000] bg-red-700 dark:bg-red-950 text-white dark:text-red-200 border border-red-800 dark:border-red-900 px-6 py-3.5 rounded-sm shadow-2xl flex items-center space-x-3 backdrop-blur-md animate-fade-in max-w-sm w-[90%] md:w-auto">
-          <AlertTriangle size={14} className="text-white dark:text-red-400 flex-shrink-0 animate-bounce" />
-          <span className="text-[10px] font-semibold tracking-wider uppercase font-mono">{toastError}</span>
-        </div>
-      )}
+
     </>
   );
 }

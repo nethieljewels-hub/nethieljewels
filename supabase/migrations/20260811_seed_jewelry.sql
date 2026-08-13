@@ -58,7 +58,7 @@ ON CONFLICT (state_name) DO UPDATE SET
   is_active = EXCLUDED.is_active;
 
 -- 5. SEED PREMIUM JEWELRY PRODUCTS WITH INDIAN RUPEES PRICING
-INSERT INTO public.products (id, title, slug, description, original_price, selling_price, is_out_of_stock, category_id, sizes, colors, images, featured, active)
+INSERT INTO public.products (id, title, slug, description, original_price, selling_price, is_out_of_stock, category_id, images, featured, active, product_code)
 VALUES
   (
     '11111111-1111-1111-1111-111111111111',
@@ -69,11 +69,10 @@ VALUES
     39999.00,
     false,
     'c1c1c1c1-1c1c-1c1c-1c1c-1c1c1c1c1c1c',
-    ARRAY['6', '7', '8', '9']::text[],
-    ARRAY['18K Gold', 'Rose Gold', 'Platinum']::text[],
     ARRAY['https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=600&auto=format&fit=crop']::text[],
     true,
-    true
+    true,
+    'NJ-RING-001'
   ),
   (
     '22222222-2222-2222-2222-222222222222',
@@ -84,11 +83,10 @@ VALUES
     54999.00,
     false,
     'd2d2d2d2-2d2d-2d2d-2d2d-2d2d2d2d2d2d',
-    ARRAY['16 inch', '18 inch', '20 inch']::text[],
-    ARRAY['18K Gold', 'Rose Gold']::text[],
     ARRAY['https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=600&auto=format&fit=crop']::text[],
     true,
-    true
+    true,
+    'NJ-NECK-001'
   ),
   (
     '33333333-3333-3333-3333-333333333333',
@@ -99,11 +97,10 @@ VALUES
     24999.00,
     false,
     'e3e3e3e3-3e3e-3e3e-3e3e-3e3e3e3e3e3e',
-    ARRAY['One Size']::text[],
-    ARRAY['18K Gold', 'White Gold']::text[],
     ARRAY['https://images.unsplash.com/photo-1635767798638-3e25273a8236?q=80&w=600&auto=format&fit=crop']::text[],
     true,
-    true
+    true,
+    'NJ-EAR-001'
   ),
   (
     '44444444-4444-4444-4444-444444444444',
@@ -114,11 +111,10 @@ VALUES
     14999.00,
     false,
     'b4b4b4b4-4b4b-4b4b-4b4b-4b4b4b4b4b4b',
-    ARRAY['7 inch', '8 inch']::text[],
-    ARRAY['Sterling Silver', '18K Gold Vermeil']::text[],
     ARRAY['https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=600&auto=format&fit=crop']::text[],
     true,
-    true
+    true,
+    'NJ-BRAC-001'
   ),
   (
     '55555555-5555-5555-5555-555555555555',
@@ -129,9 +125,8 @@ VALUES
     29999.00,
     false,
     'c1c1c1c1-1c1c-1c1c-1c1c-1c1c1c1c1c1c',
-    ARRAY['6', '7', '8', '9']::text[],
-    ARRAY['18K Gold', 'White Gold', 'Platinum']::text[],
     ARRAY['https://images.unsplash.com/photo-1603561591411-07134e71a2a9?q=80&w=600&auto=format&fit=crop']::text[],
     false,
-    true
+    true,
+    'NJ-RING-002'
   );

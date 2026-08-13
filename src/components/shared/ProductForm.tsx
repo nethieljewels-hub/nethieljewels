@@ -7,7 +7,7 @@ import { useToast } from "@/context/ToastContext";
 import MediaUpload from "@/components/ui/MediaUpload";
 import CustomSelect from "@/components/ui/CustomSelect";
 import { FormSkeleton } from "@/components/ui/Skeletons";
-import { Save, Plus } from "lucide-react";
+import { Save } from "lucide-react";
 
 interface Category {
   id: string;
@@ -18,7 +18,7 @@ interface ProductFormProps {
   productId?: string;
 }
 
-const DEFAULT_SIZES = ["6", "7", "8", "9", "16\"", "18\"", "20\"", "One Size"];
+
 
 export default function ProductForm({ productId }: ProductFormProps) {
   const router = useRouter();
@@ -37,15 +37,10 @@ export default function ProductForm({ productId }: ProductFormProps) {
   const [sellingPrice, setSellingPrice] = useState("");
   const [isOutOfStock, setIsOutOfStock] = useState(false);
   const [categoryId, setCategoryId] = useState("");
-  const [sizes, setSizes] = useState<string[]>([]);
-  const [colors, setColors] = useState<string[]>([]);
+  const [productCode, setProductCode] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [featured, setFeatured] = useState(false);
   const [active, setActive] = useState(true);
-
-  // Tag inputs
-  const [sizeInput, setSizeInput] = useState("");
-  const [colorInput, setColorInput] = useState("");
 
   const isEditing = !!productId;
 
@@ -81,8 +76,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
         setSellingPrice(prod.selling_price !== null && prod.selling_price !== undefined ? prod.selling_price.toString() : "");
         setIsOutOfStock(!!prod.is_out_of_stock);
         setCategoryId(prod.category_id);
-        setSizes(prod.sizes || []);
-        setColors(prod.colors || []);
+        setProductCode(prod.product_code || "");
         setImages(prod.images || []);
         setFeatured(prod.featured);
         setActive(prod.active);
@@ -113,37 +107,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
     }
   };
 
-  // Add Size Tag
-  const handleAddSize = (val: string) => {
-    const clean = val.trim().toUpperCase();
-    if (!clean) return;
-    if (sizes.includes(clean)) {
-      showToast("Size already added.", "error");
-      return;
-    }
-    setSizes((prev) => [...prev, clean]);
-    setSizeInput("");
-  };
 
-  const handleRemoveSize = (val: string) => {
-    setSizes((prev) => prev.filter((s) => s !== val));
-  };
-
-  // Add Color Tag
-  const handleAddColor = (val: string) => {
-    const clean = val.trim();
-    if (!clean) return;
-    if (colors.includes(clean)) {
-      showToast("Color already added.", "error");
-      return;
-    }
-    setColors((prev) => [...prev, clean]);
-    setColorInput("");
-  };
-
-  const handleRemoveColor = (val: string) => {
-    setColors((prev) => prev.filter((c) => c !== val));
-  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,6 +116,16 @@ export default function ProductForm({ productId }: ProductFormProps) {
 
     if (!title || !slug || isNaN(origPriceNum) || origPriceNum < 0 || !categoryId) {
       showToast("Please fill all required fields correctly.", "error");
+      return;
+    }
+
+    if (!productCode.trim()) {
+      showToast("Product code is required.", "error");
+      return;
+    }
+
+    if (productCode.trim().length < 2) {
+      showToast("Product code must be at least 2 characters.", "error");
       return;
     }
 
@@ -180,8 +154,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
       selling_price: sellingPriceNum,
       is_out_of_stock: isOutOfStock,
       category_id: categoryId,
-      sizes,
-      colors,
+      product_code: productCode.trim(),
       images,
       featured,
       active,
@@ -276,7 +249,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
               Original Price (₹) <span className="text-red-500">*</span>
@@ -323,114 +296,19 @@ export default function ProductForm({ productId }: ProductFormProps) {
               }))}
             />
           </div>
-        </div>
-      </div>
 
-      {/* Sizing & Colors block */}
-      <div className="rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-50 dark:bg-neutral-900/50 p-6 space-y-6">
-        <h2 className="text-xs font-semibold tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
-          Attributes Configuration
-        </h2>
-
-        {/* Sizes */}
-        <div>
-          <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase mb-1">
-            Sizes / Lengths
-          </label>
-          <div className="flex flex-wrap gap-2 mb-3">
-            {sizes.map((s) => (
-              <span
-                key={s}
-                className="flex items-center space-x-1 border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-950 px-2 py-1 text-[9px] font-mono font-semibold uppercase text-black dark:text-white rounded-sm"
-              >
-                <span>{s}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveSize(s)}
-                  className="text-neutral-500 hover:text-black dark:text-white focus:outline-none cursor-pointer"
-                >
-                  ✕
-                </button>
-              </span>
-            ))}
-          </div>
-
-          <div className="flex space-x-2">
+          <div>
+            <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
+              Product Code <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
-              value={sizeInput}
-              onChange={(e) => setSizeInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddSize(sizeInput))}
-              placeholder="Type custom size (e.g. 6, 18 inch, Custom)"
-              className="flex-1 rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-xs text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
+              required
+              value={productCode}
+              onChange={(e) => setProductCode(e.target.value)}
+              placeholder="e.g. NJ-NECK-001"
+              className="mt-1 block w-full rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-sm text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
             />
-            <button
-              type="button"
-              onClick={() => handleAddSize(sizeInput)}
-              className="flex items-center justify-center border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 text-neutral-600 dark:text-neutral-400 hover:text-black dark:text-white hover:border-neutral-500 px-4 py-2 rounded-sm focus:outline-none cursor-pointer"
-            >
-              <Plus size={12} />
-            </button>
-          </div>
-
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            <span className="text-[9px] tracking-wider uppercase text-neutral-600 self-center mr-1">
-              Suggestions:
-            </span>
-            {DEFAULT_SIZES.map((ds) => (
-              <button
-                key={ds}
-                type="button"
-                onClick={() => handleAddSize(ds)}
-                className="bg-neutral-100 dark:bg-neutral-850 hover:bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-black dark:text-white px-2 py-1 text-[8px] tracking-wider uppercase font-semibold rounded-sm focus:outline-none cursor-pointer"
-              >
-                {ds}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Colors */}
-        <div>
-          <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase mb-1">
-            Metals / Gemstones
-          </label>
-          <div className="flex flex-wrap gap-2 mb-3">
-            {colors.map((c) => (
-              <span
-                key={c}
-                className="flex items-center space-x-1 border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-950 px-2.5 py-1 text-[9px] uppercase tracking-widest font-semibold text-black dark:text-white rounded-sm"
-              >
-                <span>{c}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveColor(c)}
-                  className="text-neutral-500 hover:text-black dark:text-white focus:outline-none cursor-pointer"
-                >
-                  ✕
-                </button>
-              </span>
-            ))}
-          </div>
-
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={colorInput}
-              onChange={(e) => setColorInput(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" && (e.preventDefault(), handleAddColor(colorInput))
-              }
-              placeholder="Type metal/gemstone (e.g. 18K Gold, Sterling Silver, Rose Gold)"
-              className="flex-1 rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-xs text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={() => handleAddColor(colorInput)}
-              className="flex items-center justify-center border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 text-neutral-600 dark:text-neutral-400 hover:text-black dark:text-white hover:border-neutral-500 px-4 py-2 rounded-sm focus:outline-none cursor-pointer"
-            >
-              <Plus size={12} />
-            </button>
           </div>
         </div>
       </div>
