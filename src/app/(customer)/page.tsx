@@ -34,12 +34,20 @@ export default async function HomePage() {
     .eq("id", true)
     .maybeSingle();
 
+  // Fetch active reels for homepage video section
+  const { data: reels } = await supabase
+    .from("reels")
+    .select("id, title, video_url, thumbnail_url, sort_order")
+    .eq("active", true)
+    .order("sort_order", { ascending: true });
+
   return (
     <HomeClient
       initialBanners={banners || []}
       initialCategories={categories || []}
       initialProducts={products || []}
       settings={settings}
+      initialReels={reels || []}
     />
   );
 }

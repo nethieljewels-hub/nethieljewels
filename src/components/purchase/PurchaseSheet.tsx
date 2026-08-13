@@ -26,8 +26,6 @@ interface PurchaseSheetProps {
   onClose: () => void;
   product: PurchaseProduct;
   productSlug: string;
-  selectedSize: string;
-  selectedColor: string;
   quantity: number;
   initialState?: string;
   initialShippingCharge?: number | null;
@@ -48,8 +46,6 @@ export default function PurchaseSheet({
   onClose,
   product,
   productSlug,
-  selectedSize,
-  selectedColor,
   quantity,
   initialState,
   initialShippingCharge,
@@ -254,8 +250,6 @@ export default function PurchaseSheet({
       category: product.categories?.name || "Uncategorized",
       productPrice: activePrice,
       quantity,
-      selectedSize,
-      selectedColor,
       stateName: formData.state,
       shippingCharge,
       grandTotal,
@@ -298,8 +292,6 @@ export default function PurchaseSheet({
               productImage={productImage}
               productName={product.title}
               category={product.categories?.name || ""}
-              selectedSize={selectedSize}
-              selectedColor={selectedColor}
               productPrice={activePrice}
               quantity={quantity}
               shippingCharge={shippingCharge}

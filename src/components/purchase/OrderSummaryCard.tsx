@@ -6,8 +6,6 @@ interface OrderSummaryCardProps {
   productImage: string;
   productName: string;
   category: string;
-  selectedSize: string;
-  selectedColor: string;
   productPrice: number;
   quantity: number;
   shippingCharge: number | null;
@@ -19,8 +17,6 @@ export default function OrderSummaryCard({
   productImage,
   productName,
   category,
-  selectedSize,
-  selectedColor,
   productPrice,
   quantity,
   shippingCharge,
@@ -57,16 +53,6 @@ export default function OrderSummaryCard({
             <p className="text-[9px] text-neutral-500 tracking-widest uppercase">{category}</p>
           )}
           <div className="flex flex-wrap gap-2 pt-1">
-            {selectedSize && (
-              <span className="text-[8px] uppercase tracking-widest bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-300 px-2 py-0.5 rounded-sm">
-                Size/Length: {selectedSize}
-              </span>
-            )}
-            {selectedColor && (
-              <span className="text-[8px] uppercase tracking-widest bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-300 px-2 py-0.5 rounded-sm">
-                Metal/Gemstone: {selectedColor}
-              </span>
-            )}
             <span className="text-[8px] uppercase tracking-widest bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-300 px-2 py-0.5 rounded-sm">
               Qty: {quantity}
             </span>

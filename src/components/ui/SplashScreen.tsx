@@ -7,22 +7,15 @@ import { useState, useEffect } from "react";
  * Renders immediately (no flash), plays once per browser session.
  */
 export default function SplashScreen() {
-  // Start visible so the splash covers the page on first paint
   const [show, setShow] = useState(true);
   const [phase, setPhase] = useState<"letters" | "tagline" | "exit">("letters");
 
   useEffect(() => {
-    // If already shown this session, dismiss immediately
     if (sessionStorage.getItem("nethiel_splash_shown")) {
       setTimeout(() => setShow(false), 0);
       return;
     }
 
-    // Timeline:
-    //  0ms      – letters animate in (CSS stagger)
-    //  1200ms   – tagline fades in
-    //  2400ms   – mark as shown + begin exit fade
-    //  3200ms   – unmount overlay
     const taglineTimer = setTimeout(() => setPhase("tagline"), 1200);
     const exitTimer = setTimeout(() => {
       sessionStorage.setItem("nethiel_splash_shown", "1");
@@ -39,7 +32,7 @@ export default function SplashScreen() {
 
   if (!show) return null;
 
-  const letters = ["T", "E", "E", "X"];
+  const letters = ["N", "E", "T", "H", "I", "E", "L"];
 
   return (
     <div
@@ -60,15 +53,15 @@ export default function SplashScreen() {
         }`}
       />
 
-      {/* TEEX Letters */}
-      <div className="flex items-center justify-center" aria-label="TEEX">
+      {/* NETHIEL Letters */}
+      <div className="flex items-center justify-center" aria-label="NETHIEL">
         {letters.map((letter, i) => (
           <span
             key={i}
-            className="splash-letter inline-block font-extrabold tracking-[0.15em] text-black dark:text-white uppercase select-none
-              text-6xl sm:text-8xl md:text-9xl lg:text-[10rem]"
+            className="splash-letter inline-block font-serif-luxury font-light tracking-[0.15em] text-[#4A3328] dark:text-white uppercase select-none
+              text-5xl sm:text-7xl md:text-8xl lg:text-9xl"
             style={{
-              animationDelay: `${i * 150}ms`,
+              animationDelay: `${i * 100}ms`,
             }}
           >
             {letter}
@@ -78,18 +71,18 @@ export default function SplashScreen() {
 
       {/* Tagline */}
       <p
-        className={`mt-4 sm:mt-6 text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.3em] sm:tracking-[0.4em] uppercase text-neutral-500 dark:text-neutral-400 transition-all duration-700 ease-out ${
+        className={`mt-4 sm:mt-6 text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.4em] sm:tracking-[0.5em] uppercase text-[#c5a880] transition-all duration-700 ease-out ${
           phase === "tagline" || phase === "exit"
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-3"
         }`}
       >
-        Premium Clothing
+        Premium Jewelry
       </p>
 
-      {/* Animated underline accent */}
+      {/* Animated gold underline accent */}
       <div
-        className={`mt-4 sm:mt-6 h-[2px] bg-black dark:bg-white rounded-full transition-all duration-700 ease-out ${
+        className={`mt-4 sm:mt-6 h-[1.5px] bg-[#c5a880] rounded-full transition-all duration-700 ease-out ${
           phase === "tagline" || phase === "exit" ? "w-16 sm:w-24 opacity-100" : "w-0 opacity-0"
         }`}
       />

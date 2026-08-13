@@ -14,7 +14,6 @@ import {
   CheckCircle2,
   XCircle,
   Image as ImageIcon,
-  ExternalLink,
 } from "lucide-react";
 
 interface HeroBanner {
@@ -46,14 +45,10 @@ export default function HeroBannersPage() {
 
   // Form fields
   const [mediaTab, setMediaTab] = useState<"desktop" | "mobile">("desktop");
-  const [formTitle, setFormTitle] = useState("");
-  const [formSubtitle, setFormSubtitle] = useState("");
   const [formMediaUrl, setFormMediaUrl] = useState<string | null>(null);
   const [formMediaType, setFormMediaType] = useState<"image" | "video">("image");
   const [formMobileMediaUrl, setFormMobileMediaUrl] = useState<string | null>(null);
   const [formMobileMediaType, setFormMobileMediaType] = useState<"image" | "video">("image");
-  const [formButtonText, setFormButtonText] = useState("");
-  const [formButtonLink, setFormButtonLink] = useState("");
   const [formActive, setFormActive] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
 
@@ -88,14 +83,10 @@ export default function HeroBannersPage() {
     setIsEditing(false);
     setSelectedId(null);
     setMediaTab("desktop");
-    setFormTitle("");
-    setFormSubtitle("");
     setFormMediaUrl(null);
     setFormMediaType("image");
     setFormMobileMediaUrl(null);
     setFormMobileMediaType("image");
-    setFormButtonText("");
-    setFormButtonLink("");
     setFormActive(true);
     setModalOpen(true);
   };
@@ -104,14 +95,10 @@ export default function HeroBannersPage() {
     setIsEditing(true);
     setSelectedId(banner.id);
     setMediaTab("desktop");
-    setFormTitle(banner.title || "");
-    setFormSubtitle(banner.subtitle || "");
     setFormMediaUrl(banner.media_url);
     setFormMediaType(banner.media_type);
     setFormMobileMediaUrl(banner.mobile_media_url || null);
     setFormMobileMediaType(banner.mobile_media_type || "image");
-    setFormButtonText(banner.button_text || "");
-    setFormButtonLink(banner.button_link || "");
     setFormActive(banner.active);
     setModalOpen(true);
   };
@@ -126,14 +113,14 @@ export default function HeroBannersPage() {
     setFormLoading(true);
 
     const bannerData = {
-      title: formTitle.trim() || null,
-      subtitle: formSubtitle.trim() || null,
+      title: null,
+      subtitle: null,
       media_url: formMediaUrl,
       media_type: formMediaType,
       mobile_media_url: formMobileMediaUrl || null,
       mobile_media_type: formMobileMediaUrl ? formMobileMediaType : null,
-      button_text: formButtonText.trim() || null,
-      button_link: formButtonLink.trim() || null,
+      button_text: null,
+      button_link: null,
       active: formActive,
     };
 
@@ -221,11 +208,11 @@ export default function HeroBannersPage() {
     }
   };
 
-  const filtered = banners.filter(
-    (b) =>
-      (b.title && b.title.toLowerCase().includes(search.toLowerCase())) ||
-      (b.subtitle && b.subtitle.toLowerCase().includes(search.toLowerCase())),
-  );
+  const filtered = banners.filter((b) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return b.media_url && b.media_url.toLowerCase().includes(q);
+  });
 
   return (
     <div className="space-y-6">
@@ -328,26 +315,7 @@ export default function HeroBannersPage() {
                   </div>
                 </div>
 
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-4">
-                  <div>
-                    <h3 className="text-xs font-semibold tracking-widest text-black dark:text-white uppercase">
-                      {banner.title || "Untitled Banner"}
-                    </h3>
-                    {banner.subtitle && (
-                      <p className="mt-1 text-xs font-light text-neutral-600 dark:text-neutral-400 truncate">
-                        {banner.subtitle}
-                      </p>
-                    )}
-
-                    {banner.button_text && (
-                      <div className="mt-3 inline-flex items-center space-x-1 border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-2.5 py-1 text-[9px] font-medium tracking-widest text-neutral-600 dark:text-neutral-400 uppercase rounded-sm">
-                        <span>{banner.button_text}</span>
-                        {banner.button_link && <ExternalLink size={8} />}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex justify-end space-x-2 pt-2 border-t border-neutral-200 dark:border-neutral-850">
+                <div className="p-4 flex justify-end space-x-2 border-t border-neutral-200 dark:border-neutral-850">
                     <button
                       onClick={() => handleOpenEdit(banner)}
                       className="flex cursor-pointer items-center border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-1.5 text-[9px] uppercase tracking-widest text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-neutral-900 hover:border-neutral-500 rounded-sm focus:outline-none"
@@ -361,7 +329,6 @@ export default function HeroBannersPage() {
                       <Trash2 size={10} className="mr-1" /> Delete
                     </button>
                   </div>
-                </div>
               </div>
             ))}
           </div>
@@ -440,64 +407,6 @@ export default function HeroBannersPage() {
                 </p>
               </div>
             )}
-          </div>
-
-          {/* Copy Content Inputs */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
-                Badge / Tag (e.g. NEW DROP)
-              </label>
-              <input
-                type="text"
-                value={formSubtitle}
-                onChange={(e) => setFormSubtitle(e.target.value)}
-                placeholder="e.g. NEW DROP"
-                className="mt-1 block w-full rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-xs text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
-                Headline Title
-              </label>
-              <input
-                type="text"
-                value={formTitle}
-                onChange={(e) => setFormTitle(e.target.value)}
-                placeholder="e.g. PREMIUM STREETWEAR"
-                className="mt-1 block w-full rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-xs text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
-              Description / Subtitle
-            </label>
-            <input
-              type="text"
-              value={formButtonText}
-              onChange={(e) => setFormButtonText(e.target.value)}
-              placeholder="e.g. Minimal designs. Maximum impact."
-              className="mt-1 block w-full rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-xs text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
-            />
-          </div>
-
-          <div className="flex items-center pt-1">
-            <input
-              id="banner-active"
-              type="checkbox"
-              checked={formActive}
-              onChange={(e) => setFormActive(e.target.checked)}
-              className="h-4 w-4 accent-black dark:accent-white cursor-pointer"
-            />
-            <label
-              htmlFor="banner-active"
-              className="ml-2 text-xs font-light text-neutral-600 dark:text-neutral-400 cursor-pointer"
-            >
-              Banner is active (visible on homepage carousel)
-            </label>
           </div>
 
           <button
