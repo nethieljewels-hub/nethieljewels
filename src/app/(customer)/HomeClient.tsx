@@ -145,6 +145,252 @@ function ReelCard({ reel }: { reel: { id: string; title: string | null; video_ur
   );
 }
 
+// ─── Mobile Reel Card ────────────────────────────────────────────────────────
+// A variant of ReelCard that auto-plays when active and resets when inactive.
+function MobileReelCard({
+  reel,
+  isActive,
+}: {
+  reel: { id: string; title: string | null; video_url: string; thumbnail_url: string | null };
+  isActive: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [muted, setMuted] = useState(true);
+  const [playing, setPlaying] = useState(false);
+
+  // Play/pause based on active state
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (isActive) {
+      v.play().catch(() => {});
+      setPlaying(true);
+    } else {
+      v.pause();
+      v.currentTime = 0;
+      setPlaying(false);
+      setMuted(true);
+      v.muted = true;
+    }
+  }, [isActive]);
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setMuted(videoRef.current.muted);
+    }
+  };
+
+  return (
+    <div className="relative w-full h-full rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-200/40 dark:border-neutral-800/60 shadow-lg">
+      {/* Thumbnail */}
+      {reel.thumbnail_url && !playing && (
+        <img
+          src={reel.thumbnail_url}
+          alt={reel.title || "Reel"}
+          className="absolute inset-0 w-full h-full object-cover z-10"
+        />
+      )}
+
+      {/* Video */}
+      <video
+        ref={videoRef}
+        src={reel.video_url}
+        muted
+        playsInline
+        loop
+        className="w-full h-full object-cover"
+      />
+
+      {/* Play icon when idle */}
+      {!playing && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/25">
+          <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/40 flex items-center justify-center">
+            <Play size={18} className="text-white fill-white ml-0.5" />
+          </div>
+        </div>
+      )}
+
+      {/* Title gradient */}
+      <div className="absolute bottom-0 inset-x-0 z-30 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3">
+        {reel.title && (
+          <p className="text-white text-[10px] font-semibold leading-tight line-clamp-2">
+            {reel.title}
+          </p>
+        )}
+      </div>
+
+      {/* Mute toggle */}
+      {playing && isActive && (
+        <button
+          type="button"
+          onClick={toggleMute}
+          className="absolute top-2.5 right-2.5 z-40 w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white cursor-pointer"
+        >
+          {muted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Mobile Reel Carousel ─────────────────────────────────────────────────────
+/**
+ * Three-slot layout on mobile:
+ *   [LEFT 22vw] [CENTER 54vw] [RIGHT 22vw] = 98vw total (2vw breathing room)
+ *
+ * Each slot is absolutely positioned. The active card goes in CENTER,
+ * prev goes in LEFT, next goes in RIGHT. Arrow + swipe gesture to navigate.
+ * No overflow because every slot has a fixed pixel position.
+ */
+function MobileReelCarousel({ reels }: { reels: Reel[] }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+
+  const total = reels.length;
+  const prev = () => setActiveIndex((i) => (i - 1 + total) % total);
+  const next = () => setActiveIndex((i) => (i + 1) % total);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - (e.changedTouches[0]?.clientX ?? touchStartX.current);
+    if (Math.abs(diff) > 44) diff > 0 ? next() : prev();
+    touchStartX.current = null;
+  };
+
+  if (total === 0) return null;
+
+  if (total === 1 && reels[0]) {
+    return (
+      <div className="flex justify-center px-6">
+        <div className="w-[54vw] aspect-[9/16]">
+          <MobileReelCard reel={reels[0]} isActive />
+        </div>
+      </div>
+    );
+  }
+
+  // Slot widths (vw-based, scales across all phone sizes)
+  // CENTER = 54vw, SIDE = 36vw (~67% of center), gap = 2vw
+  // Total layout = 36+2+54+2+36 = 130vw → startX = -15vw
+  // → Left card bleeds 15vw off-screen left, right card bleeds 15vw off right.
+  // The stage's overflow-hidden clips those edges — no page-level scroll.
+  // Center card position = -15 + 36 + 2 = 23vw  ← unchanged from before.
+  const centerW = 54;  // vw  (do not change)
+  const sideW   = 36;  // vw  (was 22 — increased for visible side cards)
+  const gap     = 2;   // vw  (was 1)
+
+  const totalW  = sideW + gap + centerW + gap + sideW; // 130vw
+  const startX  = (100 - totalW) / 2;                  // -15vw
+  const leftX   = startX;                              // -15vw
+  const centerX = startX + sideW + gap;               //  23vw  ← same as before
+  const rightX  = startX + sideW + gap + centerW + gap; // 79vw
+
+  const centerH = centerW * (16 / 9); // vw
+  const sideH   = sideW  * (16 / 9); // vw
+
+
+  const prevIndex = (activeIndex - 1 + total) % total;
+  const nextIndex = (activeIndex + 1) % total;
+
+  const slots = [
+    { reel: reels[prevIndex]!, slot: "left"  as const },
+    { reel: reels[activeIndex]!, slot: "center" as const },
+    { reel: reels[nextIndex]!,  slot: "right" as const },
+  ];
+
+  return (
+    <div
+      className="relative w-full select-none"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Stage — height = center card height */}
+      <div
+        className="relative w-full overflow-hidden"
+        style={{ height: `${centerH}vw` }}
+      >
+        {slots.map(({ reel, slot }) => {
+          if (!reel) return null;
+
+          const isCenter  = slot === "center";
+          const isLeft    = slot === "left";
+
+          const left   = isLeft ? leftX : isCenter ? centerX : rightX;
+          const width  = isCenter ? centerW : sideW;
+          const height = isCenter ? centerH : sideH;
+          // Vertically center the side cards relative to the stage
+          const top = isCenter ? 0 : (centerH - sideH) / 2;
+
+          return (
+            <div
+              key={`${slot}-${reel.id}`}
+              className="absolute cursor-pointer"
+              style={{
+                left: `${left}vw`,
+                top: `${top}vw`,
+                width: `${width}vw`,
+                height: `${height}vw`,
+                zIndex: isCenter ? 10 : 5,
+                transition: "left 380ms cubic-bezier(0.25,0.46,0.45,0.94), top 380ms cubic-bezier(0.25,0.46,0.45,0.94), width 380ms cubic-bezier(0.25,0.46,0.45,0.94), height 380ms cubic-bezier(0.25,0.46,0.45,0.94), opacity 380ms ease, filter 380ms ease",
+                opacity: isCenter ? 1 : 0.7,
+                filter: isCenter ? "brightness(1)" : "brightness(0.6)",
+              }}
+              onClick={() => {
+                if (slot === "left") prev();
+                if (slot === "right") next();
+              }}
+            >
+              <MobileReelCard reel={reel} isActive={isCenter} />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Left arrow */}
+      <button
+        type="button"
+        onClick={prev}
+        className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 dark:bg-neutral-900/95 border border-neutral-200 dark:border-neutral-800 shadow-md flex items-center justify-center text-neutral-700 dark:text-neutral-300 active:scale-90 transition-transform"
+        aria-label="Previous reel"
+      >
+        <ChevronLeft size={16} />
+      </button>
+
+      {/* Right arrow */}
+      <button
+        type="button"
+        onClick={next}
+        className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 dark:bg-neutral-900/95 border border-neutral-200 dark:border-neutral-800 shadow-md flex items-center justify-center text-neutral-700 dark:text-neutral-300 active:scale-90 transition-transform"
+        aria-label="Next reel"
+      >
+        <ChevronRight size={16} />
+      </button>
+
+      {/* Dot indicators */}
+      <div className="mt-5 flex justify-center gap-2">
+        {reels.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setActiveIndex(i)}
+            className={`rounded-full transition-all duration-300 ${
+              i === activeIndex
+                ? "w-5 h-1.5 bg-neutral-800 dark:bg-white"
+                : "w-1.5 h-1.5 bg-neutral-300 dark:bg-neutral-700"
+            }`}
+            aria-label={`Reel ${i + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** Extract Instagram handle from a URL like https://instagram.com/_teex */
 function extractInstagramHandle(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -692,8 +938,8 @@ export default function HomeClient({
 
       {/* 6. VIDEO REELS SECTION */}
       {initialReels.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 space-y-5">
-          <div className="flex items-end justify-between border-b border-neutral-200 dark:border-neutral-850 pb-3">
+        <section className="mx-auto max-w-7xl space-y-5">
+          <div className="px-4 sm:px-6 flex items-end justify-between border-b border-neutral-200 dark:border-neutral-850 pb-3">
             <div>
               <span className="block text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase mb-1">
                 OUR STORY
@@ -704,8 +950,13 @@ export default function HomeClient({
             </div>
           </div>
 
-          {/* Reels horizontal scroll row */}
-          <div className="flex justify-center gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-hide">
+          {/* Mobile: three-slot carousel – needs full viewport width for vw math */}
+          <div className="sm:hidden w-full overflow-hidden pb-4">
+            <MobileReelCarousel reels={initialReels} />
+          </div>
+
+          {/* Desktop: horizontal scroll row (unchanged) */}
+          <div className="hidden sm:flex justify-center gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-hide px-6">
             {initialReels.map((reel) => (
               <ReelCard key={reel.id} reel={reel} />
             ))}
