@@ -9,7 +9,6 @@ import {
   ShoppingBag,
   FolderTree,
   Image as ImageIcon,
-  Truck,
   Settings,
   User,
   LogOut,
@@ -27,7 +26,6 @@ const NAV_ITEMS = [
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/hero-banners", label: "Hero Banners", icon: ImageIcon },
   { href: "/admin/reels", label: "Video Reels", icon: Video },
-  { href: "/admin/shipping", label: "Shipping Rates", icon: Truck },
   { href: "/admin/settings", label: "Shop Settings", icon: Settings },
   { href: "/admin/profile", label: "Profile", icon: User },
 ];

@@ -9,7 +9,7 @@ interface DeliveryFormProps {
   formData: DeliveryDetails;
   setFormData: (data: DeliveryDetails) => void;
   errors: Record<string, string>;
-  onStateChange: (stateName: string, shippingCharge: number) => void;
+  onStateChange: (stateName: string, shippingCharge?: number) => void;
 }
 
 export default function DeliveryForm({ formData, setFormData, errors, onStateChange }: DeliveryFormProps) {

@@ -6,7 +6,6 @@ import {
   ShoppingBag,
   FolderTree,
   Image as ImageIcon,
-  Truck,
   Settings,
   User,
   ArrowRight,
@@ -30,12 +29,6 @@ const SHORTCUTS = [
     label: "Hero Banners",
     desc: "Configure media carousels and loop videos.",
     icon: ImageIcon,
-  },
-  {
-    href: "/admin/shipping",
-    label: "Shipping Rates",
-    desc: "Set state delivery flat charges dynamically.",
-    icon: Truck,
   },
   {
     href: "/admin/settings",
@@ -63,7 +56,7 @@ export default function DashboardPage() {
         </h1>
         <p className="mt-2 text-xs font-light leading-relaxed text-neutral-600 dark:text-neutral-400">
           Select a quick link below to update content, upload banners, edit categories, or adjust
-          shipping rates.
+          shop settings.
         </p>
       </div>
 

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Star, ShoppingBag, ZoomIn, ZoomOut } from "lucide-react";
 import PurchaseSheet from "@/components/purchase/PurchaseSheet";
 import StateDropdown from "@/components/ui/StateDropdown";
-import { createClient } from "@/utils/supabase/client";
 import { loadDeliveryDetails } from "@/utils/localStorage";
 import CustomerProductCard from "@/components/ui/CustomerProductCard";
 
@@ -63,23 +62,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
     const saved = loadDeliveryDetails();
     if (saved?.state) {
       setTimeout(() => setSelectedState(saved.state), 0);
-      const fetchShipping = async () => {
-        try {
-          const supabase = createClient();
-          const { data } = await supabase
-            .from("shipping_charges")
-            .select("shipping_charge")
-            .eq("state_name", saved.state)
-            .eq("is_active", true)
-            .maybeSingle();
-          if (data) {
-            setShippingCharge(data.shipping_charge);
-          }
-        } catch (e) {
-          console.error("Failed to fetch shipping charge on mount", e);
-        }
-      };
-      fetchShipping();
+      setShippingCharge(0);
     }
   }, []);
 
@@ -430,7 +413,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
                 value={selectedState}
                 onChange={(stateName, charge) => {
                   setSelectedState(stateName);
-                  setShippingCharge(charge);
+                  setShippingCharge(charge ?? 0);
                 }}
               />
             </div>
