@@ -202,32 +202,6 @@ export interface Database {
           updated_at?: string;
         };
       };
-      shipping_charges: {
-        Row: {
-          id: string;
-          state_name: string;
-          shipping_charge: number;
-          is_active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          state_name: string;
-          shipping_charge: number;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          state_name?: string;
-          shipping_charge?: number;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
     };
     Views: {
       [_ in never]: never;

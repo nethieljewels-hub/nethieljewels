@@ -38,7 +38,7 @@ export function generateWhatsAppMessage(params: WhatsAppMessageParams): string {
     `🚚 *SHIPPING*`,
     "",
     `📍 State: ${params.stateName}`,
-    `💲 Shipping Charge: ₹${params.shippingCharge.toFixed(2)}`,
+    `💲 Shipping Charge: ${params.shippingCharge > 0 ? `₹${params.shippingCharge.toFixed(2)}` : "Free"}`,
     "",
     line,
     "",

@@ -1,16 +1,14 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
-
 interface OrderSummaryCardProps {
   productImage: string;
   productName: string;
   category: string;
   productPrice: number;
   quantity: number;
-  shippingCharge: number | null;
-  shippingLoading: boolean;
-  stateName: string;
+  shippingCharge?: number | null;
+  shippingLoading?: boolean;
+  stateName?: string;
 }
 
 export default function OrderSummaryCard({
@@ -19,12 +17,12 @@ export default function OrderSummaryCard({
   category,
   productPrice,
   quantity,
-  shippingCharge,
-  shippingLoading,
+  shippingCharge = 0,
   stateName,
 }: OrderSummaryCardProps) {
   const subtotal = productPrice * quantity;
-  const grandTotal = shippingCharge !== null ? subtotal + shippingCharge : null;
+  const activeCharge = shippingCharge ?? 0;
+  const grandTotal = subtotal + activeCharge;
 
   return (
     <div className="border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 rounded-sm overflow-hidden">
@@ -81,24 +79,16 @@ export default function OrderSummaryCard({
           <span className="text-neutral-600 dark:text-neutral-400 font-light">
             Shipping {stateName ? `(${stateName})` : ""}
           </span>
-          {shippingLoading ? (
-            <Loader2 size={12} className="animate-spin text-neutral-500" />
-          ) : shippingCharge !== null ? (
-            <span className="text-black dark:text-white font-mono">₹{shippingCharge.toFixed(2)}</span>
-          ) : (
-            <span className="text-neutral-400 dark:text-neutral-600 text-[10px] font-light">Select state</span>
-          )}
+          <span className="text-black dark:text-white font-mono font-medium">
+            {activeCharge > 0 ? `₹${activeCharge.toFixed(2)}` : "FREE"}
+          </span>
         </div>
 
         <div className="h-[1px] bg-neutral-250 dark:bg-neutral-850 my-1" />
 
         <div className="flex justify-between text-sm font-medium">
           <span className="text-black dark:text-white">Grand Total</span>
-          {grandTotal !== null ? (
-            <span className="text-black dark:text-white font-mono">₹{grandTotal.toFixed(2)}</span>
-          ) : (
-            <span className="text-neutral-400 dark:text-neutral-600 text-xs font-light">—</span>
-          )}
+          <span className="text-black dark:text-white font-mono">₹{grandTotal.toFixed(2)}</span>
         </div>
       </div>
     </div>

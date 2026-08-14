@@ -1,50 +1,22 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { createClient } from "@/utils/supabase/client";
-import { ChevronDown, Search, Loader2 } from "lucide-react";
-
-interface ShippingState {
-  id: string;
-  state_name: string;
-  shipping_charge: number;
-}
+import { ChevronDown, Search } from "lucide-react";
+import { INDIA_STATES_DISTRICTS } from "@/utils/indiaStatesDistricts";
 
 interface StateDropdownProps {
   value: string;
-  onChange: (stateName: string, shippingCharge: number) => void;
+  onChange: (stateName: string, shippingCharge?: number) => void;
   error?: string;
 }
 
+const ALL_STATES = Object.keys(INDIA_STATES_DISTRICTS).sort();
+
 export default function StateDropdown({ value, onChange, error }: StateDropdownProps) {
-  const [states, setStates] = useState<ShippingState[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [fetchError, setFetchError] = useState(false);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    async function fetchStates() {
-      try {
-        const supabase = createClient();
-        const { data, error: err } = await supabase
-          .from("shipping_charges")
-          .select("id, state_name, shipping_charge")
-          .eq("is_active", true)
-          .order("state_name", { ascending: true });
-
-        if (err) throw err;
-        setStates(data || []);
-      } catch {
-        setFetchError(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStates();
-  }, []);
 
   // Close on outside click
   useEffect(() => {
@@ -56,47 +28,19 @@ export default function StateDropdown({ value, onChange, error }: StateDropdownP
     }
     if (open) {
       document.addEventListener("mousedown", handleClick);
-      // Focus search input when opened
       setTimeout(() => searchRef.current?.focus(), 100);
     }
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  const filtered = states.filter((s) =>
-    s.state_name.toLowerCase().includes(search.toLowerCase()),
+  const filtered = ALL_STATES.filter((s) =>
+    s.toLowerCase().includes(search.toLowerCase()),
   );
 
-  function handleSelect(state: ShippingState) {
-    onChange(state.state_name, state.shipping_charge);
+  function handleSelect(stateName: string) {
+    onChange(stateName, 0);
     setOpen(false);
     setSearch("");
-  }
-
-  if (loading) {
-    return (
-      <div className="space-y-1.5">
-        <span className="block text-[9px] uppercase tracking-widest font-semibold text-neutral-500">
-          State
-        </span>
-        <div className="flex items-center space-x-2 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm px-4 py-3">
-          <Loader2 size={14} className="animate-spin text-neutral-500" />
-          <span className="text-xs text-neutral-500 dark:text-neutral-600 font-light">Loading states…</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (fetchError) {
-    return (
-      <div className="space-y-1.5">
-        <span className="block text-[9px] uppercase tracking-widest font-semibold text-neutral-500">
-          State
-        </span>
-        <div className="bg-neutral-50 dark:bg-neutral-900 border border-red-200 dark:border-red-900 rounded-sm px-4 py-3">
-          <span className="text-xs text-red-500 dark:text-red-400 font-light">Failed to load states. Please refresh.</span>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -146,19 +90,18 @@ export default function StateDropdown({ value, onChange, error }: StateDropdownP
             {filtered.length === 0 ? (
               <li className="px-4 py-3 text-xs text-neutral-500 font-light">No states found</li>
             ) : (
-              filtered.map((s) => (
-                <li key={s.id}>
+              filtered.map((stateName) => (
+                <li key={stateName}>
                   <button
                     type="button"
                     role="option"
-                    aria-selected={value === s.state_name}
-                    onClick={() => handleSelect(s)}
+                    aria-selected={value === stateName}
+                    onClick={() => handleSelect(stateName)}
                     className={`w-full text-left px-4 py-2.5 text-xs font-light tracking-wide transition-colors cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
-                      value === s.state_name ? "text-black dark:text-white bg-neutral-50 dark:bg-neutral-800 font-semibold" : "text-neutral-600 dark:text-neutral-400"
+                      value === stateName ? "text-black dark:text-white bg-neutral-50 dark:bg-neutral-800 font-semibold" : "text-neutral-600 dark:text-neutral-400"
                     }`}
                   >
-                    <span>{s.state_name}</span>
-                    <span className="float-right text-neutral-500 dark:text-neutral-500">₹{s.shipping_charge.toFixed(2)}</span>
+                    <span>{stateName}</span>
                   </button>
                 </li>
               ))

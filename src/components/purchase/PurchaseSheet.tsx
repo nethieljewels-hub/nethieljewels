@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import BottomSheet from "@/components/ui/BottomSheet";
 import OrderSummaryCard from "@/components/purchase/OrderSummaryCard";
@@ -53,7 +53,6 @@ export default function PurchaseSheet({
   const [formData, setFormData] = useState<DeliveryDetails>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [shippingCharge, setShippingCharge] = useState<number | null>(null);
-  const [shippingLoading, setShippingLoading] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>(DEFAULT_WHATSAPP_NUMBER);
   const [shopName, setShopName] = useState<string>("NETHIEL JEWELRY");
   const [settingsLoading, setSettingsLoading] = useState(true);
@@ -110,26 +109,6 @@ export default function PurchaseSheet({
     fetchSettings();
   }, [isOpen]);
 
-  const fetchShippingForState = useCallback(async (stateName: string) => {
-    setShippingLoading(true);
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("shipping_charges")
-        .select("shipping_charge")
-        .eq("state_name", stateName)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (error) throw error;
-      setShippingCharge(data?.shipping_charge ?? null);
-    } catch {
-      setShippingCharge(null);
-    } finally {
-      setShippingLoading(false);
-    }
-  }, []);
-
   // Pre-fill from localStorage on open (use ref to avoid re-initializing)
   const initializedRef = useRef(false);
   useEffect(() => {
@@ -148,16 +127,12 @@ export default function PurchaseSheet({
     // Schedule state update outside effect synchronous body
     queueMicrotask(() => {
       setFormData(saved);
-      if (initialShippingCharge !== undefined && initialShippingCharge !== null) {
-        setShippingCharge(initialShippingCharge);
-      } else if (saved.state) {
-        fetchShippingForState(saved.state);
-      }
+      setShippingCharge(initialShippingCharge ?? 0);
     });
-  }, [isOpen, initialState, initialShippingCharge, fetchShippingForState]);
+  }, [isOpen, initialState, initialShippingCharge]);
 
-  function handleStateChange(_stateName: string, charge: number) {
-    setShippingCharge(charge);
+  function handleStateChange(_stateName: string, charge?: number) {
+    setShippingCharge(charge ?? 0);
   }
 
   // Save to localStorage on form changes
@@ -231,17 +206,8 @@ export default function PurchaseSheet({
       return;
     }
 
-    if (shippingCharge === null) {
-      setErrors((prev) => ({
-        ...prev,
-        state: "Please select a state to calculate shipping",
-      }));
-      return;
-    }
-
-    setSending(true);
-
-    const grandTotal = (activePrice * quantity) + shippingCharge;
+    const activeShippingCharge = shippingCharge ?? 0;
+    const grandTotal = (activePrice * quantity) + activeShippingCharge;
 
     const productUrl = `${window.location.origin}/products/${productSlug}`;
 
@@ -251,7 +217,7 @@ export default function PurchaseSheet({
       productPrice: activePrice,
       quantity,
       stateName: formData.state,
-      shippingCharge,
+      shippingCharge: activeShippingCharge,
       grandTotal,
       customerName: formData.customerName.trim(),
       houseName: formData.houseName.trim(),
@@ -295,7 +261,6 @@ export default function PurchaseSheet({
               productPrice={activePrice}
               quantity={quantity}
               shippingCharge={shippingCharge}
-              shippingLoading={shippingLoading}
               stateName={formData.state}
             />
           </div>
