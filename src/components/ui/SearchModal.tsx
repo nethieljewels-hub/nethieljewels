@@ -14,13 +14,14 @@ interface Product {
   id: string;
   title: string;
   slug: string;
-  price: number;
+  product_code?: string | null;
+  original_price?: number;
+  selling_price?: number | null;
+  price?: number;
   featured: boolean;
   images: string[];
   category_id: string;
-  categories?: {
-    name: string;
-  };
+  categories?: { name: string } | { name: string }[] | null;
 }
 
 interface SearchModalProps {
@@ -50,24 +51,36 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
     const fetchData = async () => {
       setLoading(true);
-      const supabase = createClient();
+      try {
+        const supabase = createClient();
 
-      const [prodRes, catRes] = await Promise.all([
-        supabase
+        // 1. Fetch products
+        let { data: prodData } = await supabase
           .from("products")
-          .select("id, title, slug, price, featured, images, category_id, categories(name)")
-          .eq("active", true)
-          .order("created_at", { ascending: false }),
-        supabase
+          .select("*, categories(name)")
+          .order("created_at", { ascending: false });
+
+        if (!prodData) {
+          const fallbackRes = await supabase
+            .from("products")
+            .select("*")
+            .order("created_at", { ascending: false });
+          prodData = fallbackRes.data || [];
+        }
+
+        // 2. Fetch categories
+        const { data: catData } = await supabase
           .from("categories")
           .select("id, name")
-          .eq("active", true)
-          .order("created_at", { ascending: true }),
-      ]);
+          .order("created_at", { ascending: true });
 
-      if (prodRes.data) setProducts(prodRes.data as Product[]);
-      if (catRes.data) setCategories(catRes.data);
-      setLoading(false);
+        if (prodData) setProducts(prodData as Product[]);
+        if (catData) setCategories(catData as Category[]);
+      } catch (err) {
+        console.error("Error fetching search data:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -86,14 +99,25 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   if (!isOpen) return null;
 
-  // Filter matching products
+  // Helper to extract category name from object or array
+  const getCategoryName = (p: Product): string => {
+    if (!p.categories) return "";
+    if (Array.isArray(p.categories)) {
+      return p.categories[0]?.name || "";
+    }
+    return (p.categories as { name?: string }).name || "";
+  };
+
+  // Filter matching products by title, category name, or product_code
   const cleanQuery = query.trim().toLowerCase();
   const matchingProducts = cleanQuery
-    ? products.filter(
-        (p) =>
-          p.title.toLowerCase().includes(cleanQuery) ||
-          p.categories?.name?.toLowerCase().includes(cleanQuery)
-      )
+    ? products.filter((p) => {
+        const titleMatch = p.title ? p.title.toLowerCase().includes(cleanQuery) : false;
+        const catName = getCategoryName(p).toLowerCase();
+        const catMatch = catName ? catName.includes(cleanQuery) : false;
+        const codeMatch = p.product_code ? p.product_code.trim().toLowerCase().includes(cleanQuery) : false;
+        return titleMatch || catMatch || codeMatch;
+      })
     : [];
 
   // Popular suggestion pills
@@ -113,11 +137,21 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const handleSearchSubmit = (searchTerm: string) => {
     onClose();
-    if (searchTerm) {
-      router.push(`/products?search=${encodeURIComponent(searchTerm)}`);
+    const trimmed = searchTerm.trim();
+    if (trimmed) {
+      router.push(`/products?search=${encodeURIComponent(trimmed)}`);
     } else {
       router.push("/products");
     }
+  };
+
+  const getEffectivePrice = (p: Product) => {
+    const orig = p.original_price ?? p.price ?? 0;
+    const selling = p.selling_price;
+    if (selling !== undefined && selling !== null && selling < orig) {
+      return selling;
+    }
+    return orig;
   };
 
   return (
@@ -141,11 +175,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 handleSearchSubmit(query);
               }
             }}
-            placeholder="Search products, categories, or tags..."
-            className="w-full bg-transparent text-sm sm:text-base font-medium text-black dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none"
+            placeholder="SEARCH NAME OR PRODUCT CODE (E.G. NJ-NECK-001)..."
+            className="w-full bg-transparent text-xs sm:text-sm font-semibold uppercase tracking-wider text-black dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none"
           />
           {query && (
             <button
+              type="button"
               onClick={() => setQuery("")}
               className="p-1 mr-1 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors"
               aria-label="Clear search query"
@@ -154,8 +189,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </button>
           )}
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 text-neutral-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            className="p-1.5 text-neutral-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 ml-1"
             aria-label="Close search"
           >
             <X size={20} />
@@ -184,9 +220,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     No jewelry matching &quot;<span className="font-semibold text-black dark:text-white">{query}</span>&quot;
                   </p>
                   <p className="text-xs text-neutral-400 font-light">
-                    Try searching for another piece, collection, or category.
+                    Try searching for another product name, category, or product code.
                   </p>
                   <button
+                    type="button"
                     onClick={() => handleSearchSubmit("")}
                     className="text-xs font-semibold text-brand-gold underline hover:opacity-80 cursor-pointer pt-1 block mx-auto"
                   >
@@ -195,43 +232,51 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {matchingProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      onClick={() => handleSelectProduct(product.slug)}
-                      className="group flex items-center justify-between p-2.5 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/50 hover:bg-neutral-100/80 dark:hover:bg-neutral-800/80 transition-all cursor-pointer"
-                    >
-                      <div className="flex items-center space-x-3 overflow-hidden">
-                        <div className="w-14 h-14 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex-shrink-0 border border-neutral-200/60 dark:border-neutral-800/60">
-                          {product.images?.[0] ? (
-                            <img
-                              src={product.images[0]}
-                              alt={product.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-neutral-400 text-[9px]">
-                              NO IMG
-                            </div>
-                          )}
-                        </div>
-                        <div className="truncate">
-                          <h4 className="text-xs font-bold text-black dark:text-white truncate">
-                            {product.title}
-                          </h4>
-                          {product.categories?.name && (
-                            <span className="block text-[9px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
-                              {product.categories.name}
+                  {matchingProducts.map((product) => {
+                    const catName = getCategoryName(product);
+                    return (
+                      <div
+                        key={product.id}
+                        onClick={() => handleSelectProduct(product.slug)}
+                        className="group flex items-center justify-between p-2.5 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/50 hover:bg-neutral-100/80 dark:hover:bg-neutral-800/80 transition-all cursor-pointer"
+                      >
+                        <div className="flex items-center space-x-3 overflow-hidden">
+                          <div className="w-14 h-14 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex-shrink-0 border border-neutral-200/60 dark:border-neutral-800/60">
+                            {product.images?.[0] ? (
+                              <img
+                                src={product.images[0]}
+                                alt={product.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-neutral-400 text-[9px]">
+                                NO IMG
+                              </div>
+                            )}
+                          </div>
+                          <div className="truncate">
+                            <h4 className="text-xs font-bold text-black dark:text-white truncate uppercase">
+                              {product.title}
+                            </h4>
+                            {product.product_code && (
+                              <span className="inline-block text-[9px] font-mono font-bold text-neutral-800 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-700 mt-0.5">
+                                {product.product_code}
+                              </span>
+                            )}
+                            {catName && (
+                              <span className="block text-[9px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mt-0.5">
+                                {catName}
+                              </span>
+                            )}
+                            <span className="block text-xs font-extrabold text-black dark:text-white mt-0.5 font-mono">
+                              ₹{getEffectivePrice(product).toFixed(2)}
                             </span>
-                          )}
-                          <span className="block text-xs font-extrabold text-black dark:text-white mt-0.5">
-                            ₹{product.price}
-                          </span>
+                          </div>
                         </div>
+                        <ChevronRight size={16} className="text-neutral-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-0.5 transition-all ml-2 flex-shrink-0" />
                       </div>
-                      <ChevronRight size={16} className="text-neutral-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-0.5 transition-all ml-2 flex-shrink-0" />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -247,6 +292,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   {popularPills.map((pill, idx) => (
                     <button
                       key={idx}
+                      type="button"
                       onClick={() => handleSearchSubmit(pill.search)}
                       className="px-3.5 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-800 text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:border-black dark:hover:border-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all cursor-pointer"
                     >
@@ -263,6 +309,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     SUGGESTED PRODUCTS
                   </span>
                   <button
+                    type="button"
                     onClick={() => handleSearchSubmit("")}
                     className="inline-flex items-center text-xs font-bold text-neutral-900 dark:text-neutral-100 hover:opacity-75 transition-opacity cursor-pointer space-x-1"
                   >
@@ -272,43 +319,51 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {displaySuggested.map((product) => (
-                    <div
-                      key={product.id}
-                      onClick={() => handleSelectProduct(product.slug)}
-                      className="group flex items-center justify-between p-2.5 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/50 hover:bg-neutral-100/80 dark:hover:bg-neutral-800/80 transition-all cursor-pointer"
-                    >
-                      <div className="flex items-center space-x-3 overflow-hidden">
-                        <div className="w-14 h-14 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex-shrink-0 border border-neutral-200/60 dark:border-neutral-800/60">
-                          {product.images?.[0] ? (
-                            <img
-                              src={product.images[0]}
-                              alt={product.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-neutral-400 text-[9px]">
-                              NO IMG
-                            </div>
-                          )}
-                        </div>
-                        <div className="truncate">
-                          <h4 className="text-xs font-bold text-black dark:text-white truncate">
-                            {product.title}
-                          </h4>
-                          {product.categories?.name && (
-                            <span className="block text-[9px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
-                              {product.categories.name}
+                  {displaySuggested.map((product) => {
+                    const catName = getCategoryName(product);
+                    return (
+                      <div
+                        key={product.id}
+                        onClick={() => handleSelectProduct(product.slug)}
+                        className="group flex items-center justify-between p-2.5 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white dark:bg-neutral-900/50 hover:bg-neutral-100/80 dark:hover:bg-neutral-800/80 transition-all cursor-pointer"
+                      >
+                        <div className="flex items-center space-x-3 overflow-hidden">
+                          <div className="w-14 h-14 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex-shrink-0 border border-neutral-200/60 dark:border-neutral-800/60">
+                            {product.images?.[0] ? (
+                              <img
+                                src={product.images[0]}
+                                alt={product.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-neutral-400 text-[9px]">
+                                NO IMG
+                              </div>
+                            )}
+                          </div>
+                          <div className="truncate">
+                            <h4 className="text-xs font-bold text-black dark:text-white truncate uppercase">
+                              {product.title}
+                            </h4>
+                            {product.product_code && (
+                              <span className="inline-block text-[9px] font-mono font-bold text-neutral-800 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-700 mt-0.5">
+                                {product.product_code}
+                              </span>
+                            )}
+                            {catName && (
+                              <span className="block text-[9px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mt-0.5">
+                                {catName}
+                              </span>
+                            )}
+                            <span className="block text-xs font-extrabold text-black dark:text-white mt-0.5 font-mono">
+                              ₹{getEffectivePrice(product).toFixed(2)}
                             </span>
-                          )}
-                          <span className="block text-xs font-extrabold text-black dark:text-white mt-0.5">
-                            ₹{product.price}
-                          </span>
+                          </div>
                         </div>
+                        <ChevronRight size={16} className="text-neutral-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-0.5 transition-all ml-2 flex-shrink-0" />
                       </div>
-                      <ChevronRight size={16} className="text-neutral-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-0.5 transition-all ml-2 flex-shrink-0" />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </>
@@ -319,6 +374,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         {cleanQuery && matchingProducts.length > 0 && (
           <div className="border-t border-neutral-200 dark:border-neutral-800 p-3 bg-neutral-50/50 dark:bg-neutral-900/30 text-center">
             <button
+              type="button"
               onClick={() => handleSearchSubmit(query)}
               className="inline-flex items-center text-xs font-bold text-neutral-900 dark:text-neutral-100 hover:opacity-75 transition-opacity cursor-pointer space-x-1.5"
             >

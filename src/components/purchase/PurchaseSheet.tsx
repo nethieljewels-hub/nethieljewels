@@ -14,6 +14,7 @@ import { Loader2, MessageSquare, AlertTriangle } from "lucide-react";
 
 interface PurchaseProduct {
   title: string;
+  product_code?: string | null;
   original_price?: number;
   selling_price?: number | null;
   price?: number; // legacy fallback
@@ -27,6 +28,7 @@ interface PurchaseSheetProps {
   product: PurchaseProduct;
   productSlug: string;
   quantity: number;
+  selectedColor?: string | null;
   initialState?: string;
   initialShippingCharge?: number | null;
 }
@@ -47,6 +49,7 @@ export default function PurchaseSheet({
   product,
   productSlug,
   quantity,
+  selectedColor,
   initialState,
   initialShippingCharge,
 }: PurchaseSheetProps) {
@@ -210,9 +213,16 @@ export default function PurchaseSheet({
     const grandTotal = (activePrice * quantity) + activeShippingCharge;
 
     const productUrl = `${window.location.origin}/products/${productSlug}`;
+    const resolvedProductCode =
+      product.product_code ||
+      (product as unknown as Record<string, string>).productCode ||
+      (product as unknown as Record<string, string>).code ||
+      "";
 
     const message = generateWhatsAppMessage({
       productName: product.title,
+      productCode: resolvedProductCode,
+      selectedColor: selectedColor,
       category: product.categories?.name || "Uncategorized",
       productPrice: activePrice,
       quantity,
@@ -238,9 +248,14 @@ export default function PurchaseSheet({
   }
 
   const productImage = (product.images.length > 0 ? product.images[0] : "/placeholder-product.jpg") ?? "/placeholder-product.jpg";
+  const resolvedProductCode =
+    product.product_code ||
+    (product as unknown as Record<string, string>).productCode ||
+    (product as unknown as Record<string, string>).code ||
+    "";
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} title={`Order from ${shopName}`}>
+    <BottomSheet isOpen={isOpen} onClose={onClose} title={`Order Details — ${shopName}`}>
       {settingsLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 size={24} className="animate-spin text-neutral-500" />
@@ -252,11 +267,13 @@ export default function PurchaseSheet({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          {/* Left column: Summary */}
+          {/* Left column: Summary & Product Code */}
           <div className="space-y-6">
             <OrderSummaryCard
               productImage={productImage}
               productName={product.title}
+              productCode={resolvedProductCode}
+              selectedColor={selectedColor}
               category={product.categories?.name || ""}
               productPrice={activePrice}
               quantity={quantity}
@@ -288,20 +305,20 @@ export default function PurchaseSheet({
                 type="button"
                 onClick={handleSend}
                 disabled={sending}
-                className="w-full flex items-center justify-center space-x-2 bg-green-700 hover:bg-green-600 text-white px-6 py-4 text-xs font-semibold tracking-widest uppercase transition-all rounded-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:animate-scale-tap"
+                className="w-full flex items-center justify-center space-x-2.5 bg-emerald-700 hover:bg-emerald-600 text-white px-6 py-4 text-xs sm:text-sm font-bold tracking-widest uppercase transition-all rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:animate-scale-tap shadow-md hover:shadow-lg"
               >
                 {sending ? (
-                  <Loader2 size={16} className="animate-spin" />
+                  <Loader2 size={18} className="animate-spin" />
                 ) : (
                   <>
-                    <MessageSquare size={16} />
-                    <span>Send via WhatsApp</span>
+                    <MessageSquare size={18} />
+                    <span>Send Order via WhatsApp</span>
                   </>
                 )}
               </button>
 
-              <p className="text-[8px] text-neutral-600 font-light text-center tracking-wider uppercase">
-                Your order details will be sent to our WhatsApp for confirmation
+              <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-light text-center tracking-wider uppercase">
+                Your order details &amp; product code will be sent to WhatsApp for instant confirmation
               </p>
             </div>
           </div>

@@ -50,22 +50,22 @@ export default async function ContactPage() {
   ];
 
   return (
-    <div className="w-full bg-transparent select-none pb-20">
+    <div className="w-full bg-transparent select-none pb-24">
       {/* Main Communication Channels */}
-      <section className="mx-auto max-w-5xl px-6 py-16 md:py-20 space-y-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <section className="mx-auto max-w-5xl px-6 py-16 sm:py-20 md:py-24 space-y-12 sm:space-y-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           {/* WhatsApp Support Card */}
-          <div className="rounded-xl border border-neutral-200 dark:border-neutral-850 bg-neutral-50/40 dark:bg-neutral-900/10 p-8 flex flex-col justify-between hover:border-neutral-300 dark:hover:border-neutral-800 hover:scale-[1.01] transition-all duration-300 space-y-6">
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-full bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shadow-xs">
+          <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/30 backdrop-blur-xs p-7 sm:p-9 flex flex-col justify-between hover:border-brand-gold-dark/40 hover:shadow-lg transition-all duration-500 space-y-6 group">
+            <div className="space-y-5">
+              <div className="w-12 h-12 rounded-full bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
                 <MessageSquare size={20} strokeWidth={1.5} />
               </div>
               <div className="space-y-2">
-                <span className="text-[10px] font-bold tracking-widest text-brand-gold-dark uppercase">01 / ONLINE MESSAGING</span>
-                <h2 className="text-lg font-serif-luxury font-medium tracking-wide text-black dark:text-white uppercase">
+                <span className="text-[10px] font-semibold tracking-[0.25em] text-brand-gold-dark uppercase">01 / ONLINE MESSAGING</span>
+                <h2 className="text-lg sm:text-xl font-serif-luxury font-medium tracking-wide text-black dark:text-white uppercase transition-colors group-hover:text-brand-brown-dark dark:group-hover:text-brand-cream">
                   WHATSAPP CHAT
                 </h2>
-                <p className="text-xs font-light text-neutral-550 dark:text-neutral-400 leading-relaxed">
+                <p className="text-xs sm:text-sm font-light text-neutral-600 dark:text-neutral-400 leading-relaxed">
                   Inquire about specific pieces, send references, or complete order details instantly.
                 </p>
               </div>
@@ -75,7 +75,7 @@ export default async function ContactPage() {
                 href={`https://wa.me/${whatsappClean}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center space-x-2 bg-black text-white dark:bg-white dark:text-black w-full py-3 text-xs font-bold tracking-widest uppercase hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors rounded-sm shadow-xs"
+                className="inline-flex items-center justify-center space-x-2 bg-black text-white dark:bg-white dark:text-black w-full py-3.5 text-xs font-bold tracking-[0.2em] uppercase hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all rounded-sm shadow-xs active:scale-[0.99]"
               >
                 <span>CHAT WITH US</span>
                 <ExternalLink size={13} />
@@ -84,17 +84,17 @@ export default async function ContactPage() {
           </div>
 
           {/* Call Line Card */}
-          <div className="rounded-xl border border-neutral-200 dark:border-neutral-855 bg-neutral-50/40 dark:bg-neutral-900/10 p-8 flex flex-col justify-between hover:border-neutral-300 dark:hover:border-neutral-800 hover:scale-[1.01] transition-all duration-300 space-y-6">
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-full bg-neutral-100 text-black dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs">
+          <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/30 backdrop-blur-xs p-7 sm:p-9 flex flex-col justify-between hover:border-brand-gold-dark/40 hover:shadow-lg transition-all duration-500 space-y-6 group">
+            <div className="space-y-5">
+              <div className="w-12 h-12 rounded-full bg-neutral-100 text-black dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
                 <Phone size={20} strokeWidth={1.5} />
               </div>
               <div className="space-y-2">
-                <span className="text-[10px] font-bold tracking-widest text-brand-gold-dark uppercase">02 / VOICE CALLS</span>
-                <h2 className="text-lg font-serif-luxury font-medium tracking-wide text-black dark:text-white uppercase">
+                <span className="text-[10px] font-semibold tracking-[0.25em] text-brand-gold-dark uppercase">02 / VOICE CALLS</span>
+                <h2 className="text-lg sm:text-xl font-serif-luxury font-medium tracking-wide text-black dark:text-white uppercase transition-colors group-hover:text-brand-brown-dark dark:group-hover:text-brand-cream">
                   DIRECT PHONE LINE
                 </h2>
-                <p className="text-xs font-light text-neutral-550 dark:text-neutral-400 leading-relaxed">
+                <p className="text-xs sm:text-sm font-light text-neutral-600 dark:text-neutral-400 leading-relaxed">
                   Reach out directly for urgent updates, shipping changes, or specific requests.
                 </p>
               </div>
@@ -102,7 +102,7 @@ export default async function ContactPage() {
             <div className="pt-2">
               <a
                 href={`tel:${displayPhone.replace(/[^\d]/g, "")}`}
-                className="inline-flex items-center justify-center space-x-2 border border-black dark:border-white text-black dark:text-white w-full py-3 text-xs font-bold tracking-widest uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-sm shadow-xs"
+                className="inline-flex items-center justify-center space-x-2 border border-black dark:border-white text-black dark:text-white w-full py-3.5 text-xs font-bold tracking-[0.2em] uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all rounded-sm shadow-xs active:scale-[0.99]"
               >
                 <span>{displayPhone}</span>
                 <Phone size={13} />
@@ -111,17 +111,17 @@ export default async function ContactPage() {
           </div>
 
           {/* Email Support Card */}
-          <div className="rounded-xl border border-neutral-200 dark:border-neutral-855 bg-neutral-50/40 dark:bg-neutral-900/10 p-8 flex flex-col justify-between hover:border-neutral-300 dark:hover:border-neutral-800 hover:scale-[1.01] transition-all duration-300 space-y-6">
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-full bg-neutral-100 text-black dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs">
+          <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/30 backdrop-blur-xs p-7 sm:p-9 flex flex-col justify-between hover:border-brand-gold-dark/40 hover:shadow-lg transition-all duration-500 space-y-6 group">
+            <div className="space-y-5">
+              <div className="w-12 h-12 rounded-full bg-neutral-100 text-black dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
                 <Mail size={20} strokeWidth={1.5} />
               </div>
               <div className="space-y-2">
-                <span className="text-[10px] font-bold tracking-widest text-brand-gold-dark uppercase">03 / FORMAL ENQUIRY</span>
-                <h2 className="text-lg font-serif-luxury font-medium tracking-wide text-black dark:text-white uppercase">
+                <span className="text-[10px] font-semibold tracking-[0.25em] text-brand-gold-dark uppercase">03 / FORMAL ENQUIRY</span>
+                <h2 className="text-lg sm:text-xl font-serif-luxury font-medium tracking-wide text-black dark:text-white uppercase transition-colors group-hover:text-brand-brown-dark dark:group-hover:text-brand-cream">
                   EMAIL INQUIRIES
                 </h2>
-                <p className="text-xs font-light text-neutral-550 dark:text-neutral-400 leading-relaxed">
+                <p className="text-xs sm:text-sm font-light text-neutral-600 dark:text-neutral-400 leading-relaxed">
                   Send bulk order inquiries, brand partnerships, or other formal suggestions.
                 </p>
               </div>
@@ -129,7 +129,7 @@ export default async function ContactPage() {
             <div className="pt-2">
               <a
                 href={`mailto:${emailAddr}`}
-                className="inline-flex items-center justify-center space-x-2 border border-black dark:border-white text-black dark:text-white w-full py-3 text-xs font-bold tracking-widest uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-sm shadow-xs"
+                className="inline-flex items-center justify-center space-x-2 border border-black dark:border-white text-black dark:text-white w-full py-3.5 text-xs font-bold tracking-[0.2em] uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all rounded-sm shadow-xs active:scale-[0.99]"
               >
                 <span>SEND AN EMAIL</span>
                 <Mail size={13} />
@@ -138,9 +138,9 @@ export default async function ContactPage() {
           </div>
 
           {/* Instagram DM Card */}
-          <div className="rounded-xl border border-neutral-200 dark:border-neutral-855 bg-neutral-50/40 dark:bg-neutral-900/10 p-8 flex flex-col justify-between hover:border-neutral-300 dark:hover:border-neutral-800 hover:scale-[1.01] transition-all duration-300 space-y-6">
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-full bg-neutral-100 text-black dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs">
+          <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/30 backdrop-blur-xs p-7 sm:p-9 flex flex-col justify-between hover:border-brand-gold-dark/40 hover:shadow-lg transition-all duration-500 space-y-6 group">
+            <div className="space-y-5">
+              <div className="w-12 h-12 rounded-full bg-neutral-100 text-black dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
@@ -158,11 +158,11 @@ export default async function ContactPage() {
                 </svg>
               </div>
               <div className="space-y-2">
-                <span className="text-[10px] font-bold tracking-widest text-brand-gold-dark uppercase">04 / SOCIAL CHANNELS</span>
-                <h2 className="text-lg font-serif-luxury font-medium tracking-wide text-black dark:text-white uppercase">
+                <span className="text-[10px] font-semibold tracking-[0.25em] text-brand-gold-dark uppercase">04 / SOCIAL CHANNELS</span>
+                <h2 className="text-lg sm:text-xl font-serif-luxury font-medium tracking-wide text-black dark:text-white uppercase transition-colors group-hover:text-brand-brown-dark dark:group-hover:text-brand-cream">
                   INSTAGRAM DM
                 </h2>
-                <p className="text-xs font-light text-neutral-550 dark:text-neutral-400 leading-relaxed">
+                <p className="text-xs sm:text-sm font-light text-neutral-600 dark:text-neutral-400 leading-relaxed">
                   Follow us for new collections, jewelry care tips, and daily inspiration.
                 </p>
               </div>
@@ -172,7 +172,7 @@ export default async function ContactPage() {
                 href={instaUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center space-x-2 border border-black dark:border-white text-black dark:text-white w-full py-3 text-xs font-bold tracking-widest uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors rounded-sm shadow-xs"
+                className="inline-flex items-center justify-center space-x-2 border border-black dark:border-white text-black dark:text-white w-full py-3.5 text-xs font-bold tracking-[0.2em] uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all rounded-sm shadow-xs active:scale-[0.99]"
               >
                 <span>
                   {settings?.instagram
@@ -194,40 +194,40 @@ export default async function ContactPage() {
         </div>
 
         {/* Location Block */}
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-850 bg-neutral-50/30 dark:bg-neutral-900/5 p-8 flex items-start space-x-5 hover:border-neutral-300 dark:hover:border-neutral-800 transition-all duration-300">
-          <div className="p-3 bg-neutral-100 dark:bg-neutral-800 rounded-full flex-shrink-0 text-black dark:text-white">
+        <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/30 backdrop-blur-xs p-7 sm:p-9 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 hover:border-brand-gold-dark/40 hover:shadow-lg transition-all duration-500">
+          <div className="p-3.5 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/60 dark:border-neutral-700 rounded-full flex-shrink-0 text-black dark:text-white shadow-xs">
             <MapPin size={22} strokeWidth={1.5} />
           </div>
           <div className="space-y-2">
-            <span className="text-[10px] font-bold tracking-widest text-brand-gold-dark uppercase">STUDIO VISIT</span>
-            <h3 className="text-base font-serif-luxury font-medium tracking-wider text-black dark:text-white uppercase">
+            <span className="text-[10px] font-semibold tracking-[0.25em] text-brand-gold-dark uppercase">STUDIO VISIT</span>
+            <h3 className="text-base sm:text-lg font-serif-luxury font-medium tracking-wider text-black dark:text-white uppercase">
               STUDIO LOCATION
             </h3>
-            <p className="text-xs font-light text-neutral-605 dark:text-neutral-400 leading-relaxed">
+            <p className="text-xs sm:text-sm font-light text-neutral-600 dark:text-neutral-400 leading-relaxed">
               {addressText}
             </p>
           </div>
         </div>
 
         {/* FAQ Section */}
-        <div className="border-t border-neutral-200 dark:border-neutral-850 pt-16 space-y-10">
-          <div className="text-center space-y-2">
-            <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
+        <div className="border-t border-neutral-200/80 dark:border-neutral-800 pt-16 sm:pt-20 space-y-12">
+          <div className="text-center space-y-3">
+            <span className="text-[10px] font-semibold tracking-[0.3em] text-brand-gold-dark uppercase">
               ASSISTANCE
             </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase mt-0.5">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-serif-luxury font-light tracking-wider text-black dark:text-white uppercase mt-0.5">
               FREQUENTLY ASKED QUESTIONS
             </h2>
-            <div className="w-12 h-[1px] bg-brand-gold-dark mx-auto mt-2" />
+            <div className="w-12 h-[1px] bg-brand-gold-dark mx-auto mt-3" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto pt-2">
             {faqs.map((faq, index) => (
-              <div key={index} className="space-y-2">
-                <h3 className="text-xs font-bold tracking-wider text-black dark:text-white uppercase border-l-2 border-brand-gold-dark pl-3">
+              <div key={index} className="p-6 sm:p-7 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white/40 dark:bg-neutral-900/20 hover:border-brand-gold-dark/30 hover:shadow-md transition-all duration-300 space-y-3">
+                <h3 className="text-xs sm:text-sm font-bold tracking-wider text-black dark:text-white uppercase border-l-2 border-brand-gold-dark pl-3.5 leading-snug">
                   {faq.q}
                 </h3>
-                <p className="text-xs font-light text-neutral-500 dark:text-neutral-400 leading-relaxed pl-3.5">
+                <p className="text-xs sm:text-sm font-light text-neutral-600 dark:text-neutral-400 leading-relaxed pl-3.5">
                   {faq.a}
                 </p>
               </div>

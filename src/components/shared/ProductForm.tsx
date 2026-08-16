@@ -38,6 +38,8 @@ export default function ProductForm({ productId }: ProductFormProps) {
   const [isOutOfStock, setIsOutOfStock] = useState(false);
   const [categoryId, setCategoryId] = useState("");
   const [productCode, setProductCode] = useState("");
+  const [colors, setColors] = useState<string[]>([]);
+  const [colorInput, setColorInput] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [featured, setFeatured] = useState(false);
   const [active, setActive] = useState(true);
@@ -77,6 +79,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
         setIsOutOfStock(!!prod.is_out_of_stock);
         setCategoryId(prod.category_id);
         setProductCode(prod.product_code || "");
+        setColors(prod.colors || []);
         setImages(prod.images || []);
         setFeatured(prod.featured);
         setActive(prod.active);
@@ -107,7 +110,25 @@ export default function ProductForm({ productId }: ProductFormProps) {
     }
   };
 
+  const handleAddColor = () => {
+    const trimmed = colorInput.trim();
+    if (!trimmed) return;
 
+    const exists = colors.some(
+      (c) => c.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (exists) {
+      showToast(`Color "${trimmed}" is already added.`, "error");
+      return;
+    }
+
+    setColors([...colors, trimmed]);
+    setColorInput("");
+  };
+
+  const handleRemoveColor = (indexToRemove: number) => {
+    setColors(colors.filter((_, idx) => idx !== indexToRemove));
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,6 +176,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
       is_out_of_stock: isOutOfStock,
       category_id: categoryId,
       product_code: productCode.trim(),
+      colors,
       images,
       featured,
       active,
@@ -311,6 +333,60 @@ export default function ProductForm({ productId }: ProductFormProps) {
             />
           </div>
         </div>
+      </div>
+
+      {/* Colors Variant block */}
+      <div className="rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 p-6 space-y-4">
+        <h2 className="text-xs font-semibold tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
+          Product Color Variants (Optional)
+        </h2>
+        <p className="text-[10px] text-neutral-500 font-light">
+          Add available color options for this product (e.g. Gold, Rose Gold, Ruby Red, Emerald Green, White Gold).
+        </p>
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            value={colorInput}
+            onChange={(e) => setColorInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddColor();
+              }
+            }}
+            placeholder="Enter color name..."
+            className="flex-1 rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-sm text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
+          />
+          <button
+            type="button"
+            onClick={handleAddColor}
+            className="px-4 py-2 bg-black text-white dark:bg-white dark:text-black text-xs font-bold uppercase tracking-wider rounded-sm hover:opacity-90 transition-opacity cursor-pointer flex-shrink-0"
+          >
+            Add Color
+          </button>
+        </div>
+
+        {colors.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {colors.map((c, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center space-x-1.5 bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-xs font-semibold px-2.5 py-1 rounded-sm border border-neutral-300 dark:border-neutral-700"
+              >
+                <span>{c}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveColor(idx)}
+                  className="text-neutral-500 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer font-bold ml-1"
+                  aria-label={`Remove color ${c}`}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Media Upload block */}

@@ -23,7 +23,9 @@ interface ProductCardProps {
 
 export default function CustomerProductCard({ product }: ProductCardProps) {
   const [liked, setLiked] = useState(false);
+
   const primaryImage = product.images?.[0];
+  const secondaryImage = product.images?.length > 1 ? product.images[1] : null;
 
   const origPrice = product.original_price ?? product.price ?? 0;
   const sellingPrice = product.selling_price;
@@ -63,16 +65,31 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          {/* Primary Image or Clean SVG Placeholder */}
+          {/* Primary & Secondary Hover Images or Clean SVG Placeholder */}
           {primaryImage ? (
-            <img
-              src={primaryImage}
-              alt={product.title}
-              className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 ${
-                product.is_out_of_stock ? "opacity-60 grayscale-[30%]" : ""
-              }`}
-              loading="lazy"
-            />
+            <>
+              {/* Cover Image (Image 1) */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={primaryImage}
+                alt={product.title}
+                className={`absolute inset-0 h-full w-full object-cover transition-all duration-500 ease-out ${secondaryImage ? "group-hover:opacity-0" : "group-hover:scale-105"
+                  } ${product.is_out_of_stock ? "opacity-60 grayscale-[30%]" : "opacity-100"}`}
+                loading="lazy"
+              />
+
+              {/* Hover Image (Image 2) - smooth crossfade transition on desktop hover */}
+              {secondaryImage && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={secondaryImage}
+                  alt={`${product.title} - View 2`}
+                  className={`absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out group-hover:scale-105 ${product.is_out_of_stock ? "grayscale-[30%]" : ""
+                    }`}
+                  loading="lazy"
+                />
+              )}
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center space-y-1 text-neutral-400 p-4 text-center">
               <ImageIcon size={28} strokeWidth={1.2} />
@@ -83,7 +100,7 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
           )}
 
           {/* Hover Overlay */}
-          <div className="absolute inset-0 bg-black/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-black/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
         </div>
       </Link>
 
@@ -107,7 +124,7 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
             {product.title}
           </h3>
         </Link>
-        
+
         {/* Pricing section with strikethrough logic */}
         <div className="flex items-baseline space-x-2">
           {hasOffer ? (

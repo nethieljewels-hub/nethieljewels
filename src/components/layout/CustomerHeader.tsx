@@ -52,9 +52,8 @@ export default function CustomerHeader({ settings }: HeaderProps) {
     <>
       <header
         suppressHydrationWarning
-        className={`sticky top-0 z-45 w-full bg-[#F9F6F4] dark:bg-neutral-950 transition-all duration-200 select-none border-b border-neutral-200 dark:border-neutral-850 ${
-          isScrolled ? "py-1.5 shadow-xs" : "py-2"
-        }`}
+        className={`sticky top-0 z-45 w-full bg-[#F9F6F4] dark:bg-neutral-950 transition-all duration-200 select-none border-b border-neutral-200 dark:border-neutral-850 ${isScrolled ? "py-1.5 shadow-xs" : "py-2"
+          }`}
       >
         <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
         <div className="mx-auto max-w-7xl px-6 flex items-center justify-between">
@@ -77,9 +76,8 @@ export default function CustomerHeader({ settings }: HeaderProps) {
                 <Link
                   key={link.path}
                   href={link.path}
-                  className={`relative py-1 text-[10px] uppercase tracking-[0.2em] font-bold transition-colors ${
-                    active ? "text-black font-bold" : "text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
-                  }`}
+                  className={`relative py-1 text-[10px] uppercase tracking-[0.2em] font-bold transition-colors ${active ? "text-black font-bold" : "text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
+                    }`}
                 >
                   {link.name}
                   {active && (
@@ -139,9 +137,8 @@ export default function CustomerHeader({ settings }: HeaderProps) {
 
         {/* Mobile Drawer Panel */}
         <div
-          className={`fixed top-0 bottom-0 left-0 z-55 w-72 max-w-[80vw] bg-[#F9F6F4] dark:bg-neutral-950 border-r border-neutral-200 dark:border-neutral-850 p-6 flex flex-col justify-between transition-transform duration-300 ease-out md:hidden ${
-            drawerOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`fixed top-0 bottom-0 left-0 z-55 w-72 max-w-[80vw] bg-[#F9F6F4] dark:bg-neutral-950 border-r border-neutral-200 dark:border-neutral-850 p-6 flex flex-col justify-between transition-transform duration-300 ease-out md:hidden ${drawerOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
           <div className="space-y-8">
             <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-850 pb-4">
@@ -167,9 +164,8 @@ export default function CustomerHeader({ settings }: HeaderProps) {
                     key={link.path}
                     href={link.path}
                     onClick={handleLinkClick}
-                    className={`text-xs uppercase tracking-[0.2em] font-bold transition-colors ${
-                      active ? "text-black font-bold" : "text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
-                    }`}
+                    className={`text-xs uppercase tracking-[0.2em] font-bold transition-colors ${active ? "text-black font-bold" : "text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
+                      }`}
                   >
                     {link.name}
                   </Link>
@@ -178,9 +174,21 @@ export default function CustomerHeader({ settings }: HeaderProps) {
             </nav>
           </div>
 
-          {/* Mobile Drawer Footer Actions (Shopping Bag & Theme Toggle) */}
-          <div className="border-t border-neutral-200 dark:border-neutral-850 pt-5 space-y-4">
-            <div className="flex items-center justify-between py-1">
+          {/* Mobile Drawer Footer Actions (Search, Shopping Bag & Theme Toggle) */}
+          <div className="border-t border-neutral-200 dark:border-neutral-850 pt-4 space-y-3">
+            <button
+              type="button"
+              onClick={() => {
+                setDrawerOpen(false);
+                setSearchOpen(true);
+              }}
+              className="w-full flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer py-1.5"
+            >
+              <Search size={18} />
+              <span>SEARCH &amp; PRODUCT CODE</span>
+            </button>
+
+            <div className="flex items-center justify-between py-1 border-t border-neutral-200/60 dark:border-neutral-850/60 pt-3">
               <Link
                 href="/products"
                 onClick={handleLinkClick}
