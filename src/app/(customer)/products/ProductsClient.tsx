@@ -15,6 +15,7 @@ interface Product {
   id: string;
   title: string;
   slug: string;
+  product_code?: string | null;
   original_price?: number;
   selling_price?: number | null;
   price?: number; // legacy fallback
@@ -31,18 +32,27 @@ interface ProductsClientProps {
   initialCategories: Category[];
   initialProducts: Product[];
   initialSearch?: string;
+  initialProductCode?: string;
 }
 
 export default function ProductsClient({
   initialCategories,
   initialProducts,
   initialSearch = "",
+  initialProductCode = "",
 }: ProductsClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const categoryQuery = searchParams.get("category") || "";
 
-  const [search, setSearch] = useState(initialSearch);
+  const categoryQuery = searchParams.get("category") || "";
+  const initialCombinedSearch =
+    searchParams.get("search") ||
+    searchParams.get("product_code") ||
+    searchParams.get("code") ||
+    initialSearch ||
+    initialProductCode;
+
+  const [search, setSearch] = useState(initialCombinedSearch);
   const [selectedCategory, setSelectedCategory] = useState(categoryQuery);
   const [bestSellerOnly, setBestSellerOnly] = useState(false);
   const [sortKey, setSortKey] = useState("newest");
@@ -56,8 +66,22 @@ export default function ProductsClient({
 
   // Sync state when URL query parameter changes
   useEffect(() => {
-    setTimeout(() => setSelectedCategory(categoryQuery), 0);
-  }, [categoryQuery]);
+    setTimeout(() => {
+      setSelectedCategory(categoryQuery);
+      if (initialCombinedSearch) {
+        setSearch(initialCombinedSearch);
+      }
+    }, 0);
+  }, [categoryQuery, initialCombinedSearch]);
+
+  // Helper to push URL changes cleanly
+  const updateUrlParams = (cat: string, searchVal: string) => {
+    const params = new URLSearchParams();
+    if (cat) params.set("category", cat);
+    if (searchVal.trim()) params.set("search", searchVal.trim());
+    const queryString = params.toString();
+    router.push(queryString ? `/products?${queryString}` : "/products", { scroll: false });
+  };
 
   // Open mobile modal with synced draft state
   const openMobileFilter = () => {
@@ -70,25 +94,28 @@ export default function ProductsClient({
   // Handle category selection
   const handleCategorySelect = (val: string) => {
     setSelectedCategory(val);
-    if (val) {
-      router.push(`/products?category=${val}`, { scroll: false });
-    } else {
-      router.push("/products", { scroll: false });
-    }
+    updateUrlParams(val, search);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    updateUrlParams(selectedCategory, val);
   };
 
   // Reset all filters
   const handleReset = () => {
     setSelectedCategory("");
+    setSearch("");
     setBestSellerOnly(false);
     setSortKey("newest");
-    setSearch("");
     router.push("/products", { scroll: false });
   };
 
   // Apply mobile filter modal
   const handleApplyMobileFilter = () => {
-    handleCategorySelect(tempCategory);
+    setSelectedCategory(tempCategory);
+    updateUrlParams(tempCategory, search);
     setBestSellerOnly(tempBestSellerOnly);
     setSortKey(tempSortKey);
     setMobileFilterOpen(false);
@@ -106,7 +133,7 @@ export default function ProductsClient({
     (c) => c.slug === selectedCategory || c.id === selectedCategory
   );
 
-  // Filtering logic
+  // Filtering logic: Search matches title, category name, or product_code
   const filtered = initialProducts.filter((product) => {
     const matchCategory =
       selectedCategory === "" ||
@@ -114,11 +141,14 @@ export default function ProductsClient({
         ? product.category_id === targetCategory.id
         : product.category_id === selectedCategory);
 
+    const searchQueryTrimmed = search.trim().toLowerCase();
     const matchSearch =
-      search.trim() === "" ||
-      product.title.toLowerCase().includes(search.toLowerCase()) ||
+      searchQueryTrimmed === "" ||
+      product.title.toLowerCase().includes(searchQueryTrimmed) ||
       (product.categories?.name &&
-        product.categories.name.toLowerCase().includes(search.toLowerCase()));
+        product.categories.name.toLowerCase().includes(searchQueryTrimmed)) ||
+      (product.product_code &&
+        product.product_code.trim().toLowerCase().includes(searchQueryTrimmed));
 
     const matchBestSeller = !bestSellerOnly || product.featured === true;
 
@@ -154,14 +184,14 @@ export default function ProductsClient({
 
   const hasActiveFilters =
     selectedCategory !== "" ||
+    search.trim() !== "" ||
     bestSellerOnly ||
-    sortKey !== "newest" ||
-    search !== "";
+    sortKey !== "newest";
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12 space-y-8 flex-1 flex flex-col justify-start bg-transparent text-foreground">
-      {/* Header with Title and Desktop Filter/Sort Pills */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-neutral-200 dark:border-neutral-850 pb-6 gap-6">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12 space-y-6 flex-1 flex flex-col justify-start bg-transparent text-foreground">
+      {/* HEADER ROW: Title & Filter/Sort Pills (with Compact Search Bar) */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-neutral-200 dark:border-neutral-850 pb-5 gap-4">
         <div>
           <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
             {targetCategory ? targetCategory.name : "Collections"}
@@ -174,8 +204,34 @@ export default function ProductsClient({
           </p>
         </div>
 
-        {/* Desktop / Tablet Pills Row */}
+        {/* Desktop / Tablet Pills Row (Search + Best Selling + Sort) */}
         <div className="hidden md:flex flex-wrap items-center gap-2">
+          {/* Compact Search Bar placed side of Best Selling */}
+          <div className="relative w-52 sm:w-60 flex-shrink-0">
+            <span className="absolute inset-y-0 left-3 flex items-center text-neutral-400">
+              <Search size={13} />
+            </span>
+            <input
+              type="text"
+              placeholder="SEARCH & PRODUCT CODE..."
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-250 dark:border-neutral-800 text-[10px] sm:text-[11px] tracking-wider uppercase pl-8 pr-7 py-1.5 rounded-full placeholder-neutral-400 text-black dark:text-white font-semibold focus:outline-none focus:border-black dark:focus:border-white shadow-xs"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => handleSearchChange("")}
+                aria-label="Clear search"
+                className="absolute inset-y-0 right-2.5 flex items-center text-neutral-400 hover:text-black dark:hover:text-white cursor-pointer"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
+
+          <div className="h-4 w-[1px] bg-neutral-200 dark:bg-neutral-800 mx-0.5" />
+
           {/* Best Seller Toggle Pill */}
           <button
             type="button"
@@ -189,7 +245,7 @@ export default function ProductsClient({
             Best Selling {bestSellerOnly ? "✓" : ""}
           </button>
 
-          <div className="h-4 w-[1px] bg-neutral-200 dark:bg-neutral-800 mx-1" />
+          <div className="h-4 w-[1px] bg-neutral-200 dark:bg-neutral-800 mx-0.5" />
 
           {/* Sort Options */}
           {sortOptions.map((opt) => (
@@ -219,7 +275,7 @@ export default function ProductsClient({
           )}
         </div>
 
-        {/* Mobile Filter Button */}
+        {/* Mobile Filter & Search Bar */}
         <div className="flex md:hidden items-center justify-between gap-3">
           <div className="relative flex-1">
             <span className="absolute inset-y-0 left-3 flex items-center text-neutral-400">
@@ -227,11 +283,20 @@ export default function ProductsClient({
             </span>
             <input
               type="text"
-              placeholder="SEARCH..."
+              placeholder="SEARCH & PRODUCT CODE..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs tracking-wider uppercase px-9 py-2.5 rounded-full placeholder-neutral-400 text-black dark:text-white font-medium focus:outline-none"
             />
+            {search && (
+              <button
+                type="button"
+                onClick={() => handleSearchChange("")}
+                className="absolute inset-y-0 right-3 flex items-center text-neutral-400"
+              >
+                <X size={13} />
+              </button>
+            )}
           </div>
 
           <button
@@ -245,53 +310,34 @@ export default function ProductsClient({
         </div>
       </div>
 
-      {/* Desktop Search & Category Chips */}
-      <div className="hidden md:flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 select-none">
-        {/* Search */}
-        <div className="relative flex-1 max-w-sm">
-          <span className="absolute inset-y-0 left-3.5 flex items-center text-neutral-400">
-            <Search size={15} />
-          </span>
-          <input
-            type="text"
-            placeholder="SEARCH COLLECTION..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs tracking-widest uppercase px-10 py-2.5 rounded-full placeholder-neutral-400 text-black dark:text-white font-semibold focus:outline-none focus:border-black dark:focus:border-white"
-          />
-        </div>
-
-        {/* Category Horizontal Chips */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
-          <button
-            type="button"
-            onClick={() => handleCategorySelect("")}
-            className={`px-4 py-2 text-xs font-extrabold rounded-full border uppercase tracking-wider transition-all cursor-pointer ${
-              selectedCategory === ""
-                ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-xs"
-                : "bg-neutral-50 dark:bg-neutral-900 text-black dark:text-white border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white font-bold"
+      {/* CATEGORIES ROW: Horizontal Category Chips */}
+      <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none select-none">
+        <button
+          type="button"
+          onClick={() => handleCategorySelect("")}
+          className={`px-4 py-2 text-xs font-extrabold rounded-full border uppercase tracking-wider transition-all cursor-pointer flex-shrink-0 ${selectedCategory === ""
+              ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-xs"
+              : "bg-neutral-50 dark:bg-neutral-900 text-black dark:text-white border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white font-bold"
             }`}
-          >
-            All Products
-          </button>
-          {initialCategories.map((c) => {
-            const active = selectedCategory === c.slug || selectedCategory === c.id;
-            return (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => handleCategorySelect(c.slug || c.id)}
-                className={`px-4 py-2 text-xs font-extrabold rounded-full border uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
-                  active
-                    ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-xs"
-                    : "bg-neutral-50 dark:bg-neutral-900 text-black dark:text-white border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white font-bold"
+        >
+          All Products
+        </button>
+        {initialCategories.map((c) => {
+          const active = selectedCategory === c.slug || selectedCategory === c.id;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => handleCategorySelect(c.slug || c.id)}
+              className={`px-4 py-2 text-xs font-extrabold rounded-full border uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${active
+                  ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-xs"
+                  : "bg-neutral-50 dark:bg-neutral-900 text-black dark:text-white border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white font-bold"
                 }`}
-              >
-                {c.name}
-              </button>
-            );
-          })}
-        </div>
+            >
+              {c.name}
+            </button>
+          );
+        })}
       </div>
 
       {/* Grid List */}
@@ -349,11 +395,10 @@ export default function ProductsClient({
               <button
                 type="button"
                 onClick={() => setTempBestSellerOnly(!tempBestSellerOnly)}
-                className={`flex items-center justify-between w-full p-3.5 rounded-xl text-xs font-semibold transition-all ${
-                  tempBestSellerOnly
+                className={`flex items-center justify-between w-full p-3.5 rounded-xl text-xs font-semibold transition-all ${tempBestSellerOnly
                     ? "bg-black dark:bg-white text-white dark:text-black font-bold"
                     : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
-                }`}
+                  }`}
               >
                 <span>Best Selling Products Only</span>
                 {tempBestSellerOnly && <Check size={16} />}
@@ -373,11 +418,10 @@ export default function ProductsClient({
                       key={opt.value}
                       type="button"
                       onClick={() => setTempSortKey(opt.value)}
-                      className={`flex items-center justify-between p-3.5 rounded-xl text-xs font-semibold transition-all ${
-                        selected
+                      className={`flex items-center justify-between p-3.5 rounded-xl text-xs font-semibold transition-all ${selected
                           ? "bg-black dark:bg-white text-white dark:text-black font-bold"
                           : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
-                      }`}
+                        }`}
                     >
                       <span>{opt.label}</span>
                       {selected && <Check size={16} />}
@@ -396,11 +440,10 @@ export default function ProductsClient({
                 <button
                   type="button"
                   onClick={() => setTempCategory("")}
-                  className={`px-4 py-2.5 rounded-full text-xs font-medium transition-all ${
-                    tempCategory === ""
+                  className={`px-4 py-2.5 rounded-full text-xs font-medium transition-all ${tempCategory === ""
                       ? "bg-black dark:bg-white text-white dark:text-black font-bold"
                       : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
-                  }`}
+                    }`}
                 >
                   All Products
                 </button>
@@ -411,11 +454,10 @@ export default function ProductsClient({
                       key={c.id}
                       type="button"
                       onClick={() => setTempCategory(c.slug || c.id)}
-                      className={`px-4 py-2.5 rounded-full text-xs font-medium transition-all ${
-                        active
+                      className={`px-4 py-2.5 rounded-full text-xs font-medium transition-all ${active
                           ? "bg-black dark:bg-white text-white dark:text-black font-bold"
                           : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
-                      }`}
+                        }`}
                     >
                       {c.name}
                     </button>

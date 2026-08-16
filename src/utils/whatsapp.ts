@@ -1,5 +1,7 @@
 interface WhatsAppMessageParams {
   productName: string;
+  productCode?: string | null;
+  selectedColor?: string | null;
   category: string;
   productPrice: number;
   quantity: number;
@@ -26,6 +28,8 @@ export function generateWhatsAppMessage(params: WhatsAppMessageParams): string {
     line,
     "",
     `💍 *${params.productName.toUpperCase()}*`,
+    ...(params.productCode ? [`🏷️ *Product Code:* ${params.productCode}`] : []),
+    ...(params.selectedColor ? [`🎨 *Color:* ${params.selectedColor}`] : []),
     "------------------",
     `🏷️ Category: ${params.category}`,
     `💰 Price: ₹${params.productPrice.toFixed(2)}`,

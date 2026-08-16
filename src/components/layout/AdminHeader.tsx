@@ -32,14 +32,24 @@ export default function AdminHeader({ onMenuOpen }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b border-neutral-200 dark:border-neutral-850 bg-white dark:bg-neutral-950 px-6 select-none">
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-3.5">
         {/* Mobile sidebar button */}
         <button
           onClick={onMenuOpen}
-          className="text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white lg:hidden focus:outline-none cursor-pointer"
+          className="text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white lg:hidden focus:outline-none cursor-pointer p-1"
+          aria-label="Open Menu"
         >
-          <Menu size={18} />
+          <Menu size={20} />
         </button>
+
+        {/* Mobile Logo */}
+        <div className="lg:hidden flex items-center">
+          <img
+            src="/images/logo-latest.png"
+            alt="NETHIEL Logo"
+            className="h-7 w-auto object-contain"
+          />
+        </div>
 
         {/* Dynamic Breadcrumbs */}
         <div className="hidden sm:flex items-center space-x-1">{getBreadcrumbs()}</div>
@@ -48,7 +58,7 @@ export default function AdminHeader({ onMenuOpen }: HeaderProps) {
       {/* Profile summary */}
       <div className="flex items-center space-x-4">
         <ThemeToggle />
-        
+
         <div className="flex items-center space-x-3">
           <div className="text-right">
             <div className="text-[10px] font-semibold tracking-wider uppercase text-black dark:text-white">

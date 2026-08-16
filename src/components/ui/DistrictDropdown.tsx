@@ -48,7 +48,7 @@ export default function DistrictDropdown({ value, state, onChange, error }: Dist
 
   return (
     <div className="space-y-1.5 relative" ref={containerRef}>
-      <label className="block text-[9px] uppercase tracking-widest font-semibold text-neutral-500">
+      <label className="block text-xs uppercase tracking-wider font-bold text-neutral-600 dark:text-neutral-400">
         District
       </label>
 

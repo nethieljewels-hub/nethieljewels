@@ -47,3 +47,41 @@ export function CardSkeleton({ count = 3 }: { count?: number }) {
     </div>
   );
 }
+
+export function ProductDetailSkeleton() {
+  return (
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-4 sm:py-8 space-y-6 flex-1 animate-pulse select-none">
+      <div className="h-4 bg-neutral-200 dark:bg-neutral-800 w-28 rounded-xs" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
+        {/* Image Skeleton */}
+        <div className="space-y-3">
+          <div className="aspect-square w-full bg-neutral-200 dark:bg-neutral-800 rounded-md" />
+          <div className="flex space-x-2">
+            <div className="w-14 h-14 bg-neutral-200 dark:bg-neutral-800 rounded-xs" />
+            <div className="w-14 h-14 bg-neutral-200 dark:bg-neutral-800 rounded-xs" />
+            <div className="w-14 h-14 bg-neutral-200 dark:bg-neutral-800 rounded-xs" />
+          </div>
+        </div>
+        {/* Product Details Skeleton */}
+        <div className="space-y-4">
+          <div className="h-3 bg-neutral-200 dark:bg-neutral-800 w-20 rounded-xs" />
+          <div className="h-8 bg-neutral-200 dark:bg-neutral-800 w-3/4 rounded-xs" />
+          <div className="h-5 bg-neutral-200 dark:bg-neutral-800 w-36 rounded-xs" />
+          <div className="h-6 bg-neutral-200 dark:bg-neutral-800 w-28 rounded-xs" />
+          <div className="space-y-2 pt-2">
+            <div className="h-3 bg-neutral-200 dark:bg-neutral-800 w-28 rounded-xs" />
+            <div className="flex space-x-2">
+              <div className="h-8 w-16 bg-neutral-200 dark:bg-neutral-800 rounded-xs" />
+              <div className="h-8 w-16 bg-neutral-200 dark:bg-neutral-800 rounded-xs" />
+            </div>
+          </div>
+          <div className="space-y-2 pt-2">
+            <div className="h-3 bg-neutral-200 dark:bg-neutral-800 w-36 rounded-xs" />
+            <div className="h-16 bg-neutral-200 dark:bg-neutral-800 w-full rounded-xs" />
+          </div>
+          <div className="h-12 bg-neutral-200 dark:bg-neutral-800 w-full rounded-md mt-4" />
+        </div>
+      </div>
+    </div>
+  );
+}
