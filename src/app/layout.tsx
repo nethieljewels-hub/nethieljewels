@@ -88,9 +88,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   } else {
                     document.documentElement.classList.remove('dark');
                   }
+                  var splashShown = sessionStorage.getItem('nethiel_splash_shown');
                   var navEntries = performance.getEntriesByType('navigation');
                   var isReload = navEntries.length > 0 && navEntries[0].type === 'reload';
-                  if (isReload) {
+                  if (splashShown || isReload) {
                     document.documentElement.classList.add('no-splash');
                   }
                 } catch (e) {}
