@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Cormorant_Garamond } from "next/font/google";
+import { Geist, Cormorant_Garamond, Great_Vibes, Cinzel } from "next/font/google";
 import "./globals.css";
 import SplashScreen from "@/components/ui/SplashScreen";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -14,6 +14,18 @@ const cormorantGaramond = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   style: ["normal", "italic"],
+});
+
+const greatVibes = Great_Vibes({
+  variable: "--font-great-vibes",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
 });
 
 export const viewport = {
@@ -58,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${cormorantGaramond.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${cormorantGaramond.variable} ${greatVibes.variable} ${cinzel.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
