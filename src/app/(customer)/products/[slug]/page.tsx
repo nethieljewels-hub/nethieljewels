@@ -22,10 +22,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return {};
 
   return {
-    title: `${product.title} | TEEX`,
+    title: `${product.title} | Nethiel Jewelry`,
     description:
       product.description ||
-      "Discover premium clothing silhouettes designed with ultimate focus on fabric, cut, and quality details.",
+      "Discover premium handcrafted jewelry — beautifully designed with precious metals and fine gemstones.",
   };
 }
 

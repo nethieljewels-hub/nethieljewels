@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { FormSkeleton } from "@/components/ui/Skeletons";
-import MediaUpload from "@/components/ui/MediaUpload";
+
 import { useToast } from "@/context/ToastContext";
 import { Save } from "lucide-react";
 import { DEFAULT_WHATSAPP_NUMBER, DEFAULT_WHATSAPP_DISPLAY_PHONE } from "@/utils/constants";
@@ -16,7 +16,7 @@ export default function SettingsPage() {
 
   // Settings State
   const [shopName, setShopName] = useState("");
-  const [logo, setLogo] = useState<string | null>(null);
+
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -36,8 +36,7 @@ export default function SettingsPage() {
       showToast(error.message, "error");
     } else if (data) {
       setShopName(data.shop_name);
-      // Store actual DB value — null means no custom logo set (fallback shown by UI only)
-      setLogo(data.logo || null);
+
       setEmail(data.email || "");
       setPhone(data.phone || DEFAULT_WHATSAPP_DISPLAY_PHONE);
       setWhatsapp(data.whatsapp || DEFAULT_WHATSAPP_NUMBER);
@@ -67,7 +66,7 @@ export default function SettingsPage() {
     const { error } = await supabase.from("settings").upsert({
       id: true,
       shop_name: shopName,
-      logo: logo ?? null,  // explicitly null when deleted \u2014 clears the DB field
+
       email: email || null,
       phone: phone || null,
       whatsapp: whatsapp || null,
@@ -105,23 +104,7 @@ export default function SettingsPage() {
             Brand Identity
           </h2>
 
-          <div>
-            <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase mb-1">
-              Shop Logo
-            </label>
-            {/* Show fallback hint when no logo is saved */}
-            {!logo && (
-              <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mb-2 italic">
-                No custom logo set — using default Nethiel logo. Upload a new one below.
-              </p>
-            )}
-            <MediaUpload
-              bucket="settings"
-              value={logo}
-              onChange={(val) => setLogo(val as string | null)}
-              accept="image/png, image/jpeg, image/webp, image/svg+xml"
-            />
-          </div>
+
 
           <div>
             <label className="block text-[10px] font-light tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
@@ -132,7 +115,7 @@ export default function SettingsPage() {
               required
               value={shopName}
               onChange={(e) => setShopName(e.target.value)}
-              placeholder="e.g. TEEX CLOTHINGS"
+              placeholder="e.g. NETHIEL JEWELRY"
               className="mt-1 block w-full rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-sm text-black dark:text-white focus:border-black dark:focus:border-neutral-500 focus:outline-none"
             />
           </div>

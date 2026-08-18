@@ -3,34 +3,39 @@
 import { useState, useEffect } from "react";
 
 /**
- * Premium splash/welcome animation for Nethiel Jewelry.
- * Renders immediately (no flash), plays once per browser session.
+ * Premium Preloader — Nethiel Jewelry.
+ *
+ * UX Design:
+ * 1. Each letter of "Nethiel" floats up & fades in one by one (100ms stagger).
+ * 2. A thin gold underline expands from center beneath the name.
+ * 3. "◆ JEWELRY ◆" ornament row rises in smoothly after the name is complete.
+ * 4. Everything fades out together with a gentle upward exit.
  */
 export default function SplashScreen() {
-  // Start visible so the splash covers the page on first paint
   const [show, setShow] = useState(true);
-  const [phase, setPhase] = useState<"letters" | "tagline" | "exit">("letters");
+  const [phase, setPhase] = useState<"name" | "underline" | "tagline" | "exit">("name");
 
   useEffect(() => {
-    // If already shown this session, dismiss immediately
-    if (sessionStorage.getItem("nethiel_splash_shown")) {
-      setTimeout(() => setShow(false), 0);
-      return;
+    try {
+      // Check if current page load was triggered by a browser refresh/reload
+      const navEntries = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
+      const isReload = navEntries.length > 0 && navEntries[0]?.type === "reload";
+
+      if (isReload) {
+        setShow(false);
+        return;
+      }
+    } catch {
+      // Fallback
     }
 
-    // Timeline:
-    //  0ms      – letters animate in (CSS stagger)
-    //  1200ms   – tagline fades in
-    //  2400ms   – mark as shown + begin exit fade
-    //  3200ms   – unmount overlay
-    const taglineTimer = setTimeout(() => setPhase("tagline"), 1200);
-    const exitTimer = setTimeout(() => {
-      sessionStorage.setItem("nethiel_splash_shown", "1");
-      setPhase("exit");
-    }, 2400);
-    const unmountTimer = setTimeout(() => setShow(false), 3200);
+    const underlineTimer = setTimeout(() => setPhase("underline"), 600);
+    const taglineTimer = setTimeout(() => setPhase("tagline"), 800);
+    const exitTimer = setTimeout(() => setPhase("exit"), 1800);
+    const unmountTimer = setTimeout(() => setShow(false), 2300);
 
     return () => {
+      clearTimeout(underlineTimer);
       clearTimeout(taglineTimer);
       clearTimeout(exitTimer);
       clearTimeout(unmountTimer);
@@ -39,60 +44,71 @@ export default function SplashScreen() {
 
   if (!show) return null;
 
-  const letters = ["T", "E", "E", "X"];
+  const letters = ["N", "e", "t", "h", "i", "e", "l"];
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-black transition-opacity duration-700 ease-out ${
-        phase === "exit" ? "opacity-0 pointer-events-none" : "opacity-100"
+      id="nethiel-splash-screen"
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#111111] transition-all duration-700 ease-out select-none ${
+        phase === "exit" ? "opacity-0 translate-y-[-8px] pointer-events-none" : "opacity-100 translate-y-0"
       }`}
       aria-hidden="true"
     >
-      {/* Decorative lines */}
-      <div
-        className={`absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent transition-opacity duration-1000 ${
-          phase === "letters" ? "opacity-0" : "opacity-100"
-        }`}
-      />
-      <div
-        className={`absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent transition-opacity duration-1000 ${
-          phase === "letters" ? "opacity-0" : "opacity-100"
-        }`}
-      />
+      <div className="flex flex-col items-center justify-center text-center">
 
-      {/* TEEX Letters */}
-      <div className="flex items-center justify-center" aria-label="TEEX">
-        {letters.map((letter, i) => (
-          <span
-            key={i}
-            className="splash-letter inline-block font-extrabold tracking-[0.15em] text-black dark:text-white uppercase select-none
-              text-6xl sm:text-8xl md:text-9xl lg:text-[10rem]"
-            style={{
-              animationDelay: `${i * 150}ms`,
-            }}
-          >
-            {letter}
-          </span>
-        ))}
+        {/* Letter-by-letter "Nethiel" in Great Vibes cursive */}
+        <div
+          className="flex items-baseline justify-center font-script-luxury text-[#D4AF37] dark:text-[#F4C430]"
+          aria-label="Nethiel"
+        >
+          {letters.map((letter, i) => (
+            <span
+              key={i}
+              className={`splash-letter inline-block leading-none ${
+                i === 0
+                  ? "text-8xl sm:text-[7rem] md:text-[9rem] lg:text-[11rem] uppercase"
+                  : "text-6xl sm:text-7xl md:text-8xl lg:text-[8.5rem] lowercase"
+              } ${i === 1 ? "-ml-2 sm:-ml-3 md:-ml-4" : ""}`}
+              style={{ animationDelay: `${i * 100}ms` }}
+            >
+              {letter}
+            </span>
+          ))}
+        </div>
+
+        {/* Gold Underline — expands from center */}
+        <div className="overflow-hidden mt-1 sm:mt-2 h-[2px] flex justify-center">
+          <div
+            className={`h-full bg-gradient-to-r from-[#D4AF37]/30 via-[#D4AF37] to-[#D4AF37]/30 dark:from-[#F4C430]/30 dark:via-[#F4C430] dark:to-[#F4C430]/30 rounded-full transition-all duration-500 ease-out ${
+              phase === "underline" || phase === "tagline" || phase === "exit"
+                ? "w-36 sm:w-52 md:w-64 opacity-100"
+                : "w-0 opacity-0"
+            }`}
+          />
+        </div>
+
+        {/* JEWELRY ornament row */}
+        <div
+          className={`mt-3 sm:mt-4 flex items-center justify-center space-x-3 sm:space-x-4 transition-all duration-600 ease-out ${
+            phase === "tagline" || phase === "exit"
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-4"
+          }`}
+        >
+          {/* Left ornament */}
+          <span className="h-[1.5px] w-6 sm:w-14 md:w-18 bg-gradient-to-r from-transparent to-[#D4AF37] dark:to-[#F4C430]" />
+          <span className="w-1.5 h-1.5 rotate-45 bg-[#D4AF37] dark:bg-[#F4C430] opacity-80" />
+
+          <p className="font-cinzel font-extrabold text-[10px] sm:text-sm md:text-base tracking-[0.55em] text-[#D4AF37] dark:text-[#F4C430] uppercase pl-[0.55em]">
+            JEWELRY
+          </p>
+
+          {/* Right ornament */}
+          <span className="w-1.5 h-1.5 rotate-45 bg-[#D4AF37] dark:bg-[#F4C430] opacity-80" />
+          <span className="h-[1.5px] w-6 sm:w-14 md:w-18 bg-gradient-to-l from-transparent to-[#D4AF37] dark:to-[#F4C430]" />
+        </div>
+
       </div>
-
-      {/* Tagline */}
-      <p
-        className={`mt-4 sm:mt-6 text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.3em] sm:tracking-[0.4em] uppercase text-neutral-500 dark:text-neutral-400 transition-all duration-700 ease-out ${
-          phase === "tagline" || phase === "exit"
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-3"
-        }`}
-      >
-        Premium Clothing
-      </p>
-
-      {/* Animated underline accent */}
-      <div
-        className={`mt-4 sm:mt-6 h-[2px] bg-black dark:bg-white rounded-full transition-all duration-700 ease-out ${
-          phase === "tagline" || phase === "exit" ? "w-16 sm:w-24 opacity-100" : "w-0 opacity-0"
-        }`}
-      />
     </div>
   );
 }

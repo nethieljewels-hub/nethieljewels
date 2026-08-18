@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import AdminLayoutInner from "./AdminLayoutInner";
 
 export const metadata: Metadata = {
-  title: "TEEX | Admin Console",
-  description: "Secure administrative management console for TEEX Clothings.",
+  title: "Nethiel Jewelry | Admin Console",
+  description: "Secure administrative management console for Nethiel Jewelry.",
   robots: {
     index: false,
     follow: false,

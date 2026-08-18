@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Cormorant_Garamond } from "next/font/google";
+import { Geist, Cormorant_Garamond, Great_Vibes, Cinzel } from "next/font/google";
 import "./globals.css";
 import SplashScreen from "@/components/ui/SplashScreen";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { ToastProvider } from "@/context/ToastContext";
+import { CartProvider } from "@/context/CartContext";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,6 +19,18 @@ const cormorantGaramond = Cormorant_Garamond({
   style: ["normal", "italic"],
 });
 
+const greatVibes = Great_Vibes({
+  variable: "--font-great-vibes",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+});
+
 export const viewport = {
   width: "device-width",
   initialScale: 1,
@@ -25,24 +40,24 @@ export const viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "TEEX | Premium Luxury Clothing",
-    template: "%s | TEEX",
+    default: "Nethiel Jewelry | Premium Handcrafted Jewelry",
+    template: "%s | Nethiel Jewelry",
   },
   description:
-    "Experience bespoke minimalist clothing. Timeless collections crafted for the contemporary wardrobe with elegant craftsmanship.",
-  metadataBase: new URL("https://teexclothings.com"),
+    "Discover timeless elegance at Nethiel Jewelry. Explore premium gold, silver, and gemstone jewelry collections crafted to celebrate life's most beautiful moments.",
+  metadataBase: new URL("https://nethieljewelry.com"),
   openGraph: {
-    title: "TEEX | Premium Luxury Clothing",
-    description: "Discover timeless minimalist silhouettes and premium quality clothing.",
-    url: "https://teexclothings.com",
-    siteName: "TEEX",
-    locale: "en_US",
+    title: "Nethiel Jewelry | Premium Handcrafted Jewelry",
+    description: "Explore premium gold, silver, and gemstone jewelry collections — crafted for life's most precious moments.",
+    url: "https://nethieljewelry.com",
+    siteName: "Nethiel Jewelry",
+    locale: "en_IN",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "TEEX | Premium Luxury Clothing",
-    description: "Discover timeless minimalist silhouettes and premium quality clothing.",
+    title: "Nethiel Jewelry | Premium Handcrafted Jewelry",
+    description: "Explore premium gold, silver, and gemstone jewelry collections — crafted for life's most precious moments.",
   },
   icons: {
     icon: "/icon.png",
@@ -58,7 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${cormorantGaramond.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${cormorantGaramond.variable} ${greatVibes.variable} ${cinzel.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
@@ -73,6 +88,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   } else {
                     document.documentElement.classList.remove('dark');
                   }
+                  var navEntries = performance.getEntriesByType('navigation');
+                  var isReload = navEntries.length > 0 && navEntries[0].type === 'reload';
+                  if (isReload) {
+                    document.documentElement.classList.add('no-splash');
+                  }
                 } catch (e) {}
               })()
             `,
@@ -81,8 +101,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProvider>
-          <SplashScreen />
-          {children}
+          <ToastProvider>
+            <CartProvider>
+              <SplashScreen />
+              <CartDrawer />
+              {children}
+            </CartProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

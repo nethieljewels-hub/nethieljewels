@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import BottomSheet from "@/components/ui/BottomSheet";
 import OrderSummaryCard from "@/components/purchase/OrderSummaryCard";
@@ -14,6 +14,7 @@ import { Loader2, MessageSquare, AlertTriangle } from "lucide-react";
 
 interface PurchaseProduct {
   title: string;
+  product_code?: string | null;
   original_price?: number;
   selling_price?: number | null;
   price?: number; // legacy fallback
@@ -26,9 +27,8 @@ interface PurchaseSheetProps {
   onClose: () => void;
   product: PurchaseProduct;
   productSlug: string;
-  selectedSize: string;
-  selectedColor: string;
   quantity: number;
+  selectedColor?: string | null;
   initialState?: string;
   initialShippingCharge?: number | null;
 }
@@ -48,16 +48,14 @@ export default function PurchaseSheet({
   onClose,
   product,
   productSlug,
-  selectedSize,
-  selectedColor,
   quantity,
+  selectedColor,
   initialState,
   initialShippingCharge,
 }: PurchaseSheetProps) {
   const [formData, setFormData] = useState<DeliveryDetails>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [shippingCharge, setShippingCharge] = useState<number | null>(null);
-  const [shippingLoading, setShippingLoading] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>(DEFAULT_WHATSAPP_NUMBER);
   const [shopName, setShopName] = useState<string>("NETHIEL JEWELRY");
   const [settingsLoading, setSettingsLoading] = useState(true);
@@ -114,26 +112,6 @@ export default function PurchaseSheet({
     fetchSettings();
   }, [isOpen]);
 
-  const fetchShippingForState = useCallback(async (stateName: string) => {
-    setShippingLoading(true);
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("shipping_charges")
-        .select("shipping_charge")
-        .eq("state_name", stateName)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (error) throw error;
-      setShippingCharge(data?.shipping_charge ?? null);
-    } catch {
-      setShippingCharge(null);
-    } finally {
-      setShippingLoading(false);
-    }
-  }, []);
-
   // Pre-fill from localStorage on open (use ref to avoid re-initializing)
   const initializedRef = useRef(false);
   useEffect(() => {
@@ -152,16 +130,12 @@ export default function PurchaseSheet({
     // Schedule state update outside effect synchronous body
     queueMicrotask(() => {
       setFormData(saved);
-      if (initialShippingCharge !== undefined && initialShippingCharge !== null) {
-        setShippingCharge(initialShippingCharge);
-      } else if (saved.state) {
-        fetchShippingForState(saved.state);
-      }
+      setShippingCharge(initialShippingCharge ?? 0);
     });
-  }, [isOpen, initialState, initialShippingCharge, fetchShippingForState]);
+  }, [isOpen, initialState, initialShippingCharge]);
 
-  function handleStateChange(_stateName: string, charge: number) {
-    setShippingCharge(charge);
+  function handleStateChange(_stateName: string, charge?: number) {
+    setShippingCharge(charge ?? 0);
   }
 
   // Save to localStorage on form changes
@@ -235,29 +209,25 @@ export default function PurchaseSheet({
       return;
     }
 
-    if (shippingCharge === null) {
-      setErrors((prev) => ({
-        ...prev,
-        state: "Please select a state to calculate shipping",
-      }));
-      return;
-    }
-
-    setSending(true);
-
-    const grandTotal = (activePrice * quantity) + shippingCharge;
+    const activeShippingCharge = shippingCharge ?? 0;
+    const grandTotal = (activePrice * quantity) + activeShippingCharge;
 
     const productUrl = `${window.location.origin}/products/${productSlug}`;
+    const resolvedProductCode =
+      product.product_code ||
+      (product as unknown as Record<string, string>).productCode ||
+      (product as unknown as Record<string, string>).code ||
+      "";
 
     const message = generateWhatsAppMessage({
       productName: product.title,
+      productCode: resolvedProductCode,
+      selectedColor: selectedColor,
       category: product.categories?.name || "Uncategorized",
       productPrice: activePrice,
       quantity,
-      selectedSize,
-      selectedColor,
       stateName: formData.state,
-      shippingCharge,
+      shippingCharge: activeShippingCharge,
       grandTotal,
       customerName: formData.customerName.trim(),
       houseName: formData.houseName.trim(),
@@ -278,9 +248,14 @@ export default function PurchaseSheet({
   }
 
   const productImage = (product.images.length > 0 ? product.images[0] : "/placeholder-product.jpg") ?? "/placeholder-product.jpg";
+  const resolvedProductCode =
+    product.product_code ||
+    (product as unknown as Record<string, string>).productCode ||
+    (product as unknown as Record<string, string>).code ||
+    "";
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} title={`Order from ${shopName}`}>
+    <BottomSheet isOpen={isOpen} onClose={onClose} title={`Order Details — ${shopName}`}>
       {settingsLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 size={24} className="animate-spin text-neutral-500" />
@@ -292,18 +267,17 @@ export default function PurchaseSheet({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          {/* Left column: Summary */}
+          {/* Left column: Summary & Product Code */}
           <div className="space-y-6">
             <OrderSummaryCard
               productImage={productImage}
               productName={product.title}
-              category={product.categories?.name || ""}
-              selectedSize={selectedSize}
+              productCode={resolvedProductCode}
               selectedColor={selectedColor}
+              category={product.categories?.name || ""}
               productPrice={activePrice}
               quantity={quantity}
               shippingCharge={shippingCharge}
-              shippingLoading={shippingLoading}
               stateName={formData.state}
             />
           </div>
@@ -331,20 +305,20 @@ export default function PurchaseSheet({
                 type="button"
                 onClick={handleSend}
                 disabled={sending}
-                className="w-full flex items-center justify-center space-x-2 bg-green-700 hover:bg-green-600 text-white px-6 py-4 text-xs font-semibold tracking-widest uppercase transition-all rounded-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:animate-scale-tap"
+                className="w-full flex items-center justify-center space-x-2.5 bg-emerald-700 hover:bg-emerald-600 text-white px-6 py-4 text-xs sm:text-sm font-bold tracking-widest uppercase transition-all rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:animate-scale-tap shadow-md hover:shadow-lg"
               >
                 {sending ? (
-                  <Loader2 size={16} className="animate-spin" />
+                  <Loader2 size={18} className="animate-spin" />
                 ) : (
                   <>
-                    <MessageSquare size={16} />
-                    <span>Send via WhatsApp</span>
+                    <MessageSquare size={18} />
+                    <span>Send Order via WhatsApp</span>
                   </>
                 )}
               </button>
 
-              <p className="text-[8px] text-neutral-600 font-light text-center tracking-wider uppercase">
-                Your order details will be sent to our WhatsApp for confirmation
+              <p className="text-[9px] sm:text-[10px] text-neutral-500 dark:text-neutral-400 font-light text-center tracking-wider uppercase">
+                Your order details &amp; product code will be sent to WhatsApp for instant confirmation
               </p>
             </div>
           </div>

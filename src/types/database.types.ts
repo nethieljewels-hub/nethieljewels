@@ -77,11 +77,10 @@ export interface Database {
           selling_price: number | null;
           is_out_of_stock: boolean;
           category_id: string;
-          sizes: string[];
-          colors: string[];
           images: string[];
           featured: boolean;
           active: boolean;
+          product_code: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -94,11 +93,10 @@ export interface Database {
           selling_price?: number | null;
           is_out_of_stock?: boolean;
           category_id: string;
-          sizes?: string[];
-          colors?: string[];
           images?: string[];
           featured?: boolean;
           active?: boolean;
+          product_code?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -111,11 +109,10 @@ export interface Database {
           selling_price?: number | null;
           is_out_of_stock?: boolean;
           category_id?: string;
-          sizes?: string[];
-          colors?: string[];
           images?: string[];
           featured?: boolean;
           active?: boolean;
+          product_code?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -201,32 +198,6 @@ export interface Database {
           instagram?: string | null;
           facebook?: string | null;
           address?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      shipping_charges: {
-        Row: {
-          id: string;
-          state_name: string;
-          shipping_charge: number;
-          is_active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          state_name: string;
-          shipping_charge: number;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          state_name?: string;
-          shipping_charge?: number;
-          is_active?: boolean;
           created_at?: string;
           updated_at?: string;
         };

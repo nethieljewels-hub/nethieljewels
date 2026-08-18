@@ -18,8 +18,7 @@ interface Product {
   selling_price: number | null;
   is_out_of_stock: boolean;
   category_id: string;
-  sizes: string[];
-  colors: string[];
+  product_code: string | null;
   featured: boolean;
   active: boolean;
   images?: string[];
@@ -265,6 +264,11 @@ export default function ProductsPage() {
                         <div className="text-[10px] text-neutral-500 font-mono mt-0.5">
                           {prod.slug}
                         </div>
+                        {prod.product_code && (
+                          <div className="text-[9px] text-neutral-400 font-mono tracking-widest uppercase mt-0.5">
+                            {prod.product_code}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-neutral-600 dark:text-neutral-400 uppercase tracking-wider text-[10px]">

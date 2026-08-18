@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Image as ImageIcon } from "lucide-react";
+import { Heart, Image as ImageIcon, ShoppingBag } from "lucide-react";
 import { useState } from "react";
+import { useCart } from "@/context/CartContext";
 
 interface ProductCardProps {
   product: {
     id: string;
     title: string;
     slug: string;
+    product_code?: string | null;
     original_price?: number;
     selling_price?: number | null;
     price?: number; // legacy fallback
@@ -23,7 +25,10 @@ interface ProductCardProps {
 
 export default function CustomerProductCard({ product }: ProductCardProps) {
   const [liked, setLiked] = useState(false);
+  const { addToCart } = useCart();
+
   const primaryImage = product.images?.[0];
+  const secondaryImage = product.images?.length > 1 ? product.images[1] : null;
 
   const origPrice = product.original_price ?? product.price ?? 0;
   const sellingPrice = product.selling_price;
@@ -33,9 +38,30 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
     sellingPrice !== null &&
     sellingPrice < origPrice;
 
+  const effectivePrice = hasOffer ? sellingPrice! : origPrice;
+
   const discountPercentage = hasOffer
     ? Math.round(((origPrice - sellingPrice!) / origPrice) * 100)
     : 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (product.is_out_of_stock) return;
+
+    addToCart({
+      productId: product.id,
+      title: product.title,
+      slug: product.slug,
+      image: primaryImage || "",
+      price: effectivePrice,
+      originalPrice: origPrice,
+      quantity: 1,
+      productCode: product.product_code,
+      categoryName: product.categories?.name,
+    });
+  };
 
   return (
     <div className="group relative block select-none">
@@ -43,36 +69,53 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
         href={`/products/${product.slug}`}
         className="block focus:outline-none"
       >
-        <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-850 rounded-xs flex items-center justify-center">
+        <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-850 rounded-xl sm:rounded-2xl flex items-center justify-center">
           {/* Top Left Badges */}
           <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1 items-start">
             {product.is_out_of_stock && (
-              <span className="bg-red-600 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-xs shadow-sm">
+              <span className="bg-red-600 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-sm">
                 OUT OF STOCK
               </span>
             )}
             {hasOffer && !product.is_out_of_stock && (
-              <span className="bg-emerald-600 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-xs shadow-sm">
+              <span className="bg-emerald-600 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-sm">
                 {discountPercentage}% OFF
               </span>
             )}
             {product.featured && !product.is_out_of_stock && (
-              <span className="bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-xs shadow-sm">
+              <span className="bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-sm">
                 BEST SELLER
               </span>
             )}
           </div>
 
-          {/* Primary Image or Clean SVG Placeholder */}
+          {/* Primary & Secondary Hover Images (Desktop Hover Crossfade, Mobile Native) */}
           {primaryImage ? (
-            <img
-              src={primaryImage}
-              alt={product.title}
-              className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 ${
-                product.is_out_of_stock ? "opacity-60 grayscale-[30%]" : ""
-              }`}
-              loading="lazy"
-            />
+            <>
+              {/* Primary Cover Image */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={primaryImage}
+                alt={product.title}
+                className={`h-full w-full object-cover transition-all duration-500 ease-out ${
+                  secondaryImage ? "md:group-hover:opacity-0" : "group-hover:scale-105"
+                } ${product.is_out_of_stock ? "opacity-60 grayscale-[30%]" : "opacity-100"}`}
+                loading="lazy"
+              />
+
+              {/* Desktop Hover Secondary Image */}
+              {secondaryImage && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={secondaryImage}
+                  alt={`${product.title} - View 2`}
+                  className={`hidden md:block absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out group-hover:scale-105 ${
+                    product.is_out_of_stock ? "grayscale-[30%]" : ""
+                  }`}
+                  loading="lazy"
+                />
+              )}
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center space-y-1 text-neutral-400 p-4 text-center">
               <ImageIcon size={28} strokeWidth={1.2} />
@@ -82,8 +125,22 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
+          {/* Quick Add to Bag Action Overlay */}
+          {!product.is_out_of_stock && (
+            <div className="absolute inset-x-2.5 bottom-2.5 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="w-full flex items-center justify-center space-x-1.5 bg-black/90 hover:bg-black text-white dark:bg-white/95 dark:hover:bg-white dark:text-black py-2 px-3 text-[10px] font-bold tracking-wider uppercase rounded-lg backdrop-blur-xs shadow-lg transition-all cursor-pointer active:animate-scale-tap"
+              >
+                <ShoppingBag size={13} />
+                <span>Add to Bag</span>
+              </button>
+            </div>
+          )}
+
           {/* Hover Overlay */}
-          <div className="absolute inset-0 bg-black/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-black/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
         </div>
       </Link>
 
@@ -107,7 +164,7 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
             {product.title}
           </h3>
         </Link>
-        
+
         {/* Pricing section with strikethrough logic */}
         <div className="flex items-baseline space-x-2">
           {hasOffer ? (

@@ -9,10 +9,10 @@ import {
   ShoppingBag,
   FolderTree,
   Image as ImageIcon,
-  Truck,
   Settings,
   User,
   LogOut,
+  Video,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -25,7 +25,7 @@ const NAV_ITEMS = [
   { href: "/admin/products", label: "Products", icon: ShoppingBag },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/hero-banners", label: "Hero Banners", icon: ImageIcon },
-  { href: "/admin/shipping", label: "Shipping Rates", icon: Truck },
+  { href: "/admin/reels", label: "Video Reels", icon: Video },
   { href: "/admin/settings", label: "Shop Settings", icon: Settings },
   { href: "/admin/profile", label: "Profile", icon: User },
 ];
@@ -42,13 +42,15 @@ export default function AdminSidebar({ isOpen = false, onClose }: SidebarProps) 
   const content = (
     <div className="flex flex-col h-full bg-neutral-50 dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-850 text-neutral-800 dark:text-white p-6 justify-between select-none">
       <div className="space-y-8">
-        <div>
-          <img
-            src="/images/logo-nethiel.jpeg"
-            alt="NETHIEL Logo"
-            className="h-8 sm:h-10 w-auto object-contain"
-          />
-          <p className="text-[9px] tracking-[0.2em] text-neutral-500 uppercase mt-1">
+        <div className="flex flex-col items-center justify-center text-center pb-4 border-b border-neutral-200/80 dark:border-neutral-800">
+          <Link href="/admin/dashboard" className="block focus:outline-none">
+            <img
+              src="/images/logo-latest.png"
+              alt="NETHIEL Logo"
+              className="h-9 sm:h-11 w-auto max-w-[160px] object-contain mx-auto"
+            />
+          </Link>
+          <p className="text-[9px] tracking-[0.22em] font-semibold text-neutral-500 dark:text-neutral-400 uppercase mt-2">
             Management Console
           </p>
         </div>

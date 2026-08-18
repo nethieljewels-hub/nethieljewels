@@ -59,14 +59,13 @@ async function seed() {
   try {
     console.log("\nClearing old records...");
     
-    // Clear old products, categories, settings, shipping rates, banners
+    // Clear old products, categories, settings, banners
     const clearProducts = await supabase.from("products").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     const clearCategories = await supabase.from("categories").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     const clearBanners = await supabase.from("hero_banners").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-    const clearShipping = await supabase.from("shipping_charges").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     const clearSettings = await supabase.from("settings").delete().neq("id", false);
 
-    if (clearProducts.error || clearCategories.error || clearShipping.error || clearSettings.error) {
+    if (clearProducts.error || clearCategories.error || clearSettings.error) {
       console.log("Note: RLS policies might have blocked direct deletions without service role key.");
       printManualInstructions();
       return;
@@ -99,23 +98,6 @@ async function seed() {
     ];
     const { error: catErr } = await supabase.from("categories").insert(categories);
     if (catErr) throw catErr;
-
-    // 3. Seed shipping
-    console.log("Seeding shipping charges...");
-    const shipping = [
-      { state_name: 'Kerala', shipping_charge: 60.00, is_active: true },
-      { state_name: 'Karnataka', shipping_charge: 100.00, is_active: true },
-      { state_name: 'Tamil Nadu', shipping_charge: 100.00, is_active: true },
-      { state_name: 'Maharashtra', shipping_charge: 150.00, is_active: true },
-      { state_name: 'Delhi', shipping_charge: 200.00, is_active: true },
-      { state_name: 'Goa', shipping_charge: 150.00, is_active: true },
-      { state_name: 'Telangana', shipping_charge: 120.00, is_active: true },
-      { state_name: 'Gujarat', shipping_charge: 150.00, is_active: true },
-      { state_name: 'West Bengal', shipping_charge: 180.00, is_active: true },
-      { state_name: 'Rajasthan', shipping_charge: 180.00, is_active: true }
-    ];
-    const { error: shipErr } = await supabase.from("shipping_charges").insert(shipping);
-    if (shipErr) throw shipErr;
 
     // 4. Seed products
     console.log("Seeding products...");

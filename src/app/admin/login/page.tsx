@@ -26,7 +26,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8 border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-8 rounded-sm shadow-2xl">
         <div className="text-center">
           <img
-            src="/images/logo-nethiel.jpeg"
+            src="/images/logo-latest.png"
             alt="NETHIEL Logo"
             className="h-12 sm:h-14 w-auto mx-auto object-contain"
           />
