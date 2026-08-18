@@ -35,18 +35,6 @@ export default function CustomerFooter({ settings, categories = [] }: FooterProp
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const instagramHandle = settings?.instagram
-    ? (() => {
-        try {
-          const pathname = new URL(settings.instagram).pathname.replace(/\/+$/, "");
-          const handle = pathname.split("/").pop();
-          return handle ? `@${handle}` : settings.instagram;
-        } catch {
-          return settings.instagram;
-        }
-      })()
-    : "@nethieljewelry";
-
   return (
     <footer className="w-full border-t border-[#3a251c] bg-brand-brown-dark py-8 md:py-10 text-[#d2c5bc] select-none">
       <div className="mx-auto max-w-7xl px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 items-start">
@@ -132,11 +120,6 @@ export default function CustomerFooter({ settings, categories = [] }: FooterProp
 
           <div className={`${openSections.shop ? "block" : "hidden md:block"} pt-2.5 transition-all duration-300`}>
             <ul className="space-y-2 text-[11px] tracking-wider uppercase font-medium text-[#c4b5ab]">
-              <li>
-                <Link href="/products" className="hover:text-brand-gold transition-colors">
-                  All Jewelry
-                </Link>
-              </li>
               {categories.map((cat) => (
                 <li key={cat.id}>
                   <Link
@@ -210,27 +193,13 @@ export default function CustomerFooter({ settings, categories = [] }: FooterProp
                 <span className="text-[#faf7f2] font-semibold">{settings?.whatsapp || settings?.phone || "—"}</span>
               </li>
               <li className="flex items-center space-x-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-brand-gold shrink-0"
-                >
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                </svg>
-                <span className="text-[#faf7f2] font-semibold">{instagramHandle}</span>
-              </li>
-              <li className="flex items-center space-x-2">
                 <Mail size={12} className="text-brand-gold shrink-0" />
-                <span className="text-[#faf7f2] font-semibold truncate">{settings?.email || "support@nethieljewelry.com"}</span>
+                <a
+                  href={`mailto:${settings?.email || "support@nethieljewelry.com"}`}
+                  className="text-[#faf7f2] hover:text-brand-gold font-semibold truncate transition-colors"
+                >
+                  {settings?.email || "support@nethieljewelry.com"}
+                </a>
               </li>
             </ul>
           </div>

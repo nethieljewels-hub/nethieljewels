@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, Search, ShoppingBag } from "lucide-react";
-import ThemeToggle from "@/components/ui/ThemeToggle";
 import SearchModal from "@/components/ui/SearchModal";
 
 interface HeaderProps {
@@ -94,10 +93,6 @@ export default function CustomerHeader({ settings }: HeaderProps) {
 
           {/* Action Icons */}
           <div className="flex items-center space-x-3 sm:space-x-5 font-bold text-black dark:text-white">
-            {/* Desktop-only Theme Toggle */}
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
 
             {/* Search Button (Mobile & Desktop) */}
             <button
@@ -201,10 +196,6 @@ export default function CustomerHeader({ settings }: HeaderProps) {
                 <ShoppingBag size={18} />
                 <span>SHOP ALL</span>
               </Link>
-              <div className="flex items-center space-x-2">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-400 dark:text-neutral-500">THEME</span>
-                <ThemeToggle />
-              </div>
             </div>
 
             <div className="text-[9px] tracking-widest uppercase text-neutral-400 dark:text-neutral-500 font-light pt-2 border-t border-neutral-200/60 dark:border-neutral-850/60">
