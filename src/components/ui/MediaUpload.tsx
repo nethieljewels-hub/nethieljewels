@@ -39,24 +39,32 @@ export default function MediaUpload({
       if (!originalFile) continue;
 
       try {
-        setStatusText(`Compressing file ${i + 1} of ${files.length}...`);
-        const compressedFile = await compressImage(originalFile);
+        setStatusText(`Processing file ${i + 1} of ${files.length}...`);
+
+        // High clarity options for banners & settings (up to 4K resolution - 3840px, 8MB limit)
+        const isHighResBucket = bucket === "banners" || bucket === "settings";
+        const compressionOpts = isHighResBucket
+          ? { maxSizeMB: 8, maxWidthOrHeight: 3840, initialQuality: 0.98 }
+          : { maxSizeMB: 2, maxWidthOrHeight: 2560, initialQuality: 0.95 };
+
+        const fileToUpload = await compressImage(originalFile, compressionOpts);
 
         setStatusText(`Uploading file ${i + 1} of ${files.length}...`);
 
         let publicUrl = "";
 
         if (isCloudinaryConfigured()) {
-          // Upload compressed file to Cloudinary
-          publicUrl = await uploadToCloudinary(compressedFile, bucket);
+          // Upload file to Cloudinary
+          publicUrl = await uploadToCloudinary(fileToUpload, bucket);
         } else {
           // Fallback to Supabase Storage if Cloudinary credentials not updated yet
-          const fileExt = compressedFile.name.split(".").pop();
+          const fileExt = fileToUpload.name.split(".").pop();
           const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
           const filePath = `${bucket}/${fileName}`;
 
-          const { error } = await supabase.storage.from(bucket).upload(filePath, compressedFile, {
+          const { error } = await supabase.storage.from(bucket).upload(filePath, fileToUpload, {
             cacheControl: "3600",
+            contentType: fileToUpload.type,
             upsert: true,
           });
 

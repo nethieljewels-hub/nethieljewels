@@ -65,27 +65,29 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          {/* Primary & Secondary Hover Images or Clean SVG Placeholder */}
+          {/* Primary & Secondary Hover Images (Desktop Hover Crossfade, Mobile Native) */}
           {primaryImage ? (
             <>
-              {/* Cover Image (Image 1) */}
+              {/* Primary Cover Image */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={primaryImage}
                 alt={product.title}
-                className={`absolute inset-0 h-full w-full object-cover transition-all duration-500 ease-out ${secondaryImage ? "group-hover:opacity-0" : "group-hover:scale-105"
-                  } ${product.is_out_of_stock ? "opacity-60 grayscale-[30%]" : "opacity-100"}`}
+                className={`h-full w-full object-cover transition-all duration-500 ease-out ${
+                  secondaryImage ? "md:group-hover:opacity-0" : "group-hover:scale-105"
+                } ${product.is_out_of_stock ? "opacity-60 grayscale-[30%]" : "opacity-100"}`}
                 loading="lazy"
               />
 
-              {/* Hover Image (Image 2) - smooth crossfade transition on desktop hover */}
+              {/* Desktop Hover Secondary Image */}
               {secondaryImage && (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={secondaryImage}
                   alt={`${product.title} - View 2`}
-                  className={`absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out group-hover:scale-105 ${product.is_out_of_stock ? "grayscale-[30%]" : ""
-                    }`}
+                  className={`hidden md:block absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out group-hover:scale-105 ${
+                    product.is_out_of_stock ? "grayscale-[30%]" : ""
+                  }`}
                   loading="lazy"
                 />
               )}

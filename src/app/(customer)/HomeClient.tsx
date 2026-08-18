@@ -163,7 +163,7 @@ function MobileReelCard({
     const v = videoRef.current;
     if (!v) return;
     if (isActive) {
-      v.play().catch(() => {});
+      v.play().catch(() => { });
       setPlaying(true);
     } else {
       v.pause();
@@ -281,26 +281,26 @@ function MobileReelCarousel({ reels }: { reels: Reel[] }) {
   // The stage's overflow-hidden clips those edges — no page-level scroll.
   // Center card position = -15 + 36 + 2 = 23vw  ← unchanged from before.
   const centerW = 54;  // vw  (do not change)
-  const sideW   = 36;  // vw  (was 22 — increased for visible side cards)
-  const gap     = 2;   // vw  (was 1)
+  const sideW = 36;  // vw  (was 22 — increased for visible side cards)
+  const gap = 2;   // vw  (was 1)
 
-  const totalW  = sideW + gap + centerW + gap + sideW; // 130vw
-  const startX  = (100 - totalW) / 2;                  // -15vw
-  const leftX   = startX;                              // -15vw
+  const totalW = sideW + gap + centerW + gap + sideW; // 130vw
+  const startX = (100 - totalW) / 2;                  // -15vw
+  const leftX = startX;                              // -15vw
   const centerX = startX + sideW + gap;               //  23vw  ← same as before
-  const rightX  = startX + sideW + gap + centerW + gap; // 79vw
+  const rightX = startX + sideW + gap + centerW + gap; // 79vw
 
   const centerH = centerW * (16 / 9); // vw
-  const sideH   = sideW  * (16 / 9); // vw
+  const sideH = sideW * (16 / 9); // vw
 
 
   const prevIndex = (activeIndex - 1 + total) % total;
   const nextIndex = (activeIndex + 1) % total;
 
   const slots = [
-    { reel: reels[prevIndex]!, slot: "left"  as const },
+    { reel: reels[prevIndex]!, slot: "left" as const },
     { reel: reels[activeIndex]!, slot: "center" as const },
-    { reel: reels[nextIndex]!,  slot: "right" as const },
+    { reel: reels[nextIndex]!, slot: "right" as const },
   ];
 
   return (
@@ -317,11 +317,11 @@ function MobileReelCarousel({ reels }: { reels: Reel[] }) {
         {slots.map(({ reel, slot }) => {
           if (!reel) return null;
 
-          const isCenter  = slot === "center";
-          const isLeft    = slot === "left";
+          const isCenter = slot === "center";
+          const isLeft = slot === "left";
 
-          const left   = isLeft ? leftX : isCenter ? centerX : rightX;
-          const width  = isCenter ? centerW : sideW;
+          const left = isLeft ? leftX : isCenter ? centerX : rightX;
+          const width = isCenter ? centerW : sideW;
           const height = isCenter ? centerH : sideH;
           // Vertically center the side cards relative to the stage
           const top = isCenter ? 0 : (centerH - sideH) / 2;
@@ -378,11 +378,10 @@ function MobileReelCarousel({ reels }: { reels: Reel[] }) {
             key={i}
             type="button"
             onClick={() => setActiveIndex(i)}
-            className={`rounded-full transition-all duration-300 ${
-              i === activeIndex
+            className={`rounded-full transition-all duration-300 ${i === activeIndex
                 ? "w-5 h-1.5 bg-neutral-800 dark:bg-white"
                 : "w-1.5 h-1.5 bg-neutral-300 dark:bg-neutral-700"
-            }`}
+              }`}
             aria-label={`Reel ${i + 1}`}
           />
         ))}
@@ -500,13 +499,14 @@ export default function HomeClient({
   const productsWithImages = initialProducts.filter((p) => p.images && p.images.length > 0);
 
   return (
-    <div className="space-y-16 pb-20 bg-transparent">
+    <div data-page="home" className="space-y-16 pb-20 bg-transparent">
       {/* 1. HERO BANNER SECTION */}
       <section
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className="relative w-full aspect-[16/9] md:aspect-[21/9] min-h-[460px] max-h-[640px] bg-neutral-150 dark:bg-neutral-950 overflow-hidden select-none"
+        className="relative w-full aspect-[16/9] md:aspect-[21/9] lg:aspect-auto min-h-[460px] bg-neutral-150 dark:bg-neutral-950 overflow-hidden select-none"
+        style={{ height: "calc(100dvh - 57px)", minHeight: "calc(100dvh - 57px)" } as React.CSSProperties}
       >
         {initialBanners.length === 0 ? (
           /* Default Banner Placeholder layout if no banner is added in Admin yet */
@@ -585,6 +585,8 @@ export default function HomeClient({
                             src={banner.media_url}
                             alt={banner.title || "Hero banner"}
                             className="h-full w-full object-cover"
+                            loading="eager"
+                            fetchPriority="high"
                           />
                         )}
                       </div>
@@ -608,6 +610,8 @@ export default function HomeClient({
                               src={mobileUrl}
                               alt={banner.title || "Hero banner"}
                               className="h-full w-full object-cover"
+                              loading="eager"
+                              fetchPriority="high"
                             />
                           )}
                         </div>
@@ -646,8 +650,8 @@ export default function HomeClient({
                   key={index}
                   onClick={() => setActiveBanner(index)}
                   className={`transition-all cursor-pointer ${index === activeBanner
-                      ? "h-1 w-6 bg-black dark:bg-white rounded-full"
-                      : "h-2 w-2 rounded-full bg-neutral-400 hover:bg-neutral-600"
+                    ? "h-1 w-6 bg-black dark:bg-white rounded-full"
+                    : "h-2 w-2 rounded-full bg-neutral-400 hover:bg-neutral-600"
                     }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />

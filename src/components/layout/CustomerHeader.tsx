@@ -52,8 +52,9 @@ export default function CustomerHeader({ settings }: HeaderProps) {
     <>
       <header
         suppressHydrationWarning
-        className={`sticky top-0 z-45 w-full bg-[#F9F6F4] dark:bg-neutral-950 transition-all duration-200 select-none border-b border-neutral-200 dark:border-neutral-850 ${isScrolled ? "py-1.5 shadow-xs" : "py-2"
-          }`}
+        className={`fixed top-0 left-0 right-0 z-45 w-full bg-[#F9F6F4] dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-850 transition-all duration-300 select-none ${
+          isScrolled ? "py-1.5 shadow-xs" : "py-2"
+        }`}
       >
         <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
         <div className="mx-auto max-w-7xl px-6 flex items-center justify-between">
@@ -76,8 +77,11 @@ export default function CustomerHeader({ settings }: HeaderProps) {
                 <Link
                   key={link.path}
                   href={link.path}
-                  className={`relative py-1 text-[10px] uppercase tracking-[0.2em] font-bold transition-colors ${active ? "text-black font-bold" : "text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
-                    }`}
+                  className={`relative py-1 text-[10px] uppercase tracking-[0.2em] font-bold transition-colors ${
+                    active
+                      ? "text-black dark:text-white font-bold"
+                      : "text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
+                  }`}
                 >
                   {link.name}
                   {active && (
@@ -89,7 +93,7 @@ export default function CustomerHeader({ settings }: HeaderProps) {
           </nav>
 
           {/* Action Icons */}
-          <div className="flex items-center space-x-3 sm:space-x-5 text-black dark:text-white font-bold">
+          <div className="flex items-center space-x-3 sm:space-x-5 font-bold text-black dark:text-white">
             {/* Desktop-only Theme Toggle */}
             <div className="hidden md:block">
               <ThemeToggle />
@@ -99,7 +103,7 @@ export default function CustomerHeader({ settings }: HeaderProps) {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="p-1.5 focus:outline-none cursor-pointer text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300 transition-colors"
+              className="p-1.5 focus:outline-none cursor-pointer transition-colors text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
               aria-label="Search Catalog"
             >
               <Search size={19} strokeWidth={2} />
@@ -109,7 +113,7 @@ export default function CustomerHeader({ settings }: HeaderProps) {
             <button
               type="button"
               onClick={() => router.push("/products")}
-              className="hidden md:block p-1.5 focus:outline-none cursor-pointer text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300 transition-colors"
+              className="hidden md:block p-1.5 focus:outline-none cursor-pointer transition-colors text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
               aria-label="View Shopping Bag"
             >
               <ShoppingBag size={18} strokeWidth={2} />
@@ -119,7 +123,7 @@ export default function CustomerHeader({ settings }: HeaderProps) {
             <button
               type="button"
               onClick={() => setDrawerOpen(!drawerOpen)}
-              className="p-1 md:hidden focus:outline-none cursor-pointer text-brand-gold-dark/90 hover:text-brand-gold dark:text-brand-gold dark:hover:text-white transition-colors ml-1"
+              className="p-1 md:hidden focus:outline-none cursor-pointer transition-colors ml-1 text-brand-gold-dark/90 hover:text-brand-gold dark:text-brand-gold dark:hover:text-white"
               aria-label="Open Menu"
             >
               <Menu size={22} strokeWidth={2} />

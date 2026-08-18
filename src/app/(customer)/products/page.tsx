@@ -30,7 +30,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   return (
     <Suspense fallback={
-      <div className="mx-auto max-w-7xl px-6 py-16 text-center text-xs text-neutral-500 uppercase tracking-widest">
+      <div className="mx-auto max-w-7xl px-6 py-20 text-center text-sm sm:text-base font-bold text-neutral-600 dark:text-neutral-400 uppercase tracking-widest animate-pulse">
         Loading Collection...
       </div>
     }>
