@@ -15,11 +15,20 @@ export default function SplashScreen() {
   const [show, setShow] = useState(true);
   const [phase, setPhase] = useState<"name" | "underline" | "tagline" | "exit">("name");
 
-  // "Nethiel" = 7 letters. Last letter appears at 600ms (index 6 × 100ms).
-  // Underline expands at 750ms (after last letter + 150ms settling time).
-  // JEWELRY appears at 1000ms.
-  // Exit at 2400ms. Unmount at 3000ms.
   useEffect(() => {
+    try {
+      // Check if current page load was triggered by a browser refresh/reload
+      const navEntries = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
+      const isReload = navEntries.length > 0 && navEntries[0]?.type === "reload";
+
+      if (isReload) {
+        setShow(false);
+        return;
+      }
+    } catch {
+      // Fallback
+    }
+
     const underlineTimer = setTimeout(() => setPhase("underline"), 600);
     const taglineTimer = setTimeout(() => setPhase("tagline"), 800);
     const exitTimer = setTimeout(() => setPhase("exit"), 1800);
@@ -39,6 +48,7 @@ export default function SplashScreen() {
 
   return (
     <div
+      id="nethiel-splash-screen"
       className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#111111] transition-all duration-700 ease-out select-none ${
         phase === "exit" ? "opacity-0 translate-y-[-8px] pointer-events-none" : "opacity-100 translate-y-0"
       }`}

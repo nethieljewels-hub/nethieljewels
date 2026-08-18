@@ -190,3 +190,8 @@ body {
   opacity: 0;
   animation: splash-letter-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+
+/* Zero-flash suppression on page refresh/reload */
+html.no-splash #nethiel-splash-screen {
+  display: none !important;
+}
