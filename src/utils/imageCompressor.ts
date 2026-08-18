@@ -21,13 +21,20 @@ export async function compressImage(
   }
 
   const defaultOptions: CompressionOptions = {
-    maxSizeMB: 1,
-    maxWidthOrHeight: 2048,
-    initialQuality: 0.9,
+    maxSizeMB: 2,
+    maxWidthOrHeight: 2560,
+    initialQuality: 0.95,
     useWebWorker: true,
   };
 
   const options = { ...defaultOptions, ...customOptions };
+
+  // If the file size is already smaller than or equal to maxSizeMB, return the untouched original file
+  // to avoid canvas downscaling, re-encoding artifacts, or loss of clarity.
+  const targetBytes = (options.maxSizeMB || 2) * 1024 * 1024;
+  if (file.size <= targetBytes) {
+    return file;
+  }
 
   try {
     const compressedFile = await imageCompression(file, options);

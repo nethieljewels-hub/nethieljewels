@@ -236,11 +236,10 @@ export default function ProductsClient({
           <button
             type="button"
             onClick={() => setBestSellerOnly(!bestSellerOnly)}
-            className={`px-4 py-2 text-xs font-extrabold uppercase tracking-wider rounded-full border transition-all cursor-pointer ${
-              bestSellerOnly
+            className={`px-4 py-2 text-xs font-extrabold uppercase tracking-wider rounded-full border transition-all cursor-pointer ${bestSellerOnly
                 ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-xs"
                 : "bg-neutral-50 dark:bg-neutral-900 text-black dark:text-white border-neutral-250 dark:border-neutral-800 hover:border-black dark:hover:border-white"
-            }`}
+              }`}
           >
             Best Selling {bestSellerOnly ? "✓" : ""}
           </button>
@@ -253,11 +252,10 @@ export default function ProductsClient({
               key={opt.value}
               type="button"
               onClick={() => setSortKey(opt.value)}
-              className={`px-4 py-2 text-xs font-extrabold uppercase tracking-wider rounded-full border transition-all cursor-pointer ${
-                sortKey === opt.value
+              className={`px-4 py-2 text-xs font-extrabold uppercase tracking-wider rounded-full border transition-all cursor-pointer ${sortKey === opt.value
                   ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-xs"
                   : "bg-neutral-50 dark:bg-neutral-900 text-black dark:text-white border-neutral-250 dark:border-neutral-800 hover:border-black dark:hover:border-white"
-              }`}
+                }`}
             >
               {opt.label}
             </button>
@@ -310,14 +308,14 @@ export default function ProductsClient({
         </div>
       </div>
 
-      {/* CATEGORIES ROW: Horizontal Category Chips */}
-      <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none select-none">
+      {/* CATEGORIES ROW: Horizontal Category Chips (Desktop) */}
+      <div className="hidden md:flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none select-none">
         <button
           type="button"
           onClick={() => handleCategorySelect("")}
           className={`px-4 py-2 text-xs font-extrabold rounded-full border uppercase tracking-wider transition-all cursor-pointer flex-shrink-0 ${selectedCategory === ""
-              ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-xs"
-              : "bg-neutral-50 dark:bg-neutral-900 text-black dark:text-white border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white font-bold"
+            ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-xs"
+            : "bg-neutral-50 dark:bg-neutral-900 text-black dark:text-white border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white font-bold"
             }`}
         >
           All Products
@@ -330,8 +328,8 @@ export default function ProductsClient({
               type="button"
               onClick={() => handleCategorySelect(c.slug || c.id)}
               className={`px-4 py-2 text-xs font-extrabold rounded-full border uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${active
-                  ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-xs"
-                  : "bg-neutral-50 dark:bg-neutral-900 text-black dark:text-white border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white font-bold"
+                ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white shadow-xs"
+                : "bg-neutral-50 dark:bg-neutral-900 text-black dark:text-white border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white font-bold"
                 }`}
             >
               {c.name}
@@ -396,8 +394,8 @@ export default function ProductsClient({
                 type="button"
                 onClick={() => setTempBestSellerOnly(!tempBestSellerOnly)}
                 className={`flex items-center justify-between w-full p-3.5 rounded-xl text-xs font-semibold transition-all ${tempBestSellerOnly
-                    ? "bg-black dark:bg-white text-white dark:text-black font-bold"
-                    : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
+                  ? "bg-black dark:bg-white text-white dark:text-black font-bold"
+                  : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
                   }`}
               >
                 <span>Best Selling Products Only</span>
@@ -419,8 +417,8 @@ export default function ProductsClient({
                       type="button"
                       onClick={() => setTempSortKey(opt.value)}
                       className={`flex items-center justify-between p-3.5 rounded-xl text-xs font-semibold transition-all ${selected
-                          ? "bg-black dark:bg-white text-white dark:text-black font-bold"
-                          : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
+                        ? "bg-black dark:bg-white text-white dark:text-black font-bold"
+                        : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
                         }`}
                     >
                       <span>{opt.label}</span>
@@ -441,8 +439,8 @@ export default function ProductsClient({
                   type="button"
                   onClick={() => setTempCategory("")}
                   className={`px-4 py-2.5 rounded-full text-xs font-medium transition-all ${tempCategory === ""
-                      ? "bg-black dark:bg-white text-white dark:text-black font-bold"
-                      : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
+                    ? "bg-black dark:bg-white text-white dark:text-black font-bold"
+                    : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
                     }`}
                 >
                   All Products
@@ -455,8 +453,8 @@ export default function ProductsClient({
                       type="button"
                       onClick={() => setTempCategory(c.slug || c.id)}
                       className={`px-4 py-2.5 rounded-full text-xs font-medium transition-all ${active
-                          ? "bg-black dark:bg-white text-white dark:text-black font-bold"
-                          : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
+                        ? "bg-black dark:bg-white text-white dark:text-black font-bold"
+                        : "bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
                         }`}
                     >
                       {c.name}

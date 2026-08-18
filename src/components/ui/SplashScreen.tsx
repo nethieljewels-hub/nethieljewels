@@ -58,8 +58,8 @@ export default function SplashScreen() {
         {letters.map((letter, i) => (
           <span
             key={i}
-            className="splash-letter inline-block font-serif-luxury font-light tracking-[0.15em] text-[#4A3328] dark:text-white uppercase select-none
-              text-5xl sm:text-7xl md:text-8xl lg:text-9xl"
+            className="splash-letter inline-block font-serif-luxury font-black tracking-[0.08em] text-[#4A3328] dark:text-white uppercase select-none
+              text-6xl sm:text-8xl md:text-9xl lg:text-[10rem]"
             style={{
               animationDelay: `${i * 100}ms`,
             }}
@@ -71,7 +71,7 @@ export default function SplashScreen() {
 
       {/* Tagline */}
       <p
-        className={`mt-4 sm:mt-6 text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.4em] sm:tracking-[0.5em] uppercase text-[#c5a880] transition-all duration-700 ease-out ${
+        className={`mt-6 sm:mt-8 text-xs sm:text-sm md:text-base font-extrabold tracking-[0.4em] sm:tracking-[0.6em] uppercase text-[#c5a880] transition-all duration-700 ease-out ${
           phase === "tagline" || phase === "exit"
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-3"
