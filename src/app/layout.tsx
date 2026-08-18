@@ -3,6 +3,9 @@ import { Geist, Cormorant_Garamond, Great_Vibes, Cinzel } from "next/font/google
 import "./globals.css";
 import SplashScreen from "@/components/ui/SplashScreen";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { ToastProvider } from "@/context/ToastContext";
+import { CartProvider } from "@/context/CartContext";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -85,6 +88,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   } else {
                     document.documentElement.classList.remove('dark');
                   }
+                  var navEntries = performance.getEntriesByType('navigation');
+                  var isReload = navEntries.length > 0 && navEntries[0].type === 'reload';
+                  if (isReload) {
+                    document.documentElement.classList.add('no-splash');
+                  }
                 } catch (e) {}
               })()
             `,
@@ -93,8 +101,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProvider>
-          <SplashScreen />
-          {children}
+          <ToastProvider>
+            <CartProvider>
+              <SplashScreen />
+              <CartDrawer />
+              {children}
+            </CartProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Menu, X, Search, ShoppingBag } from "lucide-react";
 import SearchModal from "@/components/ui/SearchModal";
+import { useCart } from "@/context/CartContext";
 
 interface HeaderProps {
   settings: {
@@ -18,7 +19,7 @@ export default function CustomerHeader({ settings }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
+  const { totalCount, setIsCartOpen } = useCart();
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 0);
@@ -104,14 +105,19 @@ export default function CustomerHeader({ settings }: HeaderProps) {
               <Search size={19} strokeWidth={2} />
             </button>
 
-            {/* Desktop-only Shopping Bag Button */}
+            {/* Shopping Bag Button (Mobile & Desktop with Live Counter Badge) */}
             <button
               type="button"
-              onClick={() => router.push("/products")}
-              className="hidden md:block p-1.5 focus:outline-none cursor-pointer transition-colors text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
-              aria-label="View Shopping Bag"
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-1.5 focus:outline-none cursor-pointer transition-colors text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
+              aria-label={`View Shopping Bag (${totalCount} items)`}
             >
-              <ShoppingBag size={18} strokeWidth={2} />
+              <ShoppingBag size={19} strokeWidth={2} />
+              {totalCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-4 h-4 px-1 text-[9px] font-bold text-white bg-[#D4AF37] dark:bg-[#F4C430] dark:text-black rounded-full shadow-xs animate-scale-tap leading-none">
+                  {totalCount > 99 ? "99+" : totalCount}
+                </span>
+              )}
             </button>
 
             {/* Mobile Hamburger Menu Button */}
@@ -188,13 +194,24 @@ export default function CustomerHeader({ settings }: HeaderProps) {
             </button>
 
             <div className="flex items-center justify-between py-1 border-t border-neutral-200/60 dark:border-neutral-850/60 pt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setDrawerOpen(false);
+                  setIsCartOpen(true);
+                }}
+                className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300 transition-colors cursor-pointer"
+              >
+                <ShoppingBag size={18} />
+                <span>MY BAG ({totalCount})</span>
+              </button>
+
               <Link
                 href="/products"
                 onClick={handleLinkClick}
-                className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300 transition-colors"
+                className="text-[10px] font-bold uppercase tracking-wider text-brand-gold hover:underline"
               >
-                <ShoppingBag size={18} />
-                <span>SHOP ALL</span>
+                SHOP ALL →
               </Link>
             </div>
 

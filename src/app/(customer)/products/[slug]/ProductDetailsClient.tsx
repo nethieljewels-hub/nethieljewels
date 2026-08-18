@@ -2,11 +2,12 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Star, ShoppingBag, ZoomIn, ZoomOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, ShoppingBag, ZoomIn, ZoomOut, Check } from "lucide-react";
 import PurchaseSheet from "@/components/purchase/PurchaseSheet";
 import { loadDeliveryDetails } from "@/utils/localStorage";
 import CustomerProductCard from "@/components/ui/CustomerProductCard";
 import { ProductDetailSkeleton } from "@/components/ui/Skeletons";
+import { useCart } from "@/context/CartContext";
 
 interface Product {
   id: string;
@@ -41,6 +42,32 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
   const [selectedState, setSelectedState] = useState("");
   const [shippingCharge, setShippingCharge] = useState<number | null>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { items, addToCart, updateQuantity, setIsCartOpen } = useCart();
+
+  const compositeId = `${product.id}_${selectedColor || "default"}`;
+  const existingCartItem = items.find((item) => item.id === compositeId);
+
+  // Sync quantity state when cart item or selected color changes
+  useEffect(() => {
+    if (existingCartItem) {
+      setQuantity(existingCartItem.quantity);
+    }
+  }, [existingCartItem?.quantity, selectedColor]);
+
+  const handleQuantityChange = (newQty: number) => {
+    if (newQty < 1) return;
+    setQuantity(newQty);
+    if (existingCartItem) {
+      updateQuantity(compositeId, newQty);
+    }
+  };
+
+  // Quantity of this product (or matching color) already in cart
+  const inCartQty = existingCartItem
+    ? existingCartItem.quantity
+    : items
+        .filter((item) => item.productId === product.id)
+        .reduce((sum, item) => sum + item.quantity, 0);
 
   const origPrice = product.original_price ?? product.price ?? 0;
   const sellingPrice = product.selling_price;
@@ -51,6 +78,36 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
     sellingPrice < origPrice;
 
   const effectivePrice = hasOffer ? sellingPrice! : origPrice;
+
+  const handleAddToCart = () => {
+    if (product.is_out_of_stock) return;
+
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+      alert("Please select a color variant first.");
+      return;
+    }
+
+    if (existingCartItem) {
+      updateQuantity(compositeId, quantity);
+      setIsCartOpen(true);
+    } else {
+      addToCart(
+        {
+          productId: product.id,
+          title: product.title,
+          slug: product.slug,
+          image: product.images?.[activeImage] || product.images?.[0] || "",
+          price: effectivePrice,
+          originalPrice: origPrice,
+          quantity,
+          productCode: product.product_code,
+          selectedColor: selectedColor || null,
+          categoryName: product.categories?.name,
+        },
+        true
+      );
+    }
+  };
 
   const discountPercentage = hasOffer
     ? Math.round(((origPrice - sellingPrice!) / origPrice) * 100)
@@ -412,33 +469,47 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
 
           {/* 7. EXISTING ACTIONS AND OTHER CONTENT */}
           <div className="space-y-4 pt-1">
-            {/* Quantity picker */}
+            {/* Quantity picker & In Cart Badge in Same Row */}
             <div className="space-y-1.5">
               <h4 className="text-[9px] uppercase tracking-widest text-neutral-500 font-semibold">
                 Quantity
               </h4>
-              <div className="flex items-center space-x-1">
-                <button
-                  type="button"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1 || product.is_out_of_stock}
-                  className="w-8 h-8 flex items-center justify-center border border-neutral-300 dark:border-neutral-800 rounded-xs text-neutral-600 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors active:animate-scale-tap"
-                  aria-label="Decrease quantity"
-                >
-                  -
-                </button>
-                <span className="w-10 text-center text-xs font-mono font-bold text-black dark:text-white">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity(quantity + 1)}
-                  disabled={product.is_out_of_stock}
-                  className="w-8 h-8 flex items-center justify-center border border-neutral-300 dark:border-neutral-800 rounded-xs text-neutral-600 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors active:animate-scale-tap"
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(quantity - 1)}
+                    disabled={quantity <= 1 || product.is_out_of_stock}
+                    className="w-8 h-8 flex items-center justify-center border border-neutral-300 dark:border-neutral-800 rounded-xs text-neutral-600 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors active:animate-scale-tap"
+                    aria-label="Decrease quantity"
+                  >
+                    -
+                  </button>
+                  <span className="w-10 text-center text-xs font-mono font-bold text-black dark:text-white">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(quantity + 1)}
+                    disabled={product.is_out_of_stock}
+                    className="w-8 h-8 flex items-center justify-center border border-neutral-300 dark:border-neutral-800 rounded-xs text-neutral-600 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors active:animate-scale-tap"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+
+                {/* Already in cart badge in same row */}
+                {inCartQty > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setIsCartOpen(true)}
+                    className="inline-flex items-center space-x-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-2xs animate-fade-in"
+                  >
+                    <Check size={14} className="text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                    <span>Already in cart: {inCartQty}</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -470,25 +541,35 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
               </div>
             </div>
 
-            {/* Buy Now Button */}
-            <div>
+            {/* Mobile Action Buttons (Add to Bag + Buy Now) */}
+            <div className="grid grid-cols-2 gap-2.5">
               {product.is_out_of_stock ? (
                 <button
                   type="button"
                   disabled
-                  className="flex w-full items-center justify-center space-x-2 bg-neutral-300 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 py-3.5 text-xs font-bold tracking-widest uppercase rounded-md cursor-not-allowed select-none"
+                  className="col-span-2 flex w-full items-center justify-center space-x-2 bg-neutral-300 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 py-3.5 text-xs font-bold tracking-widest uppercase rounded-md cursor-not-allowed select-none"
                 >
                   <span>OUT OF STOCK</span>
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={handleBuyNow}
-                  className="flex w-full items-center justify-center space-x-2 bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark py-3.5 text-xs sm:text-sm font-bold tracking-widest uppercase transition-all hover:bg-brand-brown-medium dark:hover:bg-brand-gold-dark rounded-md cursor-pointer active:animate-scale-tap shadow-md"
-                >
-                  <ShoppingBag size={16} />
-                  <span>Buy Now</span>
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    className="flex w-full items-center justify-center space-x-1.5 border border-neutral-300 dark:border-neutral-700 bg-white hover:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 text-black dark:text-white py-3.5 text-xs font-bold tracking-widest uppercase transition-all rounded-md cursor-pointer active:animate-scale-tap shadow-xs"
+                  >
+                    <ShoppingBag size={15} />
+                    <span>Add to Bag</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleBuyNow}
+                    className="flex w-full items-center justify-center space-x-1.5 bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark py-3.5 text-xs font-bold tracking-widest uppercase transition-all hover:bg-brand-brown-medium dark:hover:bg-brand-gold-dark rounded-md cursor-pointer active:animate-scale-tap shadow-md"
+                  >
+                    <span>Buy Now</span>
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -732,33 +813,47 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
 
             <div className="h-[1px] bg-neutral-200 dark:bg-neutral-850 my-1" />
 
-            {/* Quantity picker */}
+            {/* Quantity picker & In Cart Badge in Same Row */}
             <div className="space-y-1.5">
               <h4 className="text-[9px] uppercase tracking-widest text-neutral-500 font-semibold">
                 Quantity
               </h4>
-              <div className="flex items-center space-x-1">
-                <button
-                  type="button"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1 || product.is_out_of_stock}
-                  className="w-8 h-8 flex items-center justify-center border border-neutral-300 dark:border-neutral-800 rounded-xs text-neutral-600 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors active:animate-scale-tap"
-                  aria-label="Decrease quantity"
-                >
-                  -
-                </button>
-                <span className="w-10 text-center text-xs font-mono font-bold text-black dark:text-white">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity(quantity + 1)}
-                  disabled={product.is_out_of_stock}
-                  className="w-8 h-8 flex items-center justify-center border border-neutral-300 dark:border-neutral-800 rounded-xs text-neutral-600 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors active:animate-scale-tap"
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(quantity - 1)}
+                    disabled={quantity <= 1 || product.is_out_of_stock}
+                    className="w-8 h-8 flex items-center justify-center border border-neutral-300 dark:border-neutral-800 rounded-xs text-neutral-600 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors active:animate-scale-tap"
+                    aria-label="Decrease quantity"
+                  >
+                    -
+                  </button>
+                  <span className="w-10 text-center text-xs font-mono font-bold text-black dark:text-white">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(quantity + 1)}
+                    disabled={product.is_out_of_stock}
+                    className="w-8 h-8 flex items-center justify-center border border-neutral-300 dark:border-neutral-800 rounded-xs text-neutral-600 hover:text-black dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors active:animate-scale-tap"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+
+                {/* Already in cart badge in same row */}
+                {inCartQty > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setIsCartOpen(true)}
+                    className="inline-flex items-center space-x-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-2xs animate-fade-in"
+                  >
+                    <Check size={14} className="text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                    <span>Already in cart: {inCartQty}</span>
+                  </button>
+                )}
               </div>
             </div>
 
@@ -790,8 +885,8 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
               </div>
             </div>
 
-            {/* Desktop Buy Now button */}
-            <div className="bg-background py-2 w-full max-w-md">
+            {/* Desktop Action Buttons (Add to Bag + Buy Now) */}
+            <div className="py-2 w-full max-w-md">
               {product.is_out_of_stock ? (
                 <button
                   type="button"
@@ -801,21 +896,31 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
                   <span>OUT OF STOCK</span>
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={handleBuyNow}
-                  className="flex w-full items-center justify-center space-x-2 bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark py-3.5 text-xs sm:text-sm font-bold tracking-widest uppercase transition-all hover:bg-brand-brown-medium dark:hover:bg-brand-gold-dark rounded-md cursor-pointer active:animate-scale-tap shadow-md"
-                >
-                  <ShoppingBag size={16} />
-                  <span>Buy Now</span>
-                </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    className="flex w-full items-center justify-center space-x-2 border border-neutral-300 dark:border-neutral-700 bg-white hover:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 text-black dark:text-white py-3.5 text-xs sm:text-sm font-bold tracking-widest uppercase transition-all rounded-md cursor-pointer active:animate-scale-tap shadow-xs"
+                  >
+                    <ShoppingBag size={16} />
+                    <span>Add to Bag</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleBuyNow}
+                    className="flex w-full items-center justify-center space-x-2 bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark py-3.5 text-xs sm:text-sm font-bold tracking-widest uppercase transition-all hover:bg-brand-brown-medium dark:hover:bg-brand-gold-dark rounded-md cursor-pointer active:animate-scale-tap shadow-md"
+                  >
+                    <span>Buy Now</span>
+                  </button>
+                </div>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Fixed Mobile Bottom Bar for Buy Now */}
+      {/* Fixed Mobile Bottom Bar for Add to Bag & Buy Now */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md px-4 py-3 border-t border-neutral-200 dark:border-neutral-850 shadow-2xl safe-area-bottom">
         {product.is_out_of_stock ? (
           <button
@@ -826,14 +931,23 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
             <span>OUT OF STOCK</span>
           </button>
         ) : (
-          <button
-            type="button"
-            onClick={handleBuyNow}
-            className="flex w-full items-center justify-center space-x-2 bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark py-3.5 text-xs font-bold tracking-widest uppercase transition-all hover:bg-brand-brown-medium dark:hover:bg-brand-gold-dark rounded-sm cursor-pointer active:animate-scale-tap shadow-lg"
-          >
-            <ShoppingBag size={16} />
-            <span>Buy Now</span>
-          </button>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className="flex w-full items-center justify-center space-x-1.5 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-black dark:text-white py-3 text-xs font-bold tracking-wider uppercase rounded-xs cursor-pointer active:animate-scale-tap"
+            >
+              <ShoppingBag size={14} />
+              <span>Add to Bag</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              className="flex w-full items-center justify-center space-x-1.5 bg-brand-brown-dark text-white dark:bg-brand-gold dark:text-brand-brown-dark py-3 text-xs font-bold tracking-wider uppercase rounded-xs cursor-pointer active:animate-scale-tap shadow-md"
+            >
+              <span>Buy Now</span>
+            </button>
+          </div>
         )}
       </div>
 

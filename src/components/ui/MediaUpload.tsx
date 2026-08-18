@@ -133,7 +133,12 @@ export default function MediaUpload({
   };
 
   const renderPreview = (url: string) => {
-    const isVideo = url.endsWith(".mp4") || url.endsWith(".mov") || url.includes("video/quicktime");
+    const isVideo =
+      url.endsWith(".mp4") ||
+      url.endsWith(".mov") ||
+      url.endsWith(".webm") ||
+      url.includes("video/quicktime") ||
+      url.includes("/video/upload/");
     return (
       <div
         key={url}

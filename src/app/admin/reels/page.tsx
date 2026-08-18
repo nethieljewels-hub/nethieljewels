@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { TableSkeleton } from "@/components/ui/Skeletons";
 import Modal from "@/components/ui/Modal";
 import { useToast } from "@/context/ToastContext";
+import { uploadToCloudinary, isCloudinaryConfigured } from "@/utils/cloudinary";
 import {
   Plus,
   Trash2,
@@ -105,19 +106,25 @@ export default function ReelsPage() {
     if (!file) return;
     setUploading(true);
 
-    const ext = file.name.split(".").pop();
-    const fileName = `reels/${Math.random().toString(36).slice(2)}.${ext}`;
-
-    const { error } = await supabase.storage.from("banners").upload(fileName, file, { upsert: true });
-    if (error) {
-      showToast("Failed to upload video: " + error.message, "error");
+    try {
+      if (isCloudinaryConfigured()) {
+        const publicUrl = await uploadToCloudinary(file, "reels");
+        setFormVideoUrl(publicUrl);
+      } else {
+        const ext = file.name.split(".").pop();
+        const fileName = `reels/${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error } = await supabase.storage.from("banners").upload(fileName, file, { upsert: true });
+        if (error) throw error;
+        const { data: { publicUrl } } = supabase.storage.from("banners").getPublicUrl(fileName);
+        setFormVideoUrl(publicUrl);
+      }
+      showToast("Video uploaded successfully", "success");
+    } catch (error) {
+      console.error("Video upload error:", error);
+      showToast("Failed to upload video: " + (error as Error)?.message, "error");
+    } finally {
       setUploading(false);
-      return;
     }
-    const { data: { publicUrl } } = supabase.storage.from("banners").getPublicUrl(fileName);
-    setFormVideoUrl(publicUrl);
-    setUploading(false);
-    showToast("Video uploaded successfully", "success");
   };
 
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,19 +132,25 @@ export default function ReelsPage() {
     if (!file) return;
     setThumbnailUploading(true);
 
-    const ext = file.name.split(".").pop();
-    const fileName = `reels/thumb_${Math.random().toString(36).slice(2)}.${ext}`;
-
-    const { error } = await supabase.storage.from("banners").upload(fileName, file, { upsert: true });
-    if (error) {
-      showToast("Failed to upload thumbnail: " + error.message, "error");
+    try {
+      if (isCloudinaryConfigured()) {
+        const publicUrl = await uploadToCloudinary(file, "reels_thumbnails");
+        setFormThumbnailUrl(publicUrl);
+      } else {
+        const ext = file.name.split(".").pop();
+        const fileName = `reels/thumb_${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error } = await supabase.storage.from("banners").upload(fileName, file, { upsert: true });
+        if (error) throw error;
+        const { data: { publicUrl } } = supabase.storage.from("banners").getPublicUrl(fileName);
+        setFormThumbnailUrl(publicUrl);
+      }
+      showToast("Thumbnail uploaded", "success");
+    } catch (error) {
+      console.error("Thumbnail upload error:", error);
+      showToast("Failed to upload thumbnail: " + (error as Error)?.message, "error");
+    } finally {
       setThumbnailUploading(false);
-      return;
     }
-    const { data: { publicUrl } } = supabase.storage.from("banners").getPublicUrl(fileName);
-    setFormThumbnailUrl(publicUrl);
-    setThumbnailUploading(false);
-    showToast("Thumbnail uploaded", "success");
   };
 
   const handleSave = async () => {

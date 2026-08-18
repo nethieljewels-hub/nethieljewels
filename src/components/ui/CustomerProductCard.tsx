@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Image as ImageIcon } from "lucide-react";
+import { Heart, Image as ImageIcon, ShoppingBag } from "lucide-react";
 import { useState } from "react";
+import { useCart } from "@/context/CartContext";
 
 interface ProductCardProps {
   product: {
     id: string;
     title: string;
     slug: string;
+    product_code?: string | null;
     original_price?: number;
     selling_price?: number | null;
     price?: number; // legacy fallback
@@ -23,6 +25,7 @@ interface ProductCardProps {
 
 export default function CustomerProductCard({ product }: ProductCardProps) {
   const [liked, setLiked] = useState(false);
+  const { addToCart } = useCart();
 
   const primaryImage = product.images?.[0];
   const secondaryImage = product.images?.length > 1 ? product.images[1] : null;
@@ -35,9 +38,30 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
     sellingPrice !== null &&
     sellingPrice < origPrice;
 
+  const effectivePrice = hasOffer ? sellingPrice! : origPrice;
+
   const discountPercentage = hasOffer
     ? Math.round(((origPrice - sellingPrice!) / origPrice) * 100)
     : 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (product.is_out_of_stock) return;
+
+    addToCart({
+      productId: product.id,
+      title: product.title,
+      slug: product.slug,
+      image: primaryImage || "",
+      price: effectivePrice,
+      originalPrice: origPrice,
+      quantity: 1,
+      productCode: product.product_code,
+      categoryName: product.categories?.name,
+    });
+  };
 
   return (
     <div className="group relative block select-none">
@@ -98,6 +122,20 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
               <span className="text-[9px] font-mono uppercase tracking-widest text-neutral-500">
                 NO IMAGE
               </span>
+            </div>
+          )}
+
+          {/* Quick Add to Bag Action Overlay */}
+          {!product.is_out_of_stock && (
+            <div className="absolute inset-x-2.5 bottom-2.5 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="w-full flex items-center justify-center space-x-1.5 bg-black/90 hover:bg-black text-white dark:bg-white/95 dark:hover:bg-white dark:text-black py-2 px-3 text-[10px] font-bold tracking-wider uppercase rounded-lg backdrop-blur-xs shadow-lg transition-all cursor-pointer active:animate-scale-tap"
+              >
+                <ShoppingBag size={13} />
+                <span>Add to Bag</span>
+              </button>
             </div>
           )}
 
