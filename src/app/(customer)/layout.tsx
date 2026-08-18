@@ -25,7 +25,7 @@ export default async function CustomerLayout({ children }: { children: React.Rea
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans select-none" suppressHydrationWarning>
       <CustomerHeader settings={settings} />
       {/* pt compensates for fixed header height */}
-      <main className="flex-1 flex flex-col pt-[57px]">{children}</main>
+      <main className="flex-1 flex flex-col pt-[49px] sm:pt-[57px]">{children}</main>
       <CustomerFooter settings={settings} categories={categories || []} />
       <ScrollToTopButton />
     </div>
