@@ -82,33 +82,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center">
-              <input
-                id="remember"
-                name="remember"
-                type="checkbox"
-                disabled={isPending}
-                className="h-4 w-4 accent-black dark:accent-white"
-                defaultChecked
-              />
-              <label htmlFor="remember" className="ml-2 font-light text-neutral-600 dark:text-neutral-400">
-                Remember session
-              </label>
-            </div>
 
-            <div className="font-light">
-              <a
-                href="#forgot-password"
-                onClick={() =>
-                  alert("Password recovery is managed by the administrator in the Supabase console.")
-                }
-                className="text-neutral-600 dark:text-neutral-400 transition-colors hover:text-black dark:text-white"
-              >
-                Forgot Password?
-              </a>
-            </div>
-          </div>
 
           <div>
             <button

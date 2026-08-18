@@ -506,7 +506,7 @@ export default function HomeClient({
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         className="relative w-full aspect-[16/9] md:aspect-[21/9] lg:aspect-auto min-h-[460px] bg-neutral-150 dark:bg-neutral-950 overflow-hidden select-none"
-        style={{ height: "calc(100dvh - 57px)", minHeight: "calc(100dvh - 57px)" } as React.CSSProperties}
+        style={{ height: "calc(100dvh - 56px)", minHeight: "calc(100dvh - 56px)" } as React.CSSProperties}
       >
         {initialBanners.length === 0 ? (
           /* Default Banner Placeholder layout if no banner is added in Admin yet */
