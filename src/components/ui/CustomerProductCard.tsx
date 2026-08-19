@@ -125,9 +125,9 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          {/* Quick Add to Bag Action Overlay */}
+          {/* Quick Add to Bag Action Overlay (Hidden on Mobile, Visible on Desktop/Laptop) */}
           {!product.is_out_of_stock && (
-            <div className="absolute inset-x-2.5 bottom-2.5 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <div className="hidden sm:block absolute inset-x-2.5 bottom-2.5 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
               <button
                 type="button"
                 onClick={handleAddToCart}
