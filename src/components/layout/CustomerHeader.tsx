@@ -52,18 +52,17 @@ export default function CustomerHeader({ settings }: HeaderProps) {
     <>
       <header
         suppressHydrationWarning
-        className={`fixed top-0 left-0 right-0 z-45 w-full bg-[#F9F6F4] dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-850 transition-all duration-300 select-none ${
-          isScrolled ? "py-1.5 shadow-xs" : "py-2"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-45 w-full bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-850 transition-all duration-300 select-none ${isScrolled ? "py-1 shadow-xs" : "py-1.5 sm:py-2"
+          }`}
       >
         <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-        <div className="mx-auto max-w-7xl px-6 flex items-center justify-between">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Brand Logo */}
           <Link href="/" className="focus:outline-none flex items-center">
             <img
-              src="/images/logo-latest.png"
+              src="/images/logo-og.png"
               alt={settings?.shop_name || "NETHIEL JEWELRY"}
-              className="h-8 sm:h-10 md:h-11 w-auto max-w-[140px] sm:max-w-[170px] object-contain"
+              className="h-9 sm:h-11 md:h-12 w-auto max-w-[150px] sm:max-w-[190px] md:max-w-[220px] object-contain transition-all duration-300"
             />
           </Link>
 
@@ -77,15 +76,14 @@ export default function CustomerHeader({ settings }: HeaderProps) {
                 <Link
                   key={link.path}
                   href={link.path}
-                  className={`relative py-1 text-[10px] uppercase tracking-[0.2em] font-bold transition-colors ${
-                    active
-                      ? "text-black dark:text-white font-bold"
-                      : "text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
-                  }`}
+                  className={`relative py-1 text-[10px] uppercase tracking-[0.2em] font-bold transition-colors ${active
+                      ? "text-[#1E3A5F] font-bold"
+                      : "text-[#1E3A5F] hover:opacity-80"
+                    }`}
                 >
                   {link.name}
                   {active && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-black dark:bg-white rounded-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#1E3A5F] rounded-full" />
                   )}
                 </Link>
               );
@@ -93,13 +91,13 @@ export default function CustomerHeader({ settings }: HeaderProps) {
           </nav>
 
           {/* Action Icons */}
-          <div className="flex items-center space-x-3 sm:space-x-5 font-bold text-black dark:text-white">
+          <div className="flex items-center space-x-3 sm:space-x-5 font-bold text-[#1E3A5F]">
 
             {/* Search Button (Mobile & Desktop) */}
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="p-1.5 focus:outline-none cursor-pointer transition-colors text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
+              className="p-1.5 focus:outline-none cursor-pointer transition-colors text-[#1E3A5F] hover:opacity-80"
               aria-label="Search Catalog"
             >
               <Search size={19} strokeWidth={2} />
@@ -109,12 +107,12 @@ export default function CustomerHeader({ settings }: HeaderProps) {
             <button
               type="button"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-1.5 focus:outline-none cursor-pointer transition-colors text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
+              className="relative p-1.5 focus:outline-none cursor-pointer transition-colors text-[#1E3A5F] hover:opacity-80"
               aria-label={`View Shopping Bag (${totalCount} items)`}
             >
               <ShoppingBag size={19} strokeWidth={2} />
               {totalCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-4 h-4 px-1 text-[9px] font-bold text-white bg-[#D4AF37] dark:bg-[#F4C430] dark:text-black rounded-full shadow-xs animate-scale-tap leading-none">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-4 h-4 px-1 text-[9px] font-bold text-black bg-[#DFCB7F] rounded-full shadow-xs animate-scale-tap leading-none">
                   {totalCount > 99 ? "99+" : totalCount}
                 </span>
               )}
@@ -124,7 +122,7 @@ export default function CustomerHeader({ settings }: HeaderProps) {
             <button
               type="button"
               onClick={() => setDrawerOpen(!drawerOpen)}
-              className="p-1 md:hidden focus:outline-none cursor-pointer transition-colors ml-1 text-brand-gold-dark/90 hover:text-brand-gold dark:text-brand-gold dark:hover:text-white"
+              className="p-1 md:hidden focus:outline-none cursor-pointer transition-colors ml-1 text-[#1E3A5F] hover:opacity-80"
               aria-label="Open Menu"
             >
               <Menu size={22} strokeWidth={2} />
@@ -142,19 +140,21 @@ export default function CustomerHeader({ settings }: HeaderProps) {
 
         {/* Mobile Drawer Panel */}
         <div
-          className={`fixed top-0 bottom-0 left-0 z-55 w-72 max-w-[80vw] bg-[#F9F6F4] dark:bg-neutral-950 border-r border-neutral-200 dark:border-neutral-850 p-6 flex flex-col justify-between transition-transform duration-300 ease-out md:hidden ${drawerOpen ? "translate-x-0" : "-translate-x-full"
+          className={`fixed top-0 bottom-0 left-0 z-55 w-72 max-w-[80vw] bg-[#1E3A5F] dark:bg-neutral-950 border-r border-white/20 dark:border-neutral-850 p-6 flex flex-col justify-between transition-transform duration-300 ease-out md:hidden ${drawerOpen ? "translate-x-0" : "-translate-x-full"
             }`}
         >
           <div className="space-y-8">
-            <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-850 pb-4">
-              <Link href="/" onClick={handleLinkClick} className="focus:outline-none">
-                <span className="font-serif-luxury font-light text-lg tracking-[0.2em] text-brand-gold-dark dark:text-brand-gold uppercase">
-                  NETHIEL
-                </span>
+            <div className="relative flex items-center justify-center border-b border-white/20 dark:border-neutral-850 pb-4">
+              <Link href="/" onClick={handleLinkClick} className="focus:outline-none flex items-center justify-center">
+                <img
+                  src="/images/logo-og.png"
+                  alt={settings?.shop_name || "NETHIEL JEWELRY"}
+                  className="h-20 sm:h-24 w-auto max-w-[250px] object-contain mx-auto"
+                />
               </Link>
               <button
                 onClick={() => setDrawerOpen(false)}
-                className="p-1 text-brand-gold-dark/90 hover:text-brand-gold dark:text-brand-gold dark:hover:text-white focus:outline-none cursor-pointer"
+                className="absolute right-0 p-1 text-white hover:text-[#DFCB7F] focus:outline-none cursor-pointer transition-colors"
                 aria-label="Close Menu"
               >
                 <X size={20} />
@@ -169,7 +169,7 @@ export default function CustomerHeader({ settings }: HeaderProps) {
                     key={link.path}
                     href={link.path}
                     onClick={handleLinkClick}
-                    className={`text-xs uppercase tracking-[0.2em] font-bold transition-colors ${active ? "text-black font-bold" : "text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300"
+                    className={`text-xs uppercase tracking-[0.2em] font-bold transition-colors ${active ? "text-[#DFCB7F] font-bold" : "text-white hover:text-[#DFCB7F]"
                       }`}
                   >
                     {link.name}
@@ -180,27 +180,27 @@ export default function CustomerHeader({ settings }: HeaderProps) {
           </div>
 
           {/* Mobile Drawer Footer Actions (Search, Shopping Bag & Theme Toggle) */}
-          <div className="border-t border-neutral-200 dark:border-neutral-850 pt-4 space-y-3">
+          <div className="border-t border-white/20 dark:border-neutral-850 pt-4 space-y-3">
             <button
               type="button"
               onClick={() => {
                 setDrawerOpen(false);
                 setSearchOpen(true);
               }}
-              className="w-full flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer py-1.5"
+              className="w-full flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-white hover:text-[#DFCB7F] transition-colors cursor-pointer py-1.5"
             >
               <Search size={18} />
               <span>SEARCH &amp; PRODUCT CODE</span>
             </button>
 
-            <div className="flex items-center justify-between py-1 border-t border-neutral-200/60 dark:border-neutral-850/60 pt-3">
+            <div className="flex items-center justify-between py-1 border-t border-white/15 dark:border-neutral-850/60 pt-3">
               <button
                 type="button"
                 onClick={() => {
                   setDrawerOpen(false);
                   setIsCartOpen(true);
                 }}
-                className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-black hover:text-gray-800 dark:text-white dark:hover:text-gray-300 transition-colors cursor-pointer"
+                className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-white hover:text-[#DFCB7F] transition-colors cursor-pointer"
               >
                 <ShoppingBag size={18} />
                 <span>MY BAG ({totalCount})</span>
@@ -209,13 +209,13 @@ export default function CustomerHeader({ settings }: HeaderProps) {
               <Link
                 href="/products"
                 onClick={handleLinkClick}
-                className="text-[10px] font-bold uppercase tracking-wider text-brand-gold hover:underline"
+                className="text-[10px] font-bold uppercase tracking-wider text-[#DFCB7F] hover:underline"
               >
                 SHOP ALL →
               </Link>
             </div>
 
-            <div className="text-[9px] tracking-widest uppercase text-neutral-400 dark:text-neutral-500 font-light pt-2 border-t border-neutral-200/60 dark:border-neutral-850/60">
+            <div className="text-[9px] tracking-widest uppercase text-white/70 dark:text-neutral-500 font-light pt-2 border-t border-white/15 dark:border-neutral-850/60">
               © <span suppressHydrationWarning>{new Date().getFullYear()}</span> {settings?.shop_name || "NETHIEL JEWELRY"}.
             </div>
           </div>
