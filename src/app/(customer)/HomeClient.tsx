@@ -379,8 +379,8 @@ function MobileReelCarousel({ reels }: { reels: Reel[] }) {
             type="button"
             onClick={() => setActiveIndex(i)}
             className={`rounded-full transition-all duration-300 ${i === activeIndex
-                ? "w-5 h-1.5 bg-neutral-800 dark:bg-white"
-                : "w-1.5 h-1.5 bg-neutral-300 dark:bg-neutral-700"
+              ? "w-5 h-1.5 bg-neutral-800 dark:bg-white"
+              : "w-1.5 h-1.5 bg-neutral-300 dark:bg-neutral-700"
               }`}
             aria-label={`Reel ${i + 1}`}
           />
@@ -668,7 +668,7 @@ export default function HomeClient({
             <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
               SHOP BY COLLECTION
             </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase mt-0.5 whitespace-nowrap">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase mt-0.5 whitespace-nowrap">
               FIND YOUR STYLE
             </h2>
           </div>
@@ -728,7 +728,7 @@ export default function HomeClient({
             <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
               NEW ARRIVALS
             </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase mt-0.5">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase mt-0.5">
               JUST LANDED
             </h2>
           </div>
@@ -830,7 +830,7 @@ export default function HomeClient({
             <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
               SHOP THE LOOK
             </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase mt-0.5">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase mt-0.5">
               {extractInstagramHandle(settings?.instagram) || "@nethieljewelry"}
             </h2>
           </div>
@@ -948,7 +948,7 @@ export default function HomeClient({
               <span className="block text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase mb-1">
                 OUR STORY
               </span>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase mt-0.5">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase mt-0.5">
                 BEHIND THE BRAND
               </h2>
             </div>
@@ -976,7 +976,7 @@ export default function HomeClient({
             <span className="block text-[9px] sm:text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
               HAVE QUESTIONS?
             </span>
-            <h2 className="text-base sm:text-2xl md:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase leading-tight">
+            <h2 className="text-base sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase leading-tight">
               ORDER ON WHATSAPP
             </h2>
             <p className="text-[10px] sm:text-xs md:text-sm font-medium text-neutral-600 dark:text-neutral-400 leading-normal sm:leading-relaxed">

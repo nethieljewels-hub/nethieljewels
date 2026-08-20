@@ -62,7 +62,7 @@ export default async function ContactPage() {
               </div>
               <div className="space-y-2">
                 <span className="text-[10px] font-semibold tracking-[0.25em] text-brand-gold-dark uppercase">01 / ONLINE MESSAGING</span>
-                <h2 className="text-lg sm:text-xl font-serif-luxury font-medium tracking-wide text-black dark:text-white uppercase transition-colors group-hover:text-brand-brown-dark dark:group-hover:text-brand-cream">
+                <h2 className="text-lg sm:text-xl font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-[#CBD5E1] uppercase transition-colors">
                   WHATSAPP CHAT
                 </h2>
                 <p className="text-xs sm:text-sm font-light text-neutral-600 dark:text-neutral-400 leading-relaxed">

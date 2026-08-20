@@ -32,7 +32,7 @@ export default async function AboutPage() {
             <span className="text-xs font-semibold tracking-[0.25em] uppercase text-brand-gold-dark">
               OUR STORY &amp; HERITAGE
             </span>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif-luxury font-light leading-tight tracking-wide text-brand-brown-dark dark:text-brand-cream uppercase">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif-luxury font-light leading-tight tracking-wide text-[#1E3A5F] dark:text-[#CBD5E1] uppercase">
               TRADITIONAL ELEGANCE & CONTEMPORARY STYLE
             </h1>
             <p className="text-xs sm:text-sm font-light leading-relaxed text-neutral-500 dark:text-neutral-400 italic border-l-2 border-brand-gold-dark/60 pl-4">
