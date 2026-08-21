@@ -96,7 +96,7 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={primaryImage}
-                alt={product.title}
+                alt={`${product.title} - Nethiel Jewelry`}
                 className={`h-full w-full object-cover transition-all duration-500 ease-out ${
                   secondaryImage ? "md:group-hover:opacity-0" : "group-hover:scale-105"
                 } ${product.is_out_of_stock ? "opacity-60 grayscale-[30%]" : "opacity-100"}`}
@@ -108,7 +108,7 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={secondaryImage}
-                  alt={`${product.title} - View 2`}
+                  alt={`${product.title} Angle View - Nethiel Jewelry`}
                   className={`hidden md:block absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out group-hover:scale-105 ${
                     product.is_out_of_stock ? "grayscale-[30%]" : ""
                   }`}

@@ -1,7 +1,30 @@
+import type { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import HomeClient from "@/app/(customer)/HomeClient";
+import { formatCanonicalUrl, BRAND_NAME, BRAND_DESCRIPTION } from "@/utils/seo";
 
 export const revalidate = 60; // Cache for 60s, revalidate in background
+
+export const metadata: Metadata = {
+  title: `${BRAND_NAME} | Traditional & Contemporary South Indian Jewelry`,
+  description:
+    "Shop authentic South Indian jewelry online at Nethiel Jewelry. Discover exquisite gold plated jhumkas, harams, bangles, bridal sets, and contemporary designs crafted with timeless elegance.",
+  alternates: {
+    canonical: formatCanonicalUrl("/"),
+  },
+  openGraph: {
+    title: `${BRAND_NAME} | Traditional & Contemporary South Indian Jewelry`,
+    description: BRAND_DESCRIPTION,
+    url: formatCanonicalUrl("/"),
+    siteName: BRAND_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${BRAND_NAME} | Traditional & Contemporary South Indian Jewelry`,
+    description: BRAND_DESCRIPTION,
+  },
+};
 
 export default async function HomePage() {
   const supabase = await createClient();

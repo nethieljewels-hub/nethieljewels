@@ -23,7 +23,9 @@ interface Product {
   featured: boolean;
   images: string[];
   categories?: {
+    id?: string;
     name: string;
+    slug?: string;
   };
 }
 
@@ -254,11 +256,11 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
         {/* Return to collection */}
         <div className="select-none">
           <Link
-            href="/products"
+            href={product.categories?.slug ? `/collections/${product.categories.slug}` : `/products`}
             className="inline-flex items-center space-x-1.5 text-[9px] uppercase tracking-widest text-neutral-500 hover:text-black dark:hover:text-white transition-colors"
           >
             <ChevronLeft size={12} />
-            <span>Back to Collection</span>
+            <span>Back to {product.categories?.name || "Collection"}</span>
           </Link>
         </div>
 
@@ -313,11 +315,12 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={galleryImages[activeImage]}
-                alt={product.title}
+                alt={`${product.title} - South Indian Jewelry by Nethiel Jewelry (View ${activeImage + 1})`}
                 className={`w-full h-full transition-transform duration-300 ease-out object-contain p-2 ${
                   zoomed ? "scale-150" : ""
                 } ${product.is_out_of_stock ? "opacity-60 grayscale-[25%]" : ""}`}
                 draggable={false}
+                fetchPriority="high"
               />
 
               {/* Swipe indicator dots */}
@@ -343,9 +346,9 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
               )}
             </div>
 
-            {/* Thumbnail list */}
+            {/* Thumbnail navigation */}
             {galleryImages.length > 1 && (
-              <div className="flex space-x-2 overflow-x-auto pb-1 select-none scrollbar-thin">
+              <div className="flex space-x-2 overflow-x-auto pb-1 scrollbar-none">
                 {galleryImages.map((img, idx) => (
                   <button
                     key={idx}
@@ -360,8 +363,9 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={img}
-                      alt={`Thumbnail ${idx + 1}`}
+                      alt={`${product.title} Thumbnail ${idx + 1} - Nethiel Jewelry`}
                       className="h-full w-full object-cover"
+                      loading="lazy"
                     />
                   </button>
                 ))}
@@ -372,9 +376,12 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
           {/* 2. PRODUCT TITLE / HEADING */}
           <div className="space-y-1">
             {product.categories?.name && (
-              <span className="text-[9px] tracking-[0.2em] text-neutral-500 uppercase font-semibold block">
+              <Link
+                href={product.categories.slug ? `/collections/${product.categories.slug}` : `/products`}
+                className="text-[9px] tracking-[0.2em] text-brand-gold-dark hover:underline uppercase font-semibold inline-block"
+              >
                 {product.categories.name}
-              </span>
+              </Link>
             )}
             <h1 className="font-serif-luxury text-xl font-bold tracking-wide text-black dark:text-white uppercase leading-tight">
               {product.title}
@@ -721,9 +728,12 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
             {/* Category & Title */}
             <div className="space-y-2.5">
               {product.categories?.name && (
-                <span className="text-[10px] tracking-[0.2em] text-neutral-500 uppercase font-semibold">
+                <Link
+                  href={product.categories.slug ? `/collections/${product.categories.slug}` : `/products`}
+                  className="text-[10px] tracking-[0.2em] text-brand-gold-dark hover:underline uppercase font-semibold inline-block"
+                >
                   {product.categories.name}
-                </span>
+                </Link>
               )}
               <h1 className="font-serif-luxury text-2xl sm:text-3xl font-bold tracking-wide text-black dark:text-white uppercase leading-tight">
                 {product.title}

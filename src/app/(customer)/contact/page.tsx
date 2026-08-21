@@ -2,12 +2,32 @@ import { createClient } from "@/utils/supabase/server";
 import { Mail, Phone, MapPin, MessageSquare, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import { DEFAULT_WHATSAPP_NUMBER, DEFAULT_WHATSAPP_DISPLAY_PHONE } from "@/utils/constants";
+import { formatCanonicalUrl, BRAND_NAME } from "@/utils/seo";
+import BreadcrumbJsonLd from "@/components/seo/BreadcrumbJsonLd";
 
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "Contact Us | Nethiel Jewelry",
-  description: "Get in touch with Nethiel Jewelry via WhatsApp, Phone, Email, or Instagram. Direct order & customer support lines.",
+  title: `Contact Us | Customer Care & Direct Orders | ${BRAND_NAME}`,
+  description:
+    "Connect with Nethiel Jewelry for inquiries, custom sizing, and direct WhatsApp orders. Reach our customer care via WhatsApp, phone, email, or visit our studio.",
+  alternates: {
+    canonical: formatCanonicalUrl("/contact"),
+  },
+  openGraph: {
+    title: `Contact Us | Customer Care & Direct Orders | ${BRAND_NAME}`,
+    description:
+      "Connect with Nethiel Jewelry for inquiries, custom sizing, and direct WhatsApp orders. Reach our customer care via WhatsApp, phone, or email.",
+    url: formatCanonicalUrl("/contact"),
+    siteName: BRAND_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Contact Us | Customer Care & Direct Orders | ${BRAND_NAME}`,
+    description:
+      "Connect with Nethiel Jewelry for inquiries, custom sizing, and direct WhatsApp orders.",
+  },
 };
 
 export default async function ContactPage() {
@@ -49,8 +69,15 @@ export default async function ContactPage() {
     }
   ];
 
+  const breadcrumbs = [
+    { name: "Home", url: formatCanonicalUrl("/") },
+    { name: "Contact Us", url: formatCanonicalUrl("/contact") },
+  ];
+
   return (
-    <div className="w-full bg-transparent select-none pb-24">
+    <>
+      <BreadcrumbJsonLd items={breadcrumbs} />
+      <div className="w-full bg-transparent select-none pb-24">
       {/* Main Communication Channels */}
       <section className="mx-auto max-w-5xl px-6 py-16 sm:py-20 md:py-24 space-y-12 sm:space-y-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
@@ -236,5 +263,6 @@ export default async function ContactPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }

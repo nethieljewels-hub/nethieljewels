@@ -123,7 +123,7 @@ export default function CustomerFooter({ settings, categories = [] }: FooterProp
               {categories.map((cat) => (
                 <li key={cat.id}>
                   <Link
-                    href={`/products?category=${cat.slug || cat.id}`}
+                    href={`/collections/${cat.slug || cat.id}`}
                     className="hover:text-brand-gold transition-colors"
                   >
                     {cat.name}

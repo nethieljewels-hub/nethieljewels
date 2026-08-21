@@ -7,6 +7,10 @@ import { ToastProvider } from "@/context/ToastContext";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/cart/CartDrawer";
 
+import { getSiteUrl, BRAND_NAME, BRAND_DESCRIPTION, DEFAULT_KEYWORDS } from "@/utils/seo";
+import OrganizationJsonLd from "@/components/seo/OrganizationJsonLd";
+import { createClient } from "@/utils/supabase/server";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -38,26 +42,48 @@ export const viewport = {
   userScalable: false,
 };
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "Nethiel Jewelry | Premium Handcrafted Jewelry",
-    template: "%s | Nethiel Jewelry",
+    default: `${BRAND_NAME} | Traditional & Contemporary South Indian Jewelry`,
+    template: `%s | ${BRAND_NAME}`,
   },
-  description:
-    "Discover timeless elegance at Nethiel Jewelry. Explore premium gold, silver, and gemstone jewelry collections crafted to celebrate life's most beautiful moments.",
-  metadataBase: new URL("https://nethieljewelry.com"),
+  description: BRAND_DESCRIPTION,
+  keywords: DEFAULT_KEYWORDS,
+  authors: [{ name: BRAND_NAME }],
+  creator: BRAND_NAME,
+  publisher: BRAND_NAME,
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
   openGraph: {
-    title: "Nethiel Jewelry | Premium Handcrafted Jewelry",
-    description: "Explore premium gold, silver, and gemstone jewelry collections — crafted for life's most precious moments.",
-    url: "https://nethieljewelry.com",
-    siteName: "Nethiel Jewelry",
+    title: `${BRAND_NAME} | Traditional & Contemporary South Indian Jewelry`,
+    description: BRAND_DESCRIPTION,
+    url: siteUrl,
+    siteName: BRAND_NAME,
     locale: "en_IN",
     type: "website",
+    images: [
+      {
+        url: "/images/logo-latest.png",
+        width: 800,
+        height: 800,
+        alt: `${BRAND_NAME} - South Indian Jewelry`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nethiel Jewelry | Premium Handcrafted Jewelry",
-    description: "Explore premium gold, silver, and gemstone jewelry collections — crafted for life's most precious moments.",
+    title: `${BRAND_NAME} | Traditional & Contemporary South Indian Jewelry`,
+    description: BRAND_DESCRIPTION,
+    images: ["/images/logo-latest.png"],
   },
   icons: {
     icon: "/icon.png",
@@ -66,10 +92,24 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient();
+  const { data: settings } = await supabase
+    .from("settings")
+    .select("shop_name, email, phone, whatsapp, instagram, facebook, address")
+    .eq("id", true)
+    .maybeSingle();
+
   return (
     <html
       lang="en"
@@ -77,6 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <head>
+        <OrganizationJsonLd settings={settings} />
         <script
           dangerouslySetInnerHTML={{
             __html: `
