@@ -2,6 +2,8 @@ import { createClient } from "@/utils/supabase/server";
 import { Mail, Phone, MessageSquare, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import { DEFAULT_WHATSAPP_NUMBER, DEFAULT_WHATSAPP_DISPLAY_PHONE } from "@/utils/constants";
+import { formatCanonicalUrl, BRAND_NAME } from "@/utils/seo";
+import BreadcrumbJsonLd from "@/components/seo/BreadcrumbJsonLd";
 import { ContactFaqAccordion } from "@/components/contact/ContactFaqAccordion";
 
 export const revalidate = 0;
