@@ -3,12 +3,32 @@ import Image from "next/image";
 import { Sparkles, ShieldCheck, HeartHandshake, Compass, Target } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 
+import { formatCanonicalUrl, BRAND_NAME } from "@/utils/seo";
+import BreadcrumbJsonLd from "@/components/seo/BreadcrumbJsonLd";
+
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "About Us | Nethiel Jewelry",
+  title: `About Us | Heritage & Story | ${BRAND_NAME}`,
   description:
-    "South Indian jewelry brand bringing together traditional elegance and contemporary style. Curating jhumkas, harams, bangles, chokers, and timeless designs.",
+    "Learn about Nethiel Jewelry, a South Indian brand bringing together traditional elegance and contemporary style. Discover our story, heritage, mission, and curated handcrafted pieces.",
+  alternates: {
+    canonical: formatCanonicalUrl("/about"),
+  },
+  openGraph: {
+    title: `About Us | Heritage & Story | ${BRAND_NAME}`,
+    description:
+      "Learn about Nethiel Jewelry, a South Indian brand bringing together traditional elegance and contemporary style. Discover our story, mission, and curated pieces.",
+    url: formatCanonicalUrl("/about"),
+    siteName: BRAND_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `About Us | Heritage & Story | ${BRAND_NAME}`,
+    description:
+      "Learn about Nethiel Jewelry, a South Indian brand bringing together traditional elegance and contemporary style.",
+  },
 };
 
 export default async function AboutPage() {
@@ -20,10 +40,17 @@ export default async function AboutPage() {
     .eq("id", true)
     .maybeSingle();
 
-  const brandName = settings?.shop_name || "Nethiel Jewelry";
+  const brandName = settings?.shop_name || BRAND_NAME;
+
+  const breadcrumbs = [
+    { name: "Home", url: formatCanonicalUrl("/") },
+    { name: "About Us", url: formatCanonicalUrl("/about") },
+  ];
 
   return (
-    <div className="w-full bg-transparent select-none pb-24">
+    <>
+      <BreadcrumbJsonLd items={breadcrumbs} />
+      <div className="w-full bg-transparent select-none pb-24">
       {/* Main Brand Story (Asymmetric Editorial Layout with Hero Image) */}
       <section className="mx-auto max-w-6xl px-6 py-12 sm:py-16 md:py-24 space-y-16 sm:space-y-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
@@ -187,6 +214,7 @@ export default async function AboutPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }
 
