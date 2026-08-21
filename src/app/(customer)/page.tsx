@@ -7,7 +7,7 @@ export default async function HomePage() {
   const supabase = await createClient();
 
   // Run all queries in parallel for fastest possible load
-  const [bannersRes, categoriesRes, productsRes, settingsRes, reelsRes] =
+  const [bannersRes, categoriesRes, productsRes, settingsRes, reelsRes, testimonialsRes] =
     await Promise.all([
       supabase
         .from("hero_banners")
@@ -34,6 +34,11 @@ export default async function HomePage() {
         .select("id, title, video_url, thumbnail_url, sort_order")
         .eq("active", true)
         .order("sort_order", { ascending: true }),
+      supabase
+        .from("testimonials")
+        .select("*")
+        .eq("active", true)
+        .order("display_order", { ascending: true }),
     ]);
 
   return (
@@ -43,6 +48,7 @@ export default async function HomePage() {
       initialProducts={productsRes.data || []}
       settings={settingsRes.data ?? null}
       initialReels={reelsRes.data || []}
+      initialTestimonials={testimonialsRes.data || []}
     />
   );
 }
