@@ -68,11 +68,16 @@ export default function ProductsClient({
   useEffect(() => {
     setTimeout(() => {
       setSelectedCategory(categoryQuery);
+      if (searchParams.get("featured") === "true" || searchParams.get("filter") === "bestsellers") {
+        setBestSellerOnly(true);
+      } else {
+        setBestSellerOnly(false);
+      }
       if (initialCombinedSearch) {
         setSearch(initialCombinedSearch);
       }
     }, 0);
-  }, [categoryQuery, initialCombinedSearch]);
+  }, [categoryQuery, initialCombinedSearch, searchParams]);
 
   // Helper to push URL changes cleanly
   const updateUrlParams = (cat: string, searchVal: string) => {
@@ -193,10 +198,10 @@ export default function ProductsClient({
       {/* HEADER ROW: Title & Filter/Sort Pills (with Compact Search Bar) */}
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-neutral-200 dark:border-neutral-850 pb-5 gap-4">
         <div>
-          <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
-            {targetCategory ? targetCategory.name : "Collections"}
+          <span className="text-[10px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">
+            {targetCategory ? targetCategory.name : "COLLECTIONS"}
           </span>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase mt-0.5">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase mt-0.5">
             {targetCategory ? targetCategory.name : "All Products"}
           </h1>
           <p className="text-xs text-neutral-500 font-light mt-1">

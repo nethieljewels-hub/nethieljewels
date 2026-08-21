@@ -131,7 +131,7 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="w-full flex items-center justify-center space-x-1.5 bg-black/90 hover:bg-black text-white dark:bg-white/95 dark:hover:bg-white dark:text-black py-2 px-3 text-[10px] font-bold tracking-wider uppercase rounded-lg backdrop-blur-xs shadow-lg transition-all cursor-pointer active:animate-scale-tap"
+                className="w-full flex items-center justify-center space-x-1.5 bg-[#1E3A5F] hover:bg-[#162B47] text-white dark:bg-[#DFCB7F] dark:hover:bg-[#c9b263] dark:text-black py-2 px-3 text-[10px] font-bold tracking-wider uppercase rounded-lg backdrop-blur-xs shadow-lg transition-all cursor-pointer active:animate-scale-tap"
               >
                 <ShoppingBag size={13} />
                 <span>Add to Bag</span>

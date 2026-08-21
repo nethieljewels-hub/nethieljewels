@@ -193,7 +193,11 @@ export default function HeroBannersPage() {
     setFormMediaUrl(url);
     if (url) {
       const isVideo =
-        url.endsWith(".mp4") || url.endsWith(".mov") || url.includes("video/quicktime");
+        url.includes("/video/") ||
+        url.endsWith(".mp4") ||
+        url.endsWith(".mov") ||
+        url.endsWith(".webm") ||
+        url.includes("video/quicktime");
       setFormMediaType(isVideo ? "video" : "image");
     }
   };
@@ -203,7 +207,11 @@ export default function HeroBannersPage() {
     setFormMobileMediaUrl(url);
     if (url) {
       const isVideo =
-        url.endsWith(".mp4") || url.endsWith(".mov") || url.includes("video/quicktime");
+        url.includes("/video/") ||
+        url.endsWith(".mp4") ||
+        url.endsWith(".mov") ||
+        url.endsWith(".webm") ||
+        url.includes("video/quicktime");
       setFormMobileMediaType(isVideo ? "video" : "image");
     }
   };

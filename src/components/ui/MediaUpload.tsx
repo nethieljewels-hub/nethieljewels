@@ -41,11 +41,11 @@ export default function MediaUpload({
       try {
         setStatusText(`Processing file ${i + 1} of ${files.length}...`);
 
-        // High clarity options for banners & settings (up to 4K resolution - 3840px, 8MB limit)
+        // Optimized clarity & fast payload targets (compressed byte size ~300KB-700KB for lightning uploads)
         const isHighResBucket = bucket === "banners" || bucket === "settings";
         const compressionOpts = isHighResBucket
-          ? { maxSizeMB: 8, maxWidthOrHeight: 3840, initialQuality: 0.98 }
-          : { maxSizeMB: 2, maxWidthOrHeight: 2560, initialQuality: 0.95 };
+          ? { maxSizeMB: 1.5, maxWidthOrHeight: 2200, initialQuality: 0.88 }
+          : { maxSizeMB: 1.0, maxWidthOrHeight: 1800, initialQuality: 0.85 };
 
         const fileToUpload = await compressImage(originalFile, compressionOpts);
 
@@ -54,8 +54,32 @@ export default function MediaUpload({
         let publicUrl = "";
 
         if (isCloudinaryConfigured()) {
-          // Upload file to Cloudinary
-          publicUrl = await uploadToCloudinary(fileToUpload, bucket);
+          try {
+            // Upload file to Cloudinary
+            publicUrl = await uploadToCloudinary(fileToUpload, bucket);
+          } catch (cloudinaryErr) {
+            console.warn("Cloudinary upload failed, using Supabase Storage fallback:", cloudinaryErr);
+            // Automatic Fallback to Supabase Storage if Cloudinary fails
+            const fileExt = fileToUpload.name.split(".").pop();
+            const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+            const filePath = `${bucket}/${fileName}`;
+
+            const { error: sbErr } = await supabase.storage.from(bucket).upload(filePath, fileToUpload, {
+              cacheControl: "3600",
+              contentType: fileToUpload.type,
+              upsert: true,
+            });
+
+            if (sbErr) {
+              throw new Error(`Upload failed: ${(cloudinaryErr as Error)?.message || sbErr.message}`);
+            }
+
+            const {
+              data: { publicUrl: url },
+            } = supabase.storage.from(bucket).getPublicUrl(filePath);
+
+            publicUrl = url;
+          }
         } else {
           // Fallback to Supabase Storage if Cloudinary credentials not updated yet
           const fileExt = fileToUpload.name.split(".").pop();

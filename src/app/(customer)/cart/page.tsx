@@ -219,7 +219,7 @@ export default function CartPage() {
               <ArrowLeft size={14} />
               <span>Continue Shopping</span>
             </Link>
-            <h1 className="font-serif-luxury text-2xl sm:text-3xl font-bold tracking-wide text-black dark:text-white uppercase">
+            <h1 className="font-serif-luxury text-2xl sm:text-3xl font-bold tracking-wide text-[#1E3A5F] dark:text-[#CBD5E1] uppercase">
               Shopping Bag &amp; Checkout
             </h1>
           </div>

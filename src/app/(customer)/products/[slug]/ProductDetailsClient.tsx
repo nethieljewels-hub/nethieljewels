@@ -383,7 +383,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
                 {product.categories.name}
               </Link>
             )}
-            <h1 className="font-serif-luxury text-xl font-bold tracking-wide text-black dark:text-white uppercase leading-tight">
+            <h1 className="font-serif-luxury text-xl font-bold tracking-wide text-[#1E3A5F] dark:text-[#CBD5E1] uppercase leading-tight">
               {product.title}
             </h1>
           </div>
