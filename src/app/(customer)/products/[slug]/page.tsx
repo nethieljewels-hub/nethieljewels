@@ -1,7 +1,15 @@
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "@/app/(customer)/products/[slug]/ProductDetailsClient";
+import ProductJsonLd from "@/components/seo/ProductJsonLd";
+import BreadcrumbJsonLd, { BreadcrumbItem } from "@/components/seo/BreadcrumbJsonLd";
 import type { Metadata } from "next";
+import {
+  formatCanonicalUrl,
+  generateProductSeoTitle,
+  generateProductSeoDescription,
+  BRAND_NAME,
+} from "@/utils/seo";
 
 interface Props {
   params: Promise<{
@@ -15,17 +23,55 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: product } = await supabase
     .from("products")
-    .select("title, description")
+    .select("title, description, seo_title, seo_description, images, categories(name)")
     .eq("slug", slug)
+    .eq("active", true)
     .maybeSingle();
 
-  if (!product) return {};
+  if (!product) {
+    notFound();
+  }
+
+  const title = generateProductSeoTitle(product);
+  const description = generateProductSeoDescription(product);
+  const canonicalUrl = formatCanonicalUrl(`/products/${slug}`);
+  const ogImages =
+    product.images && product.images.length > 0
+      ? product.images.map((img: string) => ({
+          url: img,
+          alt: `${product.title} - ${BRAND_NAME}`,
+        }))
+      : [
+          {
+            url: "/images/logo-latest.png",
+            alt: `${product.title} - ${BRAND_NAME}`,
+          },
+        ];
 
   return {
-    title: `${product.title} | Nethiel Jewelry`,
-    description:
-      product.description ||
-      "Discover premium handcrafted jewelry — beautifully designed with precious metals and fine gemstones.",
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: BRAND_NAME,
+      type: "website",
+      images: ogImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: product.images && product.images.length > 0 ? [product.images[0]] : ["/images/logo-latest.png"],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
   };
 }
 
@@ -35,8 +81,9 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const { data: product } = await supabase
     .from("products")
-    .select("*, categories(name)")
+    .select("*, categories(id, name, slug)")
     .eq("slug", slug)
+    .eq("active", true)
     .maybeSingle();
 
   if (!product) {
@@ -78,10 +125,26 @@ export default async function ProductDetailPage({ params }: Props) {
   }
   finalRecommended = Array.from(uniqueRecommendedMap.values());
 
+  // Breadcrumbs for SEO JSON-LD
+  const categoryName = (product.categories as { name?: string })?.name || "Jewelry";
+  const categorySlug = (product.categories as { slug?: string })?.slug;
+
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { name: "Home", url: formatCanonicalUrl("/") },
+    categorySlug
+      ? { name: categoryName, url: formatCanonicalUrl(`/collections/${categorySlug}`) }
+      : { name: "Shop", url: formatCanonicalUrl("/products") },
+    { name: product.title, url: formatCanonicalUrl(`/products/${product.slug}`) },
+  ];
+
   return (
-    <ProductDetailsClient
-      product={product}
-      recommendedProducts={finalRecommended}
-    />
+    <>
+      <ProductJsonLd product={product} />
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <ProductDetailsClient
+        product={product}
+        recommendedProducts={finalRecommended}
+      />
+    </>
   );
 }

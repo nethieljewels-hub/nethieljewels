@@ -44,6 +44,8 @@ export interface Database {
           name: string;
           slug: string;
           image_url: string | null;
+          seo_title: string | null;
+          seo_description: string | null;
           active: boolean;
           created_at: string;
           updated_at: string;
@@ -53,6 +55,8 @@ export interface Database {
           name: string;
           slug: string;
           image_url?: string | null;
+          seo_title?: string | null;
+          seo_description?: string | null;
           active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -62,6 +66,8 @@ export interface Database {
           name?: string;
           slug?: string;
           image_url?: string | null;
+          seo_title?: string | null;
+          seo_description?: string | null;
           active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -81,6 +87,9 @@ export interface Database {
           featured: boolean;
           active: boolean;
           product_code: string | null;
+          colors?: string[] | null;
+          seo_title: string | null;
+          seo_description: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -97,6 +106,9 @@ export interface Database {
           featured?: boolean;
           active?: boolean;
           product_code?: string | null;
+          colors?: string[] | null;
+          seo_title?: string | null;
+          seo_description?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -113,6 +125,9 @@ export interface Database {
           featured?: boolean;
           active?: boolean;
           product_code?: string | null;
+          colors?: string[] | null;
+          seo_title?: string | null;
+          seo_description?: string | null;
           created_at?: string;
           updated_at?: string;
         };

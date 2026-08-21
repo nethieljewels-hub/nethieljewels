@@ -1,11 +1,51 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { createClient } from "@/utils/supabase/server";
 import ProductsClient from "@/app/(customer)/products/ProductsClient";
+import { formatCanonicalUrl, BRAND_NAME } from "@/utils/seo";
 
 export const revalidate = 0;
 
 interface ProductsPageProps {
   searchParams: Promise<{ search?: string; category?: string; product_code?: string; code?: string }>;
+}
+
+export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const canonicalUrl = formatCanonicalUrl("/products");
+
+  let title = `All Jewelry Collections | Handcrafted South Indian Jewelry | ${BRAND_NAME}`;
+  let description =
+    "Explore the complete jewelry collection from Nethiel Jewelry. Discover traditional gold plated jhumkas, bridal harams, elegant necklaces, bangles, and everyday contemporary pieces.";
+
+  if (params.search) {
+    title = `Search results for "${params.search}" | ${BRAND_NAME}`;
+    description = `Browse South Indian jewelry search results for "${params.search}" at ${BRAND_NAME}.`;
+  }
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: BRAND_NAME,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+    // Set noindex on raw parameter filter variants if needed or keep indexed with canonical to /products
+    robots: params.search
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
+  };
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {

@@ -695,7 +695,7 @@ export default function HomeClient({
             {initialCategories.map((cat) => (
               <Link
                 key={cat.id}
-                href={`/products?category=${cat.slug || cat.id}`}
+                href={`/collections/${cat.slug || cat.id}`}
                 className="group flex flex-col items-center flex-shrink-0 w-20 sm:w-24 md:w-36 lg:w-40 focus:outline-none"
               >
                 {/* Circular Image Container with Outer Gold Accent Ring */}
@@ -704,8 +704,9 @@ export default function HomeClient({
                     {cat.image_url ? (
                       <img
                         src={cat.image_url}
-                        alt={cat.name}
+                        alt={`${cat.name} Jewelry Collection - Nethiel Jewelry`}
                         className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="h-full w-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 dark:text-neutral-400">
