@@ -25,22 +25,36 @@ export async function uploadToCloudinary(
   formData.append("file", file);
   formData.append("folder", folder);
 
-  const response = await fetch("/api/upload", {
-    method: "POST",
-    body: formData,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 25000);
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const errorMessage =
-      errorData.error || response.statusText || "Upload request failed";
-    throw new Error(`Cloudinary upload failed: ${errorMessage}`);
+  try {
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage =
+        errorData.error || response.statusText || "Upload request failed";
+      throw new Error(`Cloudinary upload failed: ${errorMessage}`);
+    }
+
+    const data = await response.json();
+    if (!data.url) {
+      throw new Error("Cloudinary did not return a valid secure URL.");
+    }
+
+    return data.url;
+  } catch (err: unknown) {
+    clearTimeout(timeoutId);
+    if ((err as Error)?.name === "AbortError") {
+      throw new Error("Cloudinary upload request timed out after 25 seconds.");
+    }
+    throw err;
   }
-
-  const data = await response.json();
-  if (!data.url) {
-    throw new Error("Cloudinary did not return a valid secure URL.");
-  }
-
-  return data.url;
 }

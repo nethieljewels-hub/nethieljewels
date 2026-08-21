@@ -16,6 +16,8 @@ export default function SettingsPage() {
 
   // Settings State
   const [shopName, setShopName] = useState("");
+  const [announcementEnabled, setAnnouncementEnabled] = useState(false);
+  const [announcementText, setAnnouncementText] = useState("");
 
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -36,6 +38,8 @@ export default function SettingsPage() {
       showToast(error.message, "error");
     } else if (data) {
       setShopName(data.shop_name);
+      setAnnouncementEnabled(Boolean(data.announcement_enabled));
+      setAnnouncementText(data.announcement_text || "✨ Free Insured Shipping Across India on Orders Above ₹999 | Order via WhatsApp ✨");
 
       setEmail(data.email || "");
       setPhone(data.phone || DEFAULT_WHATSAPP_DISPLAY_PHONE);
@@ -66,6 +70,8 @@ export default function SettingsPage() {
     const { error } = await supabase.from("settings").upsert({
       id: true,
       shop_name: shopName,
+      announcement_enabled: announcementEnabled,
+      announcement_text: announcementText || null,
 
       email: email || null,
       phone: phone || null,
@@ -99,6 +105,60 @@ export default function SettingsPage() {
       </div>
 
       <form onSubmit={handleSave} className="space-y-8 max-w-2xl">
+        {/* Announcement Bar Settings Block */}
+        <div className="rounded-sm border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7]/60 dark:bg-neutral-900/50 p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-[10px] font-bold tracking-[0.2em] text-[#0284C7] uppercase">
+                Header Banner
+              </span>
+              <h2 className="text-xs font-bold tracking-widest text-[#1E3A5F] dark:text-white uppercase mt-0.5">
+                Top Announcement Bar
+              </h2>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={announcementEnabled}
+                onChange={(e) => setAnnouncementEnabled(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-neutral-300 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-neutral-600 peer-checked:bg-[#0284C7]" />
+              <span className="ml-3 text-xs font-bold uppercase tracking-wider text-[#1E3A5F] dark:text-white">
+                {announcementEnabled ? "ACTIVE" : "OFF"}
+              </span>
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest text-[#1E3A5F] dark:text-neutral-300 uppercase mb-1">
+              Announcement Message
+            </label>
+            <input
+              type="text"
+              value={announcementText}
+              onChange={(e) => setAnnouncementText(e.target.value)}
+              placeholder="e.g. ✨ Free Insured Shipping Across India on Orders Above ₹999 | Order via WhatsApp ✨"
+              className="block w-full rounded-sm border border-neutral-300 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-2 text-sm text-black dark:text-white focus:border-[#0284C7] focus:outline-none font-medium"
+            />
+          </div>
+
+          {/* Live Preview */}
+          <div className="pt-2">
+            <span className="block text-[9px] font-bold tracking-widest text-neutral-500 uppercase mb-1.5">
+              Live Preview Header Banner
+            </span>
+            {announcementEnabled ? (
+              <div className="bg-[#0284C7] text-white py-2 px-4 rounded-xs text-center text-xs font-semibold tracking-wide flex items-center justify-center space-x-2 shadow-xs">
+                <span>{announcementText || "✨ Special Announcement Here ✨"}</span>
+              </div>
+            ) : (
+              <div className="bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 py-2 px-4 rounded-xs text-center text-xs italic">
+                Announcement bar is currently DISABLED and hidden from storefront.
+              </div>
+            )}
+          </div>
+        </div>
         <div className="rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-50 dark:bg-neutral-900/50 p-6 space-y-6">
           <h2 className="text-xs font-semibold tracking-widest text-neutral-600 dark:text-neutral-400 uppercase">
             Brand Identity

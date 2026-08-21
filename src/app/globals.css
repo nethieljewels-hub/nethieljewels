@@ -24,13 +24,14 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
 
-  --color-brand-gold: #c5a880;
-  --color-brand-gold-dark: #b1936c;
-  --color-brand-brown-dark: #4A3328;
-  --color-brand-brown-medium: #3a251c;
-  --color-brand-brown-light: #52392e;
+  --color-brand-gold: #DFCB7F;
+  --color-brand-gold-dark: #C9B263;
+  --color-brand-brown-dark: #1E3A5F;
+  --color-brand-brown-medium: #162B47;
+  --color-brand-brown-light: #2A4E7E;
   --color-brand-cream: #ffffff;
   --color-brand-ivory: #f9f9f9;
+  --color-brand-heading: #1E3A5F;
 
   --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-slide-up: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -175,10 +176,12 @@ body {
     transform: translateY(18px) scale(0.88);
     filter: blur(3px);
   }
+
   70% {
     opacity: 1;
     filter: blur(0px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -194,4 +197,34 @@ body {
 /* Zero-flash suppression on page refresh/reload */
 html.no-splash #nethiel-splash-screen {
   display: none !important;
+}
+
+/* Global Heading Section Color — #1E3A5F (Rich Dark Navy Blue) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading-text {
+  color: #1E3A5F;
+}
+
+/* Ensure footer headings inherit footer text color */
+footer h1,
+footer h2,
+footer h3,
+footer h4,
+footer h5,
+footer h6 {
+  color: inherit;
+}
+
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #94A3B8;
 }

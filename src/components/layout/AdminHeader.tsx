@@ -45,7 +45,7 @@ export default function AdminHeader({ onMenuOpen }: HeaderProps) {
         {/* Mobile Logo */}
         <div className="lg:hidden flex items-center">
           <img
-            src="/images/logo-latest.png"
+            src="/images/logo-og.png"
             alt="NETHIEL Logo"
             className="h-7 w-auto object-contain"
           />

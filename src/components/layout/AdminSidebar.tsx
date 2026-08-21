@@ -13,6 +13,7 @@ import {
   User,
   LogOut,
   Video,
+  MessageSquareQuote,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/hero-banners", label: "Hero Banners", icon: ImageIcon },
   { href: "/admin/reels", label: "Video Reels", icon: Video },
+  { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { href: "/admin/settings", label: "Shop Settings", icon: Settings },
   { href: "/admin/profile", label: "Profile", icon: User },
 ];
@@ -45,7 +47,7 @@ export default function AdminSidebar({ isOpen = false, onClose }: SidebarProps) 
         <div className="flex flex-col items-center justify-center text-center pb-4 border-b border-neutral-200/80 dark:border-neutral-800">
           <Link href="/admin/dashboard" className="block focus:outline-none">
             <img
-              src="/images/logo-latest.png"
+              src="/images/logo-og.png"
               alt="NETHIEL Logo"
               className="h-9 sm:h-11 w-auto max-w-[160px] object-contain mx-auto"
             />
