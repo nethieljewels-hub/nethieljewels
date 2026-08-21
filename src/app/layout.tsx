@@ -60,8 +60,9 @@ export const metadata: Metadata = {
     description: "Explore premium gold, silver, and gemstone jewelry collections — crafted for life's most precious moments.",
   },
   icons: {
-    icon: "/icon.png",
-    apple: "/apple-icon.png",
+    icon: "/images/logo-og.png",
+    shortcut: "/images/logo-og.png",
+    apple: "/images/logo-og.png",
   },
   robots: {
     index: true,

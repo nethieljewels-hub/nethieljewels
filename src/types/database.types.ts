@@ -172,6 +172,8 @@ export interface Database {
           instagram: string | null;
           facebook: string | null;
           address: string | null;
+          announcement_enabled?: boolean | null;
+          announcement_text?: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -185,6 +187,8 @@ export interface Database {
           instagram?: string | null;
           facebook?: string | null;
           address?: string | null;
+          announcement_enabled?: boolean | null;
+          announcement_text?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -198,6 +202,46 @@ export interface Database {
           instagram?: string | null;
           facebook?: string | null;
           address?: string | null;
+          announcement_enabled?: boolean | null;
+          announcement_text?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      testimonials: {
+        Row: {
+          id: string;
+          customer_name: string;
+          location: string | null;
+          rating: number;
+          review_text: string;
+          avatar_url: string | null;
+          active: boolean;
+          display_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_name: string;
+          location?: string | null;
+          rating?: number;
+          review_text: string;
+          avatar_url?: string | null;
+          active?: boolean;
+          display_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          customer_name?: string;
+          location?: string | null;
+          rating?: number;
+          review_text?: string;
+          avatar_url?: string | null;
+          active?: boolean;
+          display_order?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -216,4 +260,17 @@ export interface Database {
       [_ in never]: never;
     };
   };
+}
+
+export interface Testimonial {
+  id: string;
+  customer_name: string;
+  location: string | null;
+  rating: number;
+  review_text: string;
+  avatar_url: string | null;
+  active: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
 }

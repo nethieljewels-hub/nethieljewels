@@ -21,11 +21,15 @@ export default async function CustomerLayout({ children }: { children: React.Rea
     .eq("active", true)
     .order("created_at", { ascending: true });
 
+  const isAnnouncementActive = Boolean(settings?.announcement_enabled);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans select-none" suppressHydrationWarning>
       <CustomerHeader settings={settings} />
-      {/* pt compensates for compact fixed header height */}
-      <main className="flex-1 flex flex-col pt-[50px] sm:pt-[58px] md:pt-[64px]">{children}</main>
+      {/* pt compensates for compact fixed header height & optional top announcement bar */}
+      <main className={`flex-1 flex flex-col ${isAnnouncementActive ? "pt-[80px] sm:pt-[88px] md:pt-[96px]" : "pt-[50px] sm:pt-[58px] md:pt-[64px]"}`}>
+        {children}
+      </main>
       <CustomerFooter settings={settings} categories={categories || []} />
       <ScrollToTopButton />
     </div>

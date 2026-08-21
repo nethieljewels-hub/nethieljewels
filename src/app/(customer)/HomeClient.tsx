@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import CustomerProductCard from "@/components/ui/CustomerProductCard";
+import TestimonialsSection from "@/components/home/TestimonialsSection";
 import { ArrowRight, ChevronLeft, ChevronRight, VolumeX, Volume2, ShieldCheck, Truck, Sparkles, MessageCircle, Image as ImageIcon, Layers, Play } from "lucide-react";
+import type { Testimonial } from "@/types/database.types";
 
 interface Banner {
   id: string;
@@ -60,6 +62,7 @@ interface HomeClientProps {
   initialProducts: Product[];
   settings: SiteSettings | null;
   initialReels: Reel[];
+  initialTestimonials?: Testimonial[];
 }
 
 /** Self-contained reel card: plays video on hover, mute/unmute toggle */
@@ -408,6 +411,7 @@ export default function HomeClient({
   initialProducts,
   settings,
   initialReels,
+  initialTestimonials,
 }: HomeClientProps) {
   const [activeBanner, setActiveBanner] = useState(0);
   const [isNewArrivalsHovered, setIsNewArrivalsHovered] = useState(false);
@@ -499,7 +503,7 @@ export default function HomeClient({
   const productsWithImages = initialProducts.filter((p) => p.images && p.images.length > 0);
 
   return (
-    <div data-page="home" className="space-y-16 pb-20 bg-transparent">
+    <div data-page="home" className="space-y-8 sm:space-y-10 md:space-y-12 pb-16 bg-transparent">
       {/* 1. HERO BANNER SECTION */}
       <section
         onTouchStart={onTouchStart}
@@ -665,7 +669,7 @@ export default function HomeClient({
       <section className="mx-auto max-w-7xl px-6 space-y-6">
         <div className="flex items-end justify-between border-b border-neutral-200 dark:border-neutral-850 pb-3">
           <div>
-            <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
+            <span className="text-[10px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">
               SHOP BY COLLECTION
             </span>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase mt-0.5 whitespace-nowrap">
@@ -725,7 +729,7 @@ export default function HomeClient({
       <section className="mx-auto max-w-7xl px-6 space-y-6">
         <div className="flex items-end justify-between border-b border-neutral-200 dark:border-neutral-850 pb-3">
           <div>
-            <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
+            <span className="text-[10px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">
               NEW ARRIVALS
             </span>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase mt-0.5">
@@ -789,35 +793,35 @@ export default function HomeClient({
 
       {/* 4. VALUE PROPOSITIONS / FEATURES BAR */}
       <section className="mx-auto max-w-7xl px-3 sm:px-6">
-        <div className="grid grid-cols-3 gap-0 sm:gap-6 rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-900/50 px-2 py-4 sm:p-8 text-center items-start">
+        <div className="grid grid-cols-3 gap-0 sm:gap-6 rounded-sm border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7] dark:bg-neutral-900 px-2 py-4 sm:p-8 text-center items-start shadow-2xs">
           <div className="flex flex-col items-center space-y-1 sm:space-y-2.5 px-1 sm:px-4">
-            <Sparkles className="text-black dark:text-white w-4 h-4 sm:w-7 sm:h-7 mb-0.5" strokeWidth={1.5} />
-            <h3 className="text-[8px] sm:text-sm md:text-base font-extrabold tracking-wide uppercase text-black dark:text-white leading-tight">
+            <Sparkles className="text-[#1E3A5F] dark:text-white w-4 h-4 sm:w-7 sm:h-7 mb-0.5" strokeWidth={1.5} />
+            <h3 className="text-[8px] sm:text-sm md:text-base font-extrabold tracking-wide uppercase text-[#1E3A5F] dark:text-white leading-tight">
               <span className="hidden sm:inline">PREMIUM </span>CRAFTSMANSHIP
             </h3>
-            <p className="text-[7px] sm:text-xs md:text-sm font-light text-neutral-500 dark:text-neutral-400 leading-snug sm:leading-relaxed sm:max-w-xs">
-              <span className="sm:hidden">Precious metals &amp; fine gems.</span>
-              <span className="hidden sm:inline">Meticulously designed with precious metals and fine gems.</span>
+            <p className="text-[7px] sm:text-xs md:text-sm font-light text-neutral-600 dark:text-neutral-400 leading-snug sm:leading-relaxed sm:max-w-xs">
+              <span className="sm:hidden">Handcrafted fine detail.</span>
+              <span className="hidden sm:inline">Handcrafted with fine precision &amp; care.</span>
             </p>
           </div>
-          <div className="flex flex-col items-center space-y-1 sm:space-y-2.5 px-1 sm:px-4 border-x border-neutral-200 dark:border-neutral-800">
-            <Truck className="text-black dark:text-white w-4 h-4 sm:w-7 sm:h-7 mb-0.5" strokeWidth={1.5} />
-            <h3 className="text-[8px] sm:text-sm md:text-base font-extrabold tracking-wide uppercase text-black dark:text-white leading-tight">
+          <div className="flex flex-col items-center space-y-1 sm:space-y-2.5 px-1 sm:px-4 border-x border-[#CBDFF2] dark:border-neutral-800">
+            <Truck className="text-[#1E3A5F] dark:text-white w-4 h-4 sm:w-7 sm:h-7 mb-0.5" strokeWidth={1.5} />
+            <h3 className="text-[8px] sm:text-sm md:text-base font-extrabold tracking-wide uppercase text-[#1E3A5F] dark:text-white leading-tight">
               INSURED<span className="hidden sm:inline"> SHIPPING</span>
             </h3>
-            <p className="text-[7px] sm:text-xs md:text-sm font-light text-neutral-500 dark:text-neutral-400 leading-snug sm:leading-relaxed sm:max-w-xs">
-              <span className="sm:hidden">Free above ₹5,000.</span>
-              <span className="hidden sm:inline">Complimentary shipping on orders above ₹5,000.</span>
+            <p className="text-[7px] sm:text-xs md:text-sm font-light text-neutral-600 dark:text-neutral-400 leading-snug sm:leading-relaxed sm:max-w-xs">
+              <span className="sm:hidden">Safe &amp; tracked delivery.</span>
+              <span className="hidden sm:inline">Safe, tracked &amp; insured door-to-door delivery.</span>
             </p>
           </div>
           <div className="flex flex-col items-center space-y-1 sm:space-y-2.5 px-1 sm:px-4">
-            <ShieldCheck className="text-black dark:text-white w-4 h-4 sm:w-7 sm:h-7 mb-0.5" strokeWidth={1.5} />
-            <h3 className="text-[8px] sm:text-sm md:text-base font-extrabold tracking-wide uppercase text-black dark:text-white leading-tight">
+            <ShieldCheck className="text-[#1E3A5F] dark:text-white w-4 h-4 sm:w-7 sm:h-7 mb-0.5" strokeWidth={1.5} />
+            <h3 className="text-[8px] sm:text-sm md:text-base font-extrabold tracking-wide uppercase text-[#1E3A5F] dark:text-white leading-tight">
               SECURE<span className="hidden sm:inline"> CHECKOUT</span>
             </h3>
-            <p className="text-[7px] sm:text-xs md:text-sm font-light text-neutral-500 dark:text-neutral-400 leading-snug sm:leading-relaxed sm:max-w-xs">
+            <p className="text-[7px] sm:text-xs md:text-sm font-light text-neutral-600 dark:text-neutral-400 leading-snug sm:leading-relaxed sm:max-w-xs">
               <span className="sm:hidden">Order via WhatsApp.</span>
-              <span className="hidden sm:inline">Direct checkout and inquiry via WhatsApp.</span>
+              <span className="hidden sm:inline">Direct checkout &amp; order inquiry via WhatsApp.</span>
             </p>
           </div>
         </div>
@@ -827,7 +831,7 @@ export default function HomeClient({
       <section className="mx-auto max-w-7xl px-6 space-y-6">
         <div className="flex items-end justify-between border-b border-neutral-200 dark:border-neutral-850 pb-3">
           <div>
-            <span className="text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
+            <span className="text-[10px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">
               SHOP THE LOOK
             </span>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase mt-0.5">
@@ -838,7 +842,7 @@ export default function HomeClient({
             href={settings?.instagram || "https://instagram.com"}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center space-x-1.5 md:space-x-2 border-0 md:border md:border-neutral-300 dark:md:border-neutral-700 bg-transparent md:bg-white dark:md:bg-neutral-900 p-0 md:px-4 md:py-2 text-xs font-bold tracking-wider uppercase text-black dark:text-white hover:opacity-80 md:hover:bg-neutral-100 dark:md:hover:bg-neutral-800 transition-colors rounded-xs"
+            className="inline-flex items-center space-x-1.5 md:space-x-2 bg-[#1E3A5F] hover:bg-[#162B47] text-white dark:bg-[#DFCB7F] dark:hover:bg-[#c9b263] dark:text-black px-3 py-1.5 md:px-4 md:py-2 text-[10px] sm:text-xs font-bold tracking-wider uppercase transition-colors rounded-xs shadow-md"
           >
             <span>FOLLOW US<span className="hidden md:inline"> ON INSTAGRAM</span></span>
             <svg
@@ -945,7 +949,7 @@ export default function HomeClient({
         <section className="mx-auto max-w-7xl space-y-5">
           <div className="px-4 sm:px-6 flex items-end justify-between border-b border-neutral-200 dark:border-neutral-850 pb-3">
             <div>
-              <span className="block text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase mb-1">
+              <span className="block text-[10px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase mb-1">
                 OUR STORY
               </span>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase mt-0.5">
@@ -968,12 +972,15 @@ export default function HomeClient({
         </section>
       )}
 
+      {/* 6.5 CLIENT TESTIMONIALS SECTION (PLACED DIRECTLY BELOW OUR STORY BEHIND THE BRAND) */}
+      <TestimonialsSection testimonials={initialTestimonials} />
+
       {/* 7. WHATSAPP ORDER CTA SECTION */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-900/70 p-5 sm:p-8 md:p-12 flex flex-row items-center justify-between gap-3 sm:gap-6">
+        <div className="relative overflow-hidden rounded-sm border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7] dark:bg-neutral-900 p-5 sm:p-8 md:p-12 flex flex-row items-center justify-between gap-3 sm:gap-6 shadow-2xs">
           {/* Left Text Content */}
           <div className="w-7/12 sm:w-1/2 space-y-2 sm:space-y-3 text-left z-10">
-            <span className="block text-[9px] sm:text-[10px] font-bold tracking-[0.25em] text-neutral-500 dark:text-neutral-400 uppercase">
+            <span className="block text-[9px] sm:text-[10px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">
               HAVE QUESTIONS?
             </span>
             <h2 className="text-base sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#1E3A5F] dark:text-[#CBD5E1] uppercase leading-tight">
@@ -987,7 +994,7 @@ export default function HomeClient({
                 href={`https://wa.me/${settings?.whatsapp?.replace(/[^\d]/g, "") || ""}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center space-x-2 bg-black dark:bg-white text-white dark:text-black px-3.5 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-xs font-semibold tracking-widest uppercase hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all rounded-sm shadow-md"
+                className="inline-flex items-center space-x-2 bg-[#1E3A5F] hover:bg-[#162B47] text-white dark:bg-white dark:text-black px-3.5 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-xs font-semibold tracking-widest uppercase transition-all rounded-sm shadow-md"
               >
                 <span>CHAT NOW</span>
                 <MessageCircle size={13} className="sm:w-[15px] sm:h-[15px]" />
