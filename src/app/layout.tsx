@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/logo-latest.png",
+        url: "/images/logo-og.png",
         width: 800,
         height: 800,
         alt: `${BRAND_NAME} - South Indian Jewelry`,
@@ -83,12 +83,15 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${BRAND_NAME} | Traditional & Contemporary South Indian Jewelry`,
     description: BRAND_DESCRIPTION,
-    images: ["/images/logo-latest.png"],
+    images: ["/images/logo-og.png"],
   },
   icons: {
     icon: "/images/logo-og.png",
     shortcut: "/images/logo-og.png",
     apple: "/images/logo-og.png",
+  },
+  verification: {
+    google: "O-wzs9Mq-JtNGBR3F2Xs8Sjye4AXLM4QdJdMb7TEKSM",
   },
   robots: {
     index: true,
