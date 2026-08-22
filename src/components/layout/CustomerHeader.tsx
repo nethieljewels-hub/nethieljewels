@@ -112,7 +112,7 @@ export default function CustomerHeader({ settings }: HeaderProps) {
     <>
       <header
         suppressHydrationWarning
-        className="fixed top-0 left-0 right-0 z-45 w-full bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-850 transition-all duration-300 select-none shadow-xs"
+        className="sticky top-0 z-45 w-full bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-850 transition-all duration-300 select-none shadow-xs"
       >
         {/* Top Announcement Bar with Social Icons */}
         {isAnnouncementActive && (

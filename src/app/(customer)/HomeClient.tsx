@@ -65,20 +65,38 @@ interface HomeClientProps {
   initialTestimonials?: Testimonial[];
 }
 
+function isVideoMediaUrl(url: string | null | undefined, declaredType?: string | null): boolean {
+  if (!url) return false;
+  const clean = url.toLowerCase().trim();
+  if (clean.endsWith(".jpg") || clean.endsWith(".png") || clean.endsWith(".webp") || clean.endsWith(".jpeg") || clean.endsWith(".avif") || clean.endsWith(".gif")) {
+    return false;
+  }
+  if (clean.includes("/video/upload/") || clean.endsWith(".mp4") || clean.endsWith(".mov") || clean.endsWith(".webm") || clean.endsWith(".m4v") || clean.includes("video/quicktime")) {
+    return true;
+  }
+  return declaredType === "video";
+}
+
 /** Self-contained reel card: plays video on hover, mute/unmute toggle */
 function ReelCard({ reel }: { reel: { id: string; title: string | null; video_url: string; thumbnail_url: string | null } }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
 
+  const isVideo = isVideoMediaUrl(reel.video_url, "video");
+
   const handleMouseEnter = () => {
-    videoRef.current?.play();
-    setPlaying(true);
+    if (videoRef.current && isVideo) {
+      videoRef.current.play().catch(() => {});
+      setPlaying(true);
+    }
   };
 
   const handleMouseLeave = () => {
-    videoRef.current?.pause();
-    if (videoRef.current) videoRef.current.currentTime = 0;
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
     setPlaying(false);
     setMuted(true);
   };
@@ -106,15 +124,23 @@ function ReelCard({ reel }: { reel: { id: string; title: string | null; video_ur
         />
       )}
 
-      {/* Video */}
-      <video
-        ref={videoRef}
-        src={reel.video_url}
-        muted
-        playsInline
-        loop
-        className="w-full h-full object-cover"
-      />
+      {/* Video or Image */}
+      {isVideo ? (
+        <video
+          ref={videoRef}
+          src={reel.video_url}
+          muted
+          playsInline
+          loop
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <img
+          src={reel.video_url}
+          alt={reel.title || "Reel Media"}
+          className="w-full h-full object-cover"
+        />
+      )}
 
       {/* Play icon shown on idle */}
       {!playing && (
@@ -566,11 +592,14 @@ export default function HomeClient({
                     ? banner.mobile_media_type || "image"
                     : banner.media_type;
 
+                  const isDesktopVideo = isVideoMediaUrl(banner.media_url, banner.media_type);
+                  const isMobileVideo = isVideoMediaUrl(mobileUrl, mobileType);
+
                   return (
                     <>
                       {/* Desktop Media */}
                       <div className={`absolute inset-0 h-full w-full ${hasMobileMedia ? "hidden sm:block" : ""}`}>
-                        {banner.media_type === "video" ? (
+                        {isDesktopVideo ? (
                           <div className="relative h-full w-full bg-black">
                             <video
                               src={banner.media_url}
@@ -598,7 +627,7 @@ export default function HomeClient({
                       {/* Mobile Media */}
                       {hasMobileMedia && (
                         <div className="absolute inset-0 h-full w-full sm:hidden">
-                          {mobileType === "video" ? (
+                          {isMobileVideo ? (
                             <div className="relative h-full w-full bg-black">
                               <video
                                 src={mobileUrl}

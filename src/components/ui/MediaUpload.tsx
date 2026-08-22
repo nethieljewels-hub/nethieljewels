@@ -157,12 +157,22 @@ export default function MediaUpload({
   };
 
   const renderPreview = (url: string) => {
+    const cleanUrl = url.toLowerCase().trim();
+    const isImageExt =
+      cleanUrl.endsWith(".jpg") ||
+      cleanUrl.endsWith(".png") ||
+      cleanUrl.endsWith(".webp") ||
+      cleanUrl.endsWith(".jpeg") ||
+      cleanUrl.endsWith(".avif") ||
+      cleanUrl.endsWith(".gif") ||
+      cleanUrl.includes("/image/upload/");
     const isVideo =
-      url.endsWith(".mp4") ||
-      url.endsWith(".mov") ||
-      url.endsWith(".webm") ||
-      url.includes("video/quicktime") ||
-      url.includes("/video/upload/");
+      !isImageExt &&
+      (cleanUrl.endsWith(".mp4") ||
+        cleanUrl.endsWith(".mov") ||
+        cleanUrl.endsWith(".webm") ||
+        cleanUrl.includes("video/quicktime") ||
+        cleanUrl.includes("/video/upload/"));
     return (
       <div
         key={url}
