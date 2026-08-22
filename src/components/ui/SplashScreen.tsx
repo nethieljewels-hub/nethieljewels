@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 /**
  * Premium splash/welcome animation for Nethiel Jewelry.
- * Renders immediately (no flash), plays once per browser session.
+ * Renders immediately (no flash), plays fast once per browser session.
  */
 export default function SplashScreen() {
   // Start visible so the splash covers the page on first paint
@@ -18,17 +18,17 @@ export default function SplashScreen() {
       return;
     }
 
-    // Timeline:
-    //  0ms      – letters animate in (CSS stagger)
-    //  1200ms   – tagline & gold line fade in
-    //  2800ms   – mark as shown + begin exit fade
-    //  3600ms   – unmount overlay
-    const taglineTimer = setTimeout(() => setPhase("tagline"), 1200);
+    // Quick Timeline:
+    //  0ms    – letters animate in (snappy CSS stagger)
+    //  450ms  – tagline & gold line fade in
+    //  1100ms – mark as shown + begin exit fade
+    //  1500ms – unmount overlay
+    const taglineTimer = setTimeout(() => setPhase("tagline"), 450);
     const exitTimer = setTimeout(() => {
       sessionStorage.setItem("nethiel_splash_shown", "1");
       setPhase("exit");
-    }, 2800);
-    const unmountTimer = setTimeout(() => setShow(false), 3600);
+    }, 1100);
+    const unmountTimer = setTimeout(() => setShow(false), 1500);
 
     return () => {
       clearTimeout(taglineTimer);
@@ -44,19 +44,19 @@ export default function SplashScreen() {
   return (
     <div
       id="nethiel-splash-screen"
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#111111] transition-opacity duration-700 ease-out select-none ${
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#111111] transition-opacity duration-400 ease-out select-none ${
         phase === "exit" ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
       aria-hidden="true"
     >
       {/* Decorative top & bottom gold lines */}
       <div
-        className={`absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent transition-opacity duration-1000 ${
+        className={`absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent transition-opacity duration-500 ${
           phase === "letters" ? "opacity-0" : "opacity-100"
         }`}
       />
       <div
-        className={`absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent transition-opacity duration-1000 ${
+        className={`absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent transition-opacity duration-500 ${
           phase === "letters" ? "opacity-0" : "opacity-100"
         }`}
       />
@@ -76,7 +76,7 @@ export default function SplashScreen() {
                   : "text-6xl sm:text-7xl md:text-8xl lg:text-[8.5rem] lowercase"
               } ${i === 1 ? "-ml-2 sm:-ml-3 md:-ml-4" : ""}`}
               style={{
-                animationDelay: `${i * 120}ms`,
+                animationDelay: `${i * 50}ms`,
               }}
             >
               {letter}
@@ -86,17 +86,17 @@ export default function SplashScreen() {
 
         {/* Gold Underline Accent */}
         <div
-          className={`mt-2 sm:mt-3 h-[2px] bg-gradient-to-r from-[#D4AF37]/30 via-[#D4AF37] to-[#D4AF37]/30 rounded-full transition-all duration-700 ease-out ${
+          className={`mt-2 sm:mt-3 h-[2px] bg-gradient-to-r from-[#D4AF37]/30 via-[#D4AF37] to-[#D4AF37]/30 rounded-full transition-all duration-400 ease-out ${
             phase === "tagline" || phase === "exit" ? "w-36 sm:w-56 opacity-100" : "w-0 opacity-0"
           }`}
         />
 
         {/* Tagline / JEWELRY Ornament */}
         <div
-          className={`mt-4 sm:mt-6 flex items-center justify-center space-x-3 sm:space-x-4 transition-all duration-700 ease-out ${
+          className={`mt-4 sm:mt-6 flex items-center justify-center space-x-3 sm:space-x-4 transition-all duration-400 ease-out ${
             phase === "tagline" || phase === "exit"
               ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-3"
+              : "opacity-0 translate-y-2"
           }`}
         >
           <span className="h-[1.5px] w-6 sm:w-14 md:w-18 bg-gradient-to-r from-transparent to-[#D4AF37]" />
