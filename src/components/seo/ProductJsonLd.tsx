@@ -41,7 +41,7 @@ export default function ProductJsonLd({ product }: ProductJsonLdProps) {
     image:
       product.images && product.images.length > 0
         ? product.images
-        : [`${baseUrl}/images/logo-latest.png`],
+        : [`${baseUrl}/images/logo-og.png`],
     sku: product.product_code || product.id,
     brand: {
       "@type": "Brand",
