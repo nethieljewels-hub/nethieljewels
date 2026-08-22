@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         }))
       : [
           {
-            url: "/images/logo-latest.png",
+            url: "/images/logo-og.png",
             alt: `${product.title} - ${BRAND_NAME}`,
           },
         ];
@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description,
-      images: product.images && product.images.length > 0 ? [product.images[0]] : ["/images/logo-latest.png"],
+      images: product.images && product.images.length > 0 ? [product.images[0]] : ["/images/logo-og.png"],
     },
     robots: {
       index: true,
