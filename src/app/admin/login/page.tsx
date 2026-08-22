@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { loginAction } from "../actions";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -57,8 +59,8 @@ export default function LoginPage() {
                 required
                 autoComplete="email"
                 disabled={isPending}
-                className="mt-1 block w-full rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-sm text-black dark:text-white placeholder-neutral-600 transition-colors focus:border-black dark:focus:border-white focus:outline-none"
-                placeholder="admin@teexclothings.com"
+                className="mt-1 block w-full rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-sm text-black dark:text-white placeholder-neutral-500 dark:placeholder-neutral-500 transition-colors focus:border-black dark:focus:border-white focus:outline-none"
+                placeholder="Enter Email"
               />
             </div>
 
@@ -69,20 +71,32 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                autoComplete="current-password"
-                disabled={isPending}
-                className="mt-1 block w-full rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 px-3 py-2 text-sm text-black dark:text-white placeholder-neutral-600 transition-colors focus:border-black dark:focus:border-white focus:outline-none"
-                placeholder="••••••••"
-              />
+              <div className="relative mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  autoComplete="current-password"
+                  disabled={isPending}
+                  className="block w-full rounded-sm border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 pl-3 pr-10 py-2 text-sm text-black dark:text-white placeholder-neutral-500 dark:placeholder-neutral-500 transition-colors focus:border-black dark:focus:border-white focus:outline-none"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-
-
 
           <div>
             <button
