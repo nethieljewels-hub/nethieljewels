@@ -194,7 +194,15 @@ body {
   animation: splash-letter-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* Zero-flash suppression on page refresh/reload */
+/* Zero-flash splash screen: hidden by default, shown ONLY on initial session visit */
+#nethiel-splash-screen {
+  display: none !important;
+}
+
+html.show-splash #nethiel-splash-screen {
+  display: flex !important;
+}
+
 html.no-splash #nethiel-splash-screen {
   display: none !important;
 }

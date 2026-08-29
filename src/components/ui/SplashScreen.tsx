@@ -7,28 +7,26 @@ import { useState, useEffect } from "react";
  * Renders immediately (no flash), plays once per browser session.
  */
 export default function SplashScreen() {
-  // Start visible so the splash covers the page on first paint
-  const [show, setShow] = useState(true);
+  // Default to false so page switching never flashes black
+  const [show, setShow] = useState(false);
   const [phase, setPhase] = useState<"letters" | "tagline" | "exit">("letters");
 
   useEffect(() => {
-    // If already shown this session, dismiss immediately
+    // If already shown in session, do nothing
     if (sessionStorage.getItem("nethiel_splash_shown")) {
-      setShow(false);
       return;
     }
 
-    // Timeline:
-    //  0ms      – letters animate in (CSS stagger)
-    //  1200ms   – tagline & gold line fade in
-    //  2800ms   – mark as shown + begin exit fade
-    //  3600ms   – unmount overlay
-    const taglineTimer = setTimeout(() => setPhase("tagline"), 1200);
+    setShow(true);
+
+    const taglineTimer = setTimeout(() => setPhase("tagline"), 350);
     const exitTimer = setTimeout(() => {
       sessionStorage.setItem("nethiel_splash_shown", "1");
       setPhase("exit");
-    }, 2800);
-    const unmountTimer = setTimeout(() => setShow(false), 3600);
+    }, 900);
+    const unmountTimer = setTimeout(() => {
+      setShow(false);
+    }, 1300);
 
     return () => {
       clearTimeout(taglineTimer);

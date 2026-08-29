@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import CustomerProductCard from "@/components/ui/CustomerProductCard";
 import { Search, SlidersHorizontal, X, RotateCcw, Check } from "lucide-react";
+import { useData } from "@/context/DataContext";
 
 interface Category {
   id: string;
@@ -22,7 +23,7 @@ interface Product {
   featured: boolean;
   images: string[];
   category_id: string;
-  created_at: string;
+  created_at?: string;
   categories?: {
     name: string;
   };
@@ -36,11 +37,15 @@ interface ProductsClientProps {
 }
 
 export default function ProductsClient({
-  initialCategories,
-  initialProducts,
+  initialCategories: propsCategories = [],
+  initialProducts: propsProducts = [],
   initialSearch = "",
   initialProductCode = "",
 }: ProductsClientProps) {
+  const contextData = useData();
+  const initialCategories = propsCategories.length > 0 ? propsCategories : contextData.categories;
+  const initialProducts = propsProducts.length > 0 ? propsProducts : contextData.products;
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -178,7 +183,7 @@ export default function ProductsClient({
     if (sortKey === "price-desc") {
       return getEffectivePrice(b) - getEffectivePrice(a);
     }
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
   });
 
   const sortOptions = [
@@ -221,7 +226,7 @@ export default function ProductsClient({
               placeholder="SEARCH & PRODUCT CODE..."
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-250 dark:border-neutral-800 text-[10px] sm:text-[11px] tracking-wider uppercase pl-8 pr-7 py-1.5 rounded-full placeholder-neutral-400 text-black dark:text-white font-semibold focus:outline-none focus:border-black dark:focus:border-white shadow-xs"
+              className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-250 dark:border-neutral-800 text-[10px] sm:text-[11px] tracking-wider uppercase pl-8 pr-7 py-1.5 rounded-full placeholder-neutral-400 text-black dark:text-white font-semibold focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus:border-black dark:focus:border-white shadow-xs"
             />
             {search && (
               <button
@@ -289,7 +294,7 @@ export default function ProductsClient({
               placeholder="SEARCH & PRODUCT CODE..."
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs tracking-wider uppercase px-9 py-2.5 rounded-full placeholder-neutral-400 text-black dark:text-white font-medium focus:outline-none"
+              className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs tracking-wider uppercase px-9 py-2.5 rounded-full placeholder-neutral-400 text-black dark:text-white font-medium focus:outline-none focus-visible:outline-none focus-visible:ring-0"
             />
             {search && (
               <button

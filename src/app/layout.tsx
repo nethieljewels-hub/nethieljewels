@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/cart/CartDrawer";
+import { DataProvider } from "@/context/DataContext";
 
 import { getSiteUrl, BRAND_NAME, BRAND_DESCRIPTION, DEFAULT_KEYWORDS } from "@/utils/seo";
 import OrganizationJsonLd from "@/components/seo/OrganizationJsonLd";
@@ -146,9 +147,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeProvider>
           <ToastProvider>
             <CartProvider>
-              <SplashScreen />
-              <CartDrawer />
-              {children}
+              <DataProvider initialSettings={settings}>
+                <SplashScreen />
+                <CartDrawer />
+                {children}
+              </DataProvider>
             </CartProvider>
           </ToastProvider>
         </ThemeProvider>
