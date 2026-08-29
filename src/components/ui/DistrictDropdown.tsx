@@ -96,7 +96,7 @@ export default function DistrictDropdown({ value, state, onChange, error }: Dist
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search district…"
-              className="flex-1 bg-transparent text-xs text-black dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 outline-none"
+              className="flex-1 bg-transparent text-xs text-black dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 border-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
             />
           </div>
 

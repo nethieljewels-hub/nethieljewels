@@ -6,7 +6,7 @@ import { formatCanonicalUrl, BRAND_NAME } from "@/utils/seo";
 import BreadcrumbJsonLd from "@/components/seo/BreadcrumbJsonLd";
 import { ContactFaqAccordion } from "@/components/contact/ContactFaqAccordion";
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: `Contact Us | Customer Care & Direct Orders | ${BRAND_NAME}`,
@@ -32,13 +32,24 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const supabase = await createClient();
+  let settings: any = null;
 
-  const { data: settings } = await supabase
-    .from("settings")
-    .select("*")
-    .eq("id", true)
-    .maybeSingle();
+  try {
+    const supabase = await createClient();
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("SSR timeout")), 1500)
+    );
+    const settingsPromise = supabase
+      .from("settings")
+      .select("*")
+      .eq("id", true)
+      .maybeSingle();
+
+    const result: any = await Promise.race([settingsPromise, timeoutPromise]);
+    settings = result?.data || null;
+  } catch {
+    // If settings query hangs, use defaults seamlessly
+  }
 
   const whatsappPhone = settings?.whatsapp || DEFAULT_WHATSAPP_NUMBER;
   const whatsappClean = whatsappPhone.replace(/[^\d]/g, "");
@@ -78,164 +89,164 @@ export default async function ContactPage() {
     <>
       <BreadcrumbJsonLd items={breadcrumbs} />
       <div className="w-full bg-transparent select-none pb-24">
-      {/* Main Communication Channels */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12 space-y-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          {/* WhatsApp Support Card */}
-          <div className="rounded-xl border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7] dark:bg-neutral-900/80 p-5 sm:p-6 flex flex-col justify-between hover:border-[#0284C7] hover:shadow-lg transition-all duration-300 space-y-5 group">
-            <div className="space-y-4">
-              <div className="w-11 h-11 rounded-full bg-[#1E3A5F] text-white dark:bg-white dark:text-black flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
-                <MessageSquare size={18} strokeWidth={1.5} />
+        {/* Main Communication Channels */}
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12 space-y-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {/* WhatsApp Support Card */}
+            <div className="rounded-xl border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7] dark:bg-neutral-900/80 p-5 sm:p-6 flex flex-col justify-between hover:border-[#0284C7] hover:shadow-lg transition-all duration-300 space-y-5 group">
+              <div className="space-y-4">
+                <div className="w-11 h-11 rounded-full bg-[#1E3A5F] text-white dark:bg-white dark:text-black flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
+                  <MessageSquare size={18} strokeWidth={1.5} />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-[9px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">01 / ONLINE MESSAGING</span>
+                  <h2 className="text-base sm:text-lg font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-[#CBD5E1] uppercase transition-colors">
+                    WHATSAPP CHAT
+                  </h2>
+                  <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    Inquire about specific pieces, send references, or complete order details instantly.
+                  </p>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <span className="text-[9px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">01 / ONLINE MESSAGING</span>
-                <h2 className="text-base sm:text-lg font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-[#CBD5E1] uppercase transition-colors">
-                  WHATSAPP CHAT
-                </h2>
-                <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  Inquire about specific pieces, send references, or complete order details instantly.
-                </p>
-              </div>
-            </div>
-            <div className="pt-2">
-              <a
-                href={`https://wa.me/${whatsappClean}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center space-x-2 bg-[#1E3A5F] hover:bg-[#162B47] text-white w-full py-2.5 text-[11px] font-bold tracking-[0.18em] uppercase transition-all rounded-xs shadow-md active:scale-[0.99]"
-              >
-                <span>CHAT WITH US</span>
-                <ExternalLink size={12} />
-              </a>
-            </div>
-          </div>
-
-          {/* Call Line Card */}
-          <div className="rounded-xl border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7] dark:bg-neutral-900/80 p-5 sm:p-6 flex flex-col justify-between hover:border-[#0284C7] hover:shadow-lg transition-all duration-300 space-y-5 group">
-            <div className="space-y-4">
-              <div className="w-11 h-11 rounded-full bg-white text-[#1E3A5F] dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
-                <Phone size={18} strokeWidth={1.5} />
-              </div>
-              <div className="space-y-1.5">
-                <span className="text-[9px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">02 / VOICE CALLS</span>
-                <h2 className="text-base sm:text-lg font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-white uppercase transition-colors">
-                  DIRECT PHONE LINE
-                </h2>
-                <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  Reach out directly for urgent updates, shipping changes, or specific requests.
-                </p>
-              </div>
-            </div>
-            <div className="pt-2">
-              <a
-                href={`tel:${displayPhone.replace(/[^\d]/g, "")}`}
-                className="inline-flex items-center justify-center space-x-2 bg-[#1E3A5F] hover:bg-[#162B47] text-white w-full py-2.5 text-[11px] font-bold tracking-[0.18em] uppercase transition-all rounded-xs shadow-md active:scale-[0.99]"
-              >
-                <span>{displayPhone}</span>
-                <Phone size={12} />
-              </a>
-            </div>
-          </div>
-
-          {/* Email Support Card */}
-          <div className="rounded-xl border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7] dark:bg-neutral-900/80 p-5 sm:p-6 flex flex-col justify-between hover:border-[#0284C7] hover:shadow-lg transition-all duration-300 space-y-5 group">
-            <div className="space-y-4">
-              <div className="w-11 h-11 rounded-full bg-white text-[#1E3A5F] dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
-                <Mail size={18} strokeWidth={1.5} />
-              </div>
-              <div className="space-y-1.5">
-                <span className="text-[9px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">03 / FORMAL ENQUIRY</span>
-                <h2 className="text-base sm:text-lg font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-white uppercase transition-colors">
-                  EMAIL INQUIRIES
-                </h2>
-                <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  Send bulk order inquiries, brand partnerships, or formal suggestions.
-                </p>
-              </div>
-            </div>
-            <div className="pt-2">
-              <a
-                href={`mailto:${emailAddr}`}
-                className="inline-flex items-center justify-center space-x-2 bg-[#1E3A5F] hover:bg-[#162B47] text-white w-full py-2.5 text-[11px] font-bold tracking-[0.18em] uppercase transition-all rounded-xs shadow-md active:scale-[0.99]"
-              >
-                <span>SEND AN EMAIL</span>
-                <Mail size={12} />
-              </a>
-            </div>
-          </div>
-
-          {/* Instagram DM Card */}
-          <div className="rounded-xl border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7] dark:bg-neutral-900/80 p-5 sm:p-6 flex flex-col justify-between hover:border-[#0284C7] hover:shadow-lg transition-all duration-300 space-y-5 group">
-            <div className="space-y-4">
-              <div className="w-11 h-11 rounded-full bg-white text-[#1E3A5F] dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              <div className="pt-2">
+                <a
+                  href={`https://wa.me/${whatsappClean}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center space-x-2 bg-[#1E3A5F] hover:bg-[#162B47] text-white w-full py-2.5 text-[11px] font-bold tracking-[0.18em] uppercase transition-all rounded-xs shadow-md active:scale-[0.99]"
                 >
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                </svg>
-              </div>
-              <div className="space-y-1.5">
-                <span className="text-[9px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">04 / SOCIAL CHANNELS</span>
-                <h2 className="text-base sm:text-lg font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-white uppercase transition-colors">
-                  INSTAGRAM DM
-                </h2>
-                <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  Follow us for new collections, jewelry care tips, and daily inspiration.
-                </p>
+                  <span>CHAT WITH US</span>
+                  <ExternalLink size={12} />
+                </a>
               </div>
             </div>
-            <div className="pt-2">
-              <a
-                href={instaUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center space-x-2 bg-[#1E3A5F] hover:bg-[#162B47] text-white w-full py-2.5 text-[11px] font-bold tracking-[0.18em] uppercase transition-all rounded-xs shadow-md active:scale-[0.99]"
-              >
-                <span>
-                  {settings?.instagram
-                    ? (() => {
-                      try {
-                        const path = new URL(settings.instagram).pathname.replace(/\/+$/, "");
-                        const handle = path.split("/").pop();
-                        return handle ? `@${handle}` : "FOLLOW";
-                      } catch {
-                        return "FOLLOW";
-                      }
-                    })()
-                    : "@nethieljewelry"}
-                </span>
-                <ExternalLink size={12} />
-              </a>
+
+            {/* Call Line Card */}
+            <div className="rounded-xl border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7] dark:bg-neutral-900/80 p-5 sm:p-6 flex flex-col justify-between hover:border-[#0284C7] hover:shadow-lg transition-all duration-300 space-y-5 group">
+              <div className="space-y-4">
+                <div className="w-11 h-11 rounded-full bg-white text-[#1E3A5F] dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
+                  <Phone size={18} strokeWidth={1.5} />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-[9px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">02 / VOICE CALLS</span>
+                  <h2 className="text-base sm:text-lg font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-white uppercase transition-colors">
+                    DIRECT PHONE LINE
+                  </h2>
+                  <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    Reach out directly for urgent updates, shipping changes, or specific requests.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-2">
+                <a
+                  href={`tel:${displayPhone.replace(/[^\d]/g, "")}`}
+                  className="inline-flex items-center justify-center space-x-2 bg-[#1E3A5F] hover:bg-[#162B47] text-white w-full py-2.5 text-[11px] font-bold tracking-[0.18em] uppercase transition-all rounded-xs shadow-md active:scale-[0.99]"
+                >
+                  <span>{displayPhone}</span>
+                  <Phone size={12} />
+                </a>
+              </div>
+            </div>
+
+            {/* Email Support Card */}
+            <div className="rounded-xl border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7] dark:bg-neutral-900/80 p-5 sm:p-6 flex flex-col justify-between hover:border-[#0284C7] hover:shadow-lg transition-all duration-300 space-y-5 group">
+              <div className="space-y-4">
+                <div className="w-11 h-11 rounded-full bg-white text-[#1E3A5F] dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
+                  <Mail size={18} strokeWidth={1.5} />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-[9px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">03 / FORMAL ENQUIRY</span>
+                  <h2 className="text-base sm:text-lg font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-white uppercase transition-colors">
+                    EMAIL INQUIRIES
+                  </h2>
+                  <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    Send bulk order inquiries, brand partnerships, or formal suggestions.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-2">
+                <a
+                  href={`mailto:${emailAddr}`}
+                  className="inline-flex items-center justify-center space-x-2 bg-[#1E3A5F] hover:bg-[#162B47] text-white w-full py-2.5 text-[11px] font-bold tracking-[0.18em] uppercase transition-all rounded-xs shadow-md active:scale-[0.99]"
+                >
+                  <span>SEND AN EMAIL</span>
+                  <Mail size={12} />
+                </a>
+              </div>
+            </div>
+
+            {/* Instagram DM Card */}
+            <div className="rounded-xl border border-[#A8D3F5] dark:border-neutral-800 bg-[#D0E6F7] dark:bg-neutral-900/80 p-5 sm:p-6 flex flex-col justify-between hover:border-[#0284C7] hover:shadow-lg transition-all duration-300 space-y-5 group">
+              <div className="space-y-4">
+                <div className="w-11 h-11 rounded-full bg-white text-[#1E3A5F] dark:bg-neutral-800 dark:text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-300">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                  </svg>
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-[9px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase">04 / SOCIAL CHANNELS</span>
+                  <h2 className="text-base sm:text-lg font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-white uppercase transition-colors">
+                    INSTAGRAM DM
+                  </h2>
+                  <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                    Follow us for new collections, jewelry care tips, and daily inspiration.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-2">
+                <a
+                  href={instaUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center space-x-2 bg-[#1E3A5F] hover:bg-[#162B47] text-white w-full py-2.5 text-[11px] font-bold tracking-[0.18em] uppercase transition-all rounded-xs shadow-md active:scale-[0.99]"
+                >
+                  <span>
+                    {settings?.instagram
+                      ? (() => {
+                        try {
+                          const path = new URL(settings.instagram).pathname.replace(/\/+$/, "");
+                          const handle = path.split("/").pop();
+                          return handle ? `@${handle}` : "FOLLOW";
+                        } catch {
+                          return "FOLLOW";
+                        }
+                      })()
+                      : "@nethieljewelry"}
+                  </span>
+                  <ExternalLink size={12} />
+                </a>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* FAQ Section */}
-        <div className="border-t border-neutral-200/80 dark:border-neutral-800 pt-16 sm:pt-20 space-y-12">
-          <div className="text-center space-y-3">
-            <span className="text-[10px] font-bold tracking-[0.3em] text-[#0284C7] dark:text-sky-400 uppercase">
-              ASSISTANCE
-            </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-serif-luxury font-light tracking-wider text-[#1E3A5F] dark:text-white uppercase mt-0.5">
-              FREQUENTLY ASKED QUESTIONS
-            </h2>
-            <div className="w-12 h-[1px] bg-[#0284C7] mx-auto mt-3" />
+          {/* FAQ Section */}
+          <div className="border-t border-neutral-200/80 dark:border-neutral-800 pt-16 sm:pt-20 space-y-12">
+            <div className="text-center space-y-3">
+              <span className="text-[10px] font-bold tracking-[0.3em] text-[#0284C7] dark:text-sky-400 uppercase">
+                ASSISTANCE
+              </span>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-serif-luxury font-light tracking-wider text-[#1E3A5F] dark:text-white uppercase mt-0.5">
+                FREQUENTLY ASKED QUESTIONS
+              </h2>
+              <div className="w-12 h-[1px] bg-[#0284C7] mx-auto mt-3" />
+            </div>
+
+            <ContactFaqAccordion faqs={faqs} />
           </div>
-
-          <ContactFaqAccordion faqs={faqs} />
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
     </>
   );
 }

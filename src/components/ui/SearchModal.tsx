@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X, ChevronRight, ArrowRight, Loader2, Sparkles } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
+import { useData } from "@/context/DataContext";
 
 interface Category {
   id: string;
@@ -31,13 +31,24 @@ interface SearchModalProps {
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const router = useRouter();
+  const contextData = useData();
   const [query, setQuery] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState<Product[]>(contextData.products as Product[]);
+  const [categories, setCategories] = useState<Category[]>(contextData.categories as Category[]);
+  const loading = false;
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto focus input when modal opens & fetch data
+  // Keep search modal synced with context data
+  useEffect(() => {
+    if (contextData.products.length > 0) {
+      setProducts(contextData.products as Product[]);
+    }
+    if (contextData.categories.length > 0) {
+      setCategories(contextData.categories as Category[]);
+    }
+  }, [contextData.products, contextData.categories]);
+
+  // Auto focus input when modal opens
   useEffect(() => {
     if (!isOpen) {
       setTimeout(() => setQuery(""), 0);
@@ -47,40 +58,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     setTimeout(() => {
       inputRef.current?.focus();
     }, 50);
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const supabase = createClient();
-
-        let { data: prodData } = await supabase
-          .from("products")
-          .select("*, categories(name)")
-          .order("created_at", { ascending: false });
-
-        if (!prodData) {
-          const fallbackRes = await supabase
-            .from("products")
-            .select("*")
-            .order("created_at", { ascending: false });
-          prodData = fallbackRes.data || [];
-        }
-
-        const { data: catData } = await supabase
-          .from("categories")
-          .select("id, name")
-          .order("created_at", { ascending: true });
-
-        if (prodData) setProducts(prodData as Product[]);
-        if (catData) setCategories(catData as Category[]);
-      } catch (err) {
-        console.error("Error fetching search data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
   }, [isOpen]);
 
   useEffect(() => {
@@ -169,7 +146,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 }
               }}
               placeholder="Search by name, category or code..."
-              className="w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-xs font-medium tracking-wide text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500"
+              className="w-full bg-transparent border-none outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 text-xs font-medium tracking-wide text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500"
             />
             {query && (
               <button

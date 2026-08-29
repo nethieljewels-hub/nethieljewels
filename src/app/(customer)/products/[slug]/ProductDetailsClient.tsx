@@ -6,7 +6,6 @@ import { ChevronLeft, ChevronRight, Star, ShoppingBag, ZoomIn, ZoomOut, Check } 
 import PurchaseSheet from "@/components/purchase/PurchaseSheet";
 import { loadDeliveryDetails } from "@/utils/localStorage";
 import CustomerProductCard from "@/components/ui/CustomerProductCard";
-import { ProductDetailSkeleton } from "@/components/ui/Skeletons";
 import { useCart } from "@/context/CartContext";
 
 interface Product {
@@ -35,7 +34,6 @@ interface ProductDetailsClientProps {
 }
 
 export default function ProductDetailsClient({ product, recommendedProducts }: ProductDetailsClientProps) {
-  const [mounted, setMounted] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [zoomed, setZoomed] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -115,9 +113,6 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
     ? Math.round(((origPrice - sellingPrice!) / origPrice) * 100)
     : 0;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Pre-select first available color
   useEffect(() => {
@@ -243,11 +238,6 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
   function handleBuyNow() {
     if (product.is_out_of_stock) return;
     setSheetOpen(true);
-  }
-
-  // Smooth skeleton loading state before client hydration finishes
-  if (!mounted) {
-    return <ProductDetailSkeleton />;
   }
 
   return (
