@@ -121,26 +121,26 @@ export default function TestimonialsSection({ testimonials }: TestimonialsSectio
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 my-14 select-none">
-      <div className="bg-[#D0E6F7] dark:bg-neutral-900 border border-[#A8D3F5] dark:border-neutral-800 rounded-sm p-6 sm:p-8 md:p-10 space-y-6 shadow-sm text-neutral-900 dark:text-white">
+    <section className="mx-auto max-w-7xl px-3 sm:px-6 my-10 sm:my-14 select-none">
+      <div className="bg-[#D0E6F7] dark:bg-neutral-900 border border-[#A8D3F5] dark:border-neutral-800 rounded-sm p-4 sm:p-8 md:p-10 space-y-5 sm:space-y-6 shadow-sm text-neutral-900 dark:text-white">
         {/* Header */}
-        <div className="flex items-end justify-between border-b border-[#CBDFF2] dark:border-neutral-800 pb-4">
+        <div className="flex flex-row items-end justify-between border-b border-[#CBDFF2] dark:border-neutral-800 pb-3.5 sm:pb-4 gap-2">
           <div>
-            <span className="block text-[10px] font-bold tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase mb-1">
+            <span className="block text-[9px] sm:text-[10px] font-bold tracking-[0.2em] sm:tracking-[0.25em] text-[#0284C7] dark:text-sky-400 uppercase mb-1">
               WHAT OUR CLIENTS SAY
             </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-white uppercase mt-0.5">
+            <h2 className="text-base sm:text-2xl md:text-3xl font-serif-luxury font-medium tracking-wide text-[#1E3A5F] dark:text-white uppercase mt-0.5 leading-snug">
               CLIENT REVIEWS &amp; TESTIMONIALS
             </h2>
           </div>
 
           {/* Carousel Slide Controls */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
             <button
               type="button"
               onClick={() => scroll("left")}
               disabled={!canScrollLeft}
-              className="p-2.5 rounded-full border border-[#CBDFF2] dark:border-neutral-700 bg-white dark:bg-neutral-950 text-[#1E3A5F] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#0284C7] hover:text-white hover:border-[#0284C7] transition-colors cursor-pointer shadow-2xs"
+              className="p-2 sm:p-2.5 rounded-full border border-[#CBDFF2] dark:border-neutral-700 bg-white dark:bg-neutral-950 text-[#1E3A5F] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#0284C7] hover:text-white hover:border-[#0284C7] transition-colors cursor-pointer shadow-2xs"
               aria-label="Previous Testimonials Slide"
             >
               <ChevronLeft size={16} />
@@ -149,7 +149,7 @@ export default function TestimonialsSection({ testimonials }: TestimonialsSectio
               type="button"
               onClick={() => scroll("right")}
               disabled={!canScrollRight}
-              className="p-2.5 rounded-full border border-[#CBDFF2] dark:border-neutral-700 bg-white dark:bg-neutral-950 text-[#1E3A5F] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#0284C7] hover:text-white hover:border-[#0284C7] transition-colors cursor-pointer shadow-2xs"
+              className="p-2 sm:p-2.5 rounded-full border border-[#CBDFF2] dark:border-neutral-700 bg-white dark:bg-neutral-950 text-[#1E3A5F] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#0284C7] hover:text-white hover:border-[#0284C7] transition-colors cursor-pointer shadow-2xs"
               aria-label="Next Testimonials Slide"
             >
               <ChevronRight size={16} />
@@ -157,14 +157,13 @@ export default function TestimonialsSection({ testimonials }: TestimonialsSectio
           </div>
         </div>
 
-        {/* Testimonials Horizontal Slider (4 Cards per View on Desktop) */}
+        {/* Testimonials Horizontal Slider */}
         <div
           ref={scrollRef}
           onScroll={checkScroll}
-          className="flex gap-4 sm:gap-5 overflow-x-auto scrollbar-none snap-x snap-mandatory py-2 px-1 scroll-smooth"
+          className="flex gap-3.5 sm:gap-5 overflow-x-auto scrollbar-none snap-x snap-mandatory py-2 px-0.5 scroll-smooth"
         >
           {displayList.map((t) => {
-            // Generate initials for avatar fallback
             const initials = t.customer_name
               .split(" ")
               .map((n: string) => n[0])
@@ -175,7 +174,7 @@ export default function TestimonialsSection({ testimonials }: TestimonialsSectio
             return (
               <div
                 key={t.id}
-                className="w-[85vw] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-0.85rem)] lg:w-[calc(25%-0.85rem)] flex-shrink-0 snap-start bg-white dark:bg-neutral-950 border border-[#D8E9F7] dark:border-neutral-800 rounded-sm p-5 space-y-3.5 shadow-2xs hover:shadow-md hover:border-[#0284C7]/40 transition-all duration-300 flex flex-col justify-between"
+                className="w-[82vw] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-0.85rem)] lg:w-[calc(25%-0.85rem)] flex-shrink-0 snap-start bg-white dark:bg-neutral-950 border border-[#D8E9F7] dark:border-neutral-800 rounded-sm p-4 sm:p-5 space-y-3.5 shadow-2xs hover:shadow-md hover:border-[#0284C7]/40 transition-all duration-300 flex flex-col justify-between min-h-[190px]"
               >
                 <div className="space-y-3">
                   {/* Rating Stars & Quote Icon */}
@@ -184,43 +183,43 @@ export default function TestimonialsSection({ testimonials }: TestimonialsSectio
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
-                          size={15}
+                          size={14}
                           fill={i < t.rating ? "#F59E0B" : "none"}
                           className={i < t.rating ? "text-[#F59E0B]" : "text-neutral-300 dark:text-neutral-700"}
                         />
                       ))}
-                      <span className="text-xs font-bold text-[#1E3A5F] dark:text-white ml-1.5 font-mono">
+                      <span className="text-[11px] sm:text-xs font-bold text-[#1E3A5F] dark:text-white ml-1 font-mono">
                         {t.rating}.0
                       </span>
                     </div>
-                    <Quote size={20} className="text-[#0284C7]/30 shrink-0" />
+                    <Quote size={18} className="text-[#0284C7]/30 shrink-0" />
                   </div>
 
-                  {/* Review Body */}
-                  <p className="text-xs sm:text-sm font-light text-neutral-700 dark:text-neutral-300 leading-relaxed italic line-clamp-4">
+                  {/* Review Body — Fully visible on mobile without line truncation */}
+                  <p className="text-[11px] sm:text-sm font-light text-neutral-700 dark:text-neutral-300 leading-relaxed italic">
                     “{t.review_text}”
                   </p>
                 </div>
 
                 {/* Customer Info Footer */}
-                <div className="flex items-center space-x-3 pt-3 border-t border-neutral-100 dark:border-neutral-850 mt-2">
+                <div className="flex items-center space-x-2.5 sm:space-x-3 pt-3 border-t border-neutral-100 dark:border-neutral-850 mt-2">
                   {t.avatar_url ? (
                     <img
                       src={t.avatar_url}
                       alt={t.customer_name}
-                      className="w-9 h-9 rounded-full object-cover border border-[#0284C7]/40"
+                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-[#0284C7]/40 shrink-0"
                     />
                   ) : (
-                    <div className="w-9 h-9 rounded-full bg-[#0284C7] text-white font-bold text-xs flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0284C7] text-white font-bold text-xs flex items-center justify-center shrink-0">
                       {initials}
                     </div>
                   )}
-                  <div className="truncate">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#1E3A5F] dark:text-white truncate">
+                  <div className="truncate min-w-0">
+                    <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#1E3A5F] dark:text-white truncate">
                       {t.customer_name}
                     </h4>
                     {t.location && (
-                      <p className="text-[10px] text-[#0284C7] dark:text-sky-400 font-light truncate">
+                      <p className="text-[9px] sm:text-[10px] text-[#0284C7] dark:text-sky-400 font-light truncate">
                         {t.location}
                       </p>
                     )}

@@ -11,6 +11,8 @@ import {
   BRAND_NAME,
 } from "@/utils/seo";
 
+export const revalidate = 60; // ISR 60s cache
+
 interface Props {
   params: Promise<{
     slug: string;
@@ -19,62 +21,69 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
+    const { data: category } = await supabase
+      .from("categories")
+      .select("name, slug, seo_title, seo_description, image_url")
+      .eq("slug", slug)
+      .eq("active", true)
+      .maybeSingle();
 
-  const { data: category } = await supabase
-    .from("categories")
-    .select("name, slug, seo_title, seo_description, image_url")
-    .eq("slug", slug)
-    .eq("active", true)
-    .maybeSingle();
+    if (!category) {
+      return {
+        title: `Collection | ${BRAND_NAME}`,
+      };
+    }
 
-  if (!category) {
-    notFound();
+    const title = generateCategorySeoTitle(category);
+    const description = generateCategorySeoDescription(category);
+    const canonicalUrl = formatCanonicalUrl(`/collections/${slug}`);
+
+    const ogImages = category.image_url
+      ? [
+          {
+            url: category.image_url,
+            alt: `${category.name} Collection - ${BRAND_NAME}`,
+          },
+        ]
+      : [
+          {
+            url: "/images/logo-latest.png",
+            alt: `${category.name} Collection - ${BRAND_NAME}`,
+          },
+        ];
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: canonicalUrl,
+      },
+      openGraph: {
+        title,
+        description,
+        url: canonicalUrl,
+        siteName: BRAND_NAME,
+        type: "website",
+        images: ogImages,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: category.image_url ? [category.image_url] : ["/images/logo-latest.png"],
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+    };
+  } catch {
+    return {
+      title: `Collection | ${BRAND_NAME}`,
+    };
   }
-
-  const title = generateCategorySeoTitle(category);
-  const description = generateCategorySeoDescription(category);
-  const canonicalUrl = formatCanonicalUrl(`/collections/${slug}`);
-
-  const ogImages = category.image_url
-    ? [
-        {
-          url: category.image_url,
-          alt: `${category.name} Collection - ${BRAND_NAME}`,
-        },
-      ]
-    : [
-        {
-          url: "/images/logo-og.png",
-          alt: `${category.name} Collection - ${BRAND_NAME}`,
-        },
-      ];
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      siteName: BRAND_NAME,
-      type: "website",
-      images: ogImages,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: category.image_url ? [category.image_url] : ["/images/logo-og.png"],
-    },
-    robots: {
-      index: true,
-      follow: true,
-    },
-  };
 }
 
 export default async function CollectionDetailPage({ params }: Props) {
@@ -92,20 +101,34 @@ export default async function CollectionDetailPage({ params }: Props) {
     notFound();
   }
 
-  // Fetch all active categories for cross-navigation
-  const { data: allCategories } = await supabase
-    .from("categories")
-    .select("id, name, slug, image_url")
-    .eq("active", true)
-    .order("created_at", { ascending: true });
+  let allCategories: any[] = [];
+  let products: any[] = [];
 
-  // Fetch products in this category
-  const { data: products } = await supabase
-    .from("products")
-    .select("*, categories(name)")
-    .eq("category_id", category.id)
-    .eq("active", true)
-    .order("created_at", { ascending: false });
+  try {
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("SSR timeout")), 2000)
+    );
+
+    const dataPromise = Promise.all([
+      supabase
+        .from("categories")
+        .select("id, name, slug, image_url")
+        .eq("active", true)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("products")
+        .select("*, categories(name)")
+        .eq("category_id", category.id)
+        .eq("active", true)
+        .order("created_at", { ascending: false }),
+    ]);
+
+    const results: any = await Promise.race([dataPromise, timeoutPromise]);
+    allCategories = results[0]?.data || [];
+    products = results[1]?.data || [];
+  } catch {
+    // If secondary queries timeout, let CollectionClient read from DataContext
+  }
 
   const breadcrumbs = [
     { name: "Home", url: formatCanonicalUrl("/") },
@@ -115,12 +138,12 @@ export default async function CollectionDetailPage({ params }: Props) {
 
   return (
     <>
-      <CollectionJsonLd category={category} products={products || []} />
+      <CollectionJsonLd category={category} products={products} />
       <BreadcrumbJsonLd items={breadcrumbs} />
       <CollectionClient
         category={category}
-        products={products || []}
-        allCategories={allCategories || []}
+        products={products}
+        allCategories={allCategories}
       />
     </>
   );

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import CustomerProductCard from "@/components/ui/CustomerProductCard";
 import { ChevronRight, ArrowRight, Sparkles } from "lucide-react";
+import { useData } from "@/context/DataContext";
 
 interface Category {
   id: string;
@@ -37,9 +38,15 @@ interface CollectionClientProps {
 
 export default function CollectionClient({
   category,
-  products,
-  allCategories,
+  products: propsProducts = [],
+  allCategories: propsCategories = [],
 }: CollectionClientProps) {
+  const contextData = useData();
+
+  const allCategories = propsCategories.length > 0 ? propsCategories : (contextData.categories as Category[]);
+  const products = propsProducts.length > 0
+    ? propsProducts
+    : (contextData.getProductsByCategory(category.slug || category.id) as Product[]);
   return (
     <div className="w-full bg-transparent select-none pb-24">
       {/* Breadcrumb Bar */}

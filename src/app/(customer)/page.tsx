@@ -27,11 +27,20 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const supabase = await createClient();
+  let bannersData: any[] = [];
+  let categoriesData: any[] = [];
+  let productsData: any[] = [];
+  let settingsData: any = null;
+  let reelsData: any[] = [];
+  let testimonialsData: any[] = [];
 
-  // Run all queries in parallel for fastest possible load
-  const [bannersRes, categoriesRes, productsRes, settingsRes, reelsRes, testimonialsRes] =
-    await Promise.all([
+  try {
+    const supabase = await createClient();
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("SSR timeout")), 2000)
+    );
+
+    const dataPromise = Promise.all([
       supabase
         .from("hero_banners")
         .select("*")
@@ -64,14 +73,25 @@ export default async function HomePage() {
         .order("display_order", { ascending: true }),
     ]);
 
+    const results: any = await Promise.race([dataPromise, timeoutPromise]);
+    bannersData = results[0]?.data || [];
+    categoriesData = results[1]?.data || [];
+    productsData = results[2]?.data || [];
+    settingsData = results[3]?.data || null;
+    reelsData = results[4]?.data || [];
+    testimonialsData = results[5]?.data || [];
+  } catch {
+    // If SSR query hangs or times out, return instantly & let DataContext fetch on client
+  }
+
   return (
     <HomeClient
-      initialBanners={bannersRes.data || []}
-      initialCategories={categoriesRes.data || []}
-      initialProducts={productsRes.data || []}
-      settings={settingsRes.data ?? null}
-      initialReels={reelsRes.data || []}
-      initialTestimonials={testimonialsRes.data || []}
+      initialBanners={bannersData}
+      initialCategories={categoriesData}
+      initialProducts={productsData}
+      settings={settingsData}
+      initialReels={reelsData}
+      initialTestimonials={testimonialsData}
     />
   );
 }

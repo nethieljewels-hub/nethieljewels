@@ -11,6 +11,8 @@ import {
   BRAND_NAME,
 } from "@/utils/seo";
 
+export const revalidate = 60; // ISR 60s cache
+
 interface Props {
   params: Promise<{
     slug: string;
@@ -19,60 +21,67 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
+    const { data: product } = await supabase
+      .from("products")
+      .select("title, description, seo_title, seo_description, images, categories(name)")
+      .eq("slug", slug)
+      .eq("active", true)
+      .maybeSingle();
 
-  const { data: product } = await supabase
-    .from("products")
-    .select("title, description, seo_title, seo_description, images, categories(name)")
-    .eq("slug", slug)
-    .eq("active", true)
-    .maybeSingle();
+    if (!product) {
+      return {
+        title: `Product | ${BRAND_NAME}`,
+      };
+    }
 
-  if (!product) {
-    notFound();
-  }
-
-  const title = generateProductSeoTitle(product);
-  const description = generateProductSeoDescription(product);
-  const canonicalUrl = formatCanonicalUrl(`/products/${slug}`);
-  const ogImages =
-    product.images && product.images.length > 0
-      ? product.images.map((img: string) => ({
-          url: img,
-          alt: `${product.title} - ${BRAND_NAME}`,
-        }))
-      : [
-          {
-            url: "/images/logo-og.png",
+    const title = generateProductSeoTitle(product);
+    const description = generateProductSeoDescription(product);
+    const canonicalUrl = formatCanonicalUrl(`/products/${slug}`);
+    const ogImages =
+      product.images && product.images.length > 0
+        ? product.images.map((img: string) => ({
+            url: img,
             alt: `${product.title} - ${BRAND_NAME}`,
-          },
-        ];
+          }))
+        : [
+            {
+              url: "/images/logo-latest.png",
+              alt: `${product.title} - ${BRAND_NAME}`,
+            },
+          ];
 
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
+    return {
       title,
       description,
-      url: canonicalUrl,
-      siteName: BRAND_NAME,
-      type: "website",
-      images: ogImages,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: product.images && product.images.length > 0 ? [product.images[0]] : ["/images/logo-og.png"],
-    },
-    robots: {
-      index: true,
-      follow: true,
-    },
-  };
+      alternates: {
+        canonical: canonicalUrl,
+      },
+      openGraph: {
+        title,
+        description,
+        url: canonicalUrl,
+        siteName: BRAND_NAME,
+        type: "website",
+        images: ogImages,
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: product.images && product.images.length > 0 ? [product.images[0]] : ["/images/logo-latest.png"],
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+    };
+  } catch {
+    return {
+      title: `Product | ${BRAND_NAME}`,
+    };
+  }
 }
 
 export default async function ProductDetailPage({ params }: Props) {
@@ -90,42 +99,27 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound();
   }
 
-  // Fetch similar products in the same category (limit 4)
-  const { data: recommended } = await supabase
-    .from("products")
-    .select("*, categories(name)")
-    .eq("active", true)
-    .eq("category_id", product.category_id)
-    .neq("id", product.id)
-    .limit(4);
+  let finalRecommended: any[] = [];
 
-  let finalRecommended = recommended || [];
+  try {
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("SSR timeout")), 2000)
+    );
 
-  // Fallback to other active products if category is thin
-  if (finalRecommended.length < 4) {
-    const needed = 4 - finalRecommended.length;
-    const excludeIds = [product.id, ...finalRecommended.map((p: { id: string }) => p.id)];
-    const { data: fallback } = await supabase
+    const recPromise = supabase
       .from("products")
       .select("*, categories(name)")
       .eq("active", true)
-      .not("id", "in", `(${excludeIds.join(",")})`)
-      .limit(needed);
-    if (fallback) {
-      finalRecommended = [...finalRecommended, ...fallback];
-    }
+      .eq("category_id", product.category_id)
+      .neq("id", product.id)
+      .limit(4);
+
+    const results: any = await Promise.race([recPromise, timeoutPromise]);
+    finalRecommended = results?.data || [];
+  } catch {
+    // If recommended query hangs, let ProductDetailsClient fall back to DataContext
   }
 
-  // Ensure strict uniqueness by product ID
-  const uniqueRecommendedMap = new Map<string, typeof finalRecommended[number]>();
-  for (const item of finalRecommended) {
-    if (item && (item as { id: string }).id) {
-      uniqueRecommendedMap.set((item as { id: string }).id, item);
-    }
-  }
-  finalRecommended = Array.from(uniqueRecommendedMap.values());
-
-  // Breadcrumbs for SEO JSON-LD
   const categoryName = (product.categories as { name?: string })?.name || "Jewelry";
   const categorySlug = (product.categories as { slug?: string })?.slug;
 

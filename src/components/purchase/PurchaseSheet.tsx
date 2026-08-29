@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { createClient } from "@/utils/supabase/client";
 import BottomSheet from "@/components/ui/BottomSheet";
 import OrderSummaryCard from "@/components/purchase/OrderSummaryCard";
 import DeliveryForm from "@/components/purchase/DeliveryForm";
@@ -11,6 +10,7 @@ import { DEFAULT_WHATSAPP_NUMBER } from "@/utils/constants";
 import { saveDeliveryDetails, loadDeliveryDetails } from "@/utils/localStorage";
 import type { DeliveryDetails } from "@/utils/localStorage";
 import { Loader2, MessageSquare, AlertTriangle } from "lucide-react";
+import { useData } from "@/context/DataContext";
 
 interface PurchaseProduct {
   title: string;
@@ -56,13 +56,13 @@ export default function PurchaseSheet({
   const [formData, setFormData] = useState<DeliveryDetails>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [shippingCharge, setShippingCharge] = useState<number | null>(null);
-  const [whatsappNumber, setWhatsappNumber] = useState<string>(DEFAULT_WHATSAPP_NUMBER);
-  const [shopName, setShopName] = useState<string>("NETHIEL JEWELRY");
-  const [settingsLoading, setSettingsLoading] = useState(true);
-  const [settingsError, setSettingsError] = useState(false);
   const [sending, setSending] = useState(false);
   const [toastError, setToastError] = useState("");
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const contextData = useData();
+  const whatsappNumber = contextData.settings?.whatsapp || DEFAULT_WHATSAPP_NUMBER;
+  const shopName = contextData.settings?.shop_name || "NETHIEL JEWELRY";
 
   const origPrice = product.original_price ?? product.price ?? 0;
   const sellingPrice = product.selling_price;
@@ -79,38 +79,6 @@ export default function PurchaseSheet({
       if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     };
   }, []);
-
-  // Load settings on mount
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const isMounted = true;
-
-    async function fetchSettings() {
-      setSettingsLoading(true);
-      setSettingsError(false);
-      try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from("settings")
-          .select("whatsapp, shop_name")
-          .eq("id", true)
-          .maybeSingle();
-
-        if (error) throw error;
-        if (data && isMounted) {
-          setWhatsappNumber(data.whatsapp || DEFAULT_WHATSAPP_NUMBER);
-          setShopName(data.shop_name || "NETHIEL JEWELRY");
-        }
-      } catch {
-        setSettingsError(true);
-      } finally {
-        setSettingsLoading(false);
-      }
-    }
-
-    fetchSettings();
-  }, [isOpen]);
 
   // Pre-fill from localStorage on open (use ref to avoid re-initializing)
   const initializedRef = useRef(false);
@@ -256,17 +224,7 @@ export default function PurchaseSheet({
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title={`Order Details — ${shopName}`}>
-      {settingsLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin text-neutral-500" />
-        </div>
-      ) : settingsError ? (
-        <div className="flex flex-col items-center justify-center py-12 space-y-3 text-center">
-          <AlertTriangle size={24} className="text-red-400" />
-          <p className="text-xs text-red-400 font-light">Failed to load store settings. Please try again.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Left column: Summary & Product Code */}
           <div className="space-y-6">
             <OrderSummaryCard
@@ -323,7 +281,6 @@ export default function PurchaseSheet({
             </div>
           </div>
         </div>
-      )}
 
       {/* Floating Error Toast */}
       {toastError && (
