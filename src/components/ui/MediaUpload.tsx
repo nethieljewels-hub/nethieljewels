@@ -41,53 +41,41 @@ export default function MediaUpload({
       try {
         setStatusText(`Processing file ${i + 1} of ${files.length}...`);
 
-        // Optimized clarity & fast payload targets (compressed byte size ~300KB-700KB for lightning uploads)
-        const isHighResBucket = bucket === "banners" || bucket === "settings";
-        const compressionOpts = isHighResBucket
-          ? { maxSizeMB: 1.5, maxWidthOrHeight: 2200, initialQuality: 0.88 }
-          : { maxSizeMB: 1.0, maxWidthOrHeight: 1800, initialQuality: 0.85 };
+        const isVideo =
+          originalFile.type.startsWith("video/") ||
+          Boolean(originalFile.name.match(/\.(mp4|mov|webm|mkv|avi|m4v)$/i));
 
-        const fileToUpload = await compressImage(originalFile, compressionOpts);
+        let fileToUpload = originalFile;
+
+        if (!isVideo) {
+          // Compress images on client before uploading
+          const isHighResBucket = bucket === "banners" || bucket === "settings";
+          const compressionOpts = isHighResBucket
+            ? { maxSizeMB: 1.5, maxWidthOrHeight: 2200, initialQuality: 0.88 }
+            : { maxSizeMB: 1.0, maxWidthOrHeight: 1800, initialQuality: 0.85 };
+
+          fileToUpload = await compressImage(originalFile, compressionOpts);
+        }
 
         setStatusText(`Uploading file ${i + 1} of ${files.length}...`);
 
         let publicUrl = "";
 
         if (isCloudinaryConfigured()) {
-          try {
-            // Upload file to Cloudinary
-            publicUrl = await uploadToCloudinary(fileToUpload, bucket);
-          } catch (cloudinaryErr) {
-            console.warn("Cloudinary upload failed, using Supabase Storage fallback:", cloudinaryErr);
-            // Automatic Fallback to Supabase Storage if Cloudinary fails
-            const fileExt = fileToUpload.name.split(".").pop();
-            const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-            const filePath = `${bucket}/${fileName}`;
-
-            const { error: sbErr } = await supabase.storage.from(bucket).upload(filePath, fileToUpload, {
-              cacheControl: "3600",
-              contentType: fileToUpload.type,
-              upsert: true,
-            });
-
-            if (sbErr) {
-              throw new Error(`Upload failed: ${(cloudinaryErr as Error)?.message || sbErr.message}`);
-            }
-
-            const {
-              data: { publicUrl: url },
-            } = supabase.storage.from(bucket).getPublicUrl(filePath);
-
-            publicUrl = url;
-          }
+          publicUrl = await uploadToCloudinary(fileToUpload, bucket, (percent) => {
+            const overall = Math.round(
+              ((i + percent / 100) / files.length) * 100
+            );
+            setProgress(overall);
+          });
         } else {
-          // Fallback to Supabase Storage if Cloudinary credentials not updated yet
+          // Supabase Storage fallback with 1-year immutable caching
           const fileExt = fileToUpload.name.split(".").pop();
           const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
           const filePath = `${bucket}/${fileName}`;
 
           const { error } = await supabase.storage.from(bucket).upload(filePath, fileToUpload, {
-            cacheControl: "3600",
+            cacheControl: "31536000, immutable",
             contentType: fileToUpload.type,
             upsert: true,
           });

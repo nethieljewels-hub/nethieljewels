@@ -112,38 +112,6 @@ export function DataProvider({
     initialBanners.length === 0 && initialProducts.length === 0
   );
 
-  // 1. Hydrate from localStorage on client mount for instant 0ms load
-  useEffect(() => {
-    try {
-      const rawCache = localStorage.getItem(LOCAL_STORAGE_CACHE_KEY);
-      if (rawCache) {
-        const cached = JSON.parse(rawCache);
-        if (cached.products && cached.products.length > 0 && products.length === 0) {
-          setProducts(cached.products);
-        }
-        if (cached.categories && cached.categories.length > 0 && categories.length === 0) {
-          setCategories(cached.categories);
-        }
-        if (cached.banners && cached.banners.length > 0 && banners.length === 0) {
-          setBanners(cached.banners);
-        }
-        if (cached.settings && !settings) {
-          setSettings(cached.settings);
-        }
-        if (cached.reels && cached.reels.length > 0 && reels.length === 0) {
-          setReels(cached.reels);
-        }
-        if (cached.testimonials && cached.testimonials.length > 0 && testimonials.length === 0) {
-          setTestimonials(cached.testimonials);
-        }
-        setLoading(false);
-      }
-    } catch (err) {
-      console.warn("Failed to load local cache:", err);
-    }
-  }, []);
-
-  // 2. Fetch fresh data from Supabase & update localStorage cache
   const fetchAllData = useCallback(async () => {
     try {
       const supabase = createClient();
@@ -217,9 +185,43 @@ export function DataProvider({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [banners, categories, products, settings, reels, testimonials]);
 
   useEffect(() => {
+    try {
+      const rawCache = localStorage.getItem(LOCAL_STORAGE_CACHE_KEY);
+      if (rawCache) {
+        const cached = JSON.parse(rawCache);
+        const isCacheFresh = cached.updatedAt && Date.now() - cached.updatedAt < 5 * 60 * 1000; // 5 min cache
+        if (cached.products && cached.products.length > 0 && products.length === 0) {
+          setProducts(cached.products);
+        }
+        if (cached.categories && cached.categories.length > 0 && categories.length === 0) {
+          setCategories(cached.categories);
+        }
+        if (cached.banners && cached.banners.length > 0 && banners.length === 0) {
+          setBanners(cached.banners);
+        }
+        if (cached.settings && !settings) {
+          setSettings(cached.settings);
+        }
+        if (cached.reels && cached.reels.length > 0 && reels.length === 0) {
+          setReels(cached.reels);
+        }
+        if (cached.testimonials && cached.testimonials.length > 0 && testimonials.length === 0) {
+          setTestimonials(cached.testimonials);
+        }
+        setLoading(false);
+
+        // If cache is fresh, skip background refetch on initial load
+        if (isCacheFresh) {
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to load local cache:", err);
+    }
+
     fetchAllData();
   }, [fetchAllData]);
 

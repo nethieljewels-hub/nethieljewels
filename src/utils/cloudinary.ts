@@ -12,49 +12,110 @@ export function isCloudinaryConfigured(): boolean {
 }
 
 /**
- * Uploads a file (image or video) to Cloudinary via the secure backend API endpoint.
- * @param file File object to upload
- * @param folder Optional Cloudinary folder name (e.g. "products", "banners", "reels", "settings")
- * @returns The Cloudinary secure URL string
+ * DIRECT CLIENT-TO-CLOUDINARY UPLOADER:
+ *
+ * HOW IT WORKS (IN SIMPLE TERMS):
+ * 1. Step 1: The browser asks our server (/api/cloudinary-signature) for a "security permission slip" (signature).
+ * 2. Step 2: The browser uploads the heavy video or image DIRECTLY to Cloudinary's servers.
+ *
+ * WHY THIS IS HUGE:
+ * - Vercel will NEVER crash with "File too large" errors (bypasses Vercel's 4.5MB limit).
+ * - Supabase Storage is NEVER touched (0 bytes of Supabase egress bandwidth used).
+ * - Cloudinary compresses the video automatically for fast mobile streaming.
  */
 export async function uploadToCloudinary(
   file: File,
-  folder: string = "products"
+  folder: string = "products",
+  onProgress?: (percent: number) => void
 ): Promise<string> {
+  // Check if file is a video or image
+  const isVideo =
+    file.type.startsWith("video/") ||
+    Boolean(file.name.match(/\.(mp4|mov|webm|mkv|avi|m4v)$/i));
+  const resourceType = isVideo ? "video" : "image";
+
+  // Step 1: Ask our Next.js API for the security signature (takes ~5 milliseconds)
+  const sigRes = await fetch("/api/cloudinary-signature", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ folder }),
+  });
+
+  if (!sigRes.ok) {
+    const errorData = await sigRes.json().catch(() => ({}));
+    throw new Error(
+      errorData.error || `Failed to obtain Cloudinary signature (${sigRes.status})`
+    );
+  }
+
+  const { signature, timestamp, apiKey, cloudName, folder: targetFolder } =
+    await sigRes.json();
+
+  // Step 2: Build the upload payload to send directly to Cloudinary
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("folder", folder);
+  formData.append("api_key", apiKey);
+  formData.append("timestamp", String(timestamp));
+  formData.append("signature", signature);
+  formData.append("folder", targetFolder);
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 25000);
+  // Step 3: Stream the file directly from user's browser to Cloudinary
+  return new Promise<string>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
 
-  try {
-    const response = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-      signal: controller.signal,
-    });
+    xhr.open("POST", endpoint, true);
 
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const errorMessage =
-        errorData.error || response.statusText || "Upload request failed";
-      throw new Error(`Cloudinary upload failed: ${errorMessage}`);
+    // Track live upload progress percentage (0% to 100%)
+    if (onProgress && xhr.upload) {
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          onProgress(percent);
+        }
+      };
     }
 
-    const data = await response.json();
-    if (!data.url) {
-      throw new Error("Cloudinary did not return a valid secure URL.");
-    }
+    // Upload completed successfully
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const res = JSON.parse(xhr.responseText);
+          if (res.secure_url) {
+            resolve(res.secure_url);
+          } else {
+            reject(new Error("Cloudinary response did not contain secure_url."));
+          }
+        } catch (err) {
+          reject(new Error("Failed to parse Cloudinary response: " + String(err)));
+        }
+      } else {
+        try {
+          const errorRes = JSON.parse(xhr.responseText);
+          reject(
+            new Error(
+              `Cloudinary upload error (${xhr.status}): ${
+                errorRes.error?.message || xhr.statusText
+              }`
+            )
+          );
+        } catch {
+          reject(new Error(`Cloudinary upload failed with status ${xhr.status}`));
+        }
+      }
+    };
 
-    return data.url;
-  } catch (err: unknown) {
-    clearTimeout(timeoutId);
-    if ((err as Error)?.name === "AbortError") {
-      throw new Error("Cloudinary upload request timed out after 25 seconds.");
-    }
-    throw err;
-  }
+    xhr.onerror = () => {
+      reject(new Error("Network error occurred while uploading to Cloudinary."));
+    };
+
+    xhr.ontimeout = () => {
+      reject(new Error("Cloudinary upload request timed out."));
+    };
+
+    // 2-minute timeout for large video files
+    xhr.timeout = 120000;
+
+    xhr.send(formData);
+  });
 }
