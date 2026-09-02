@@ -101,19 +101,27 @@ export default function ReelsPage() {
     setModalOpen(true);
   };
 
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadProgress(0);
 
     try {
       if (isCloudinaryConfigured()) {
-        const publicUrl = await uploadToCloudinary(file, "reels");
+        const publicUrl = await uploadToCloudinary(file, "reels", (percent) => {
+          setUploadProgress(percent);
+        });
         setFormVideoUrl(publicUrl);
       } else {
         const ext = file.name.split(".").pop();
         const fileName = `reels/${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error } = await supabase.storage.from("banners").upload(fileName, file, { upsert: true });
+        const { error } = await supabase.storage.from("banners").upload(fileName, file, {
+          cacheControl: "31536000, immutable",
+          upsert: true,
+        });
         if (error) throw error;
         const { data: { publicUrl } } = supabase.storage.from("banners").getPublicUrl(fileName);
         setFormVideoUrl(publicUrl);
@@ -124,6 +132,7 @@ export default function ReelsPage() {
       showToast("Failed to upload video: " + (error as Error)?.message, "error");
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -139,7 +148,10 @@ export default function ReelsPage() {
       } else {
         const ext = file.name.split(".").pop();
         const fileName = `reels/thumb_${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error } = await supabase.storage.from("banners").upload(fileName, file, { upsert: true });
+        const { error } = await supabase.storage.from("banners").upload(fileName, file, {
+          cacheControl: "31536000, immutable",
+          upsert: true,
+        });
         if (error) throw error;
         const { data: { publicUrl } } = supabase.storage.from("banners").getPublicUrl(fileName);
         setFormThumbnailUrl(publicUrl);
@@ -327,7 +339,11 @@ export default function ReelsPage() {
             ) : (
               <label className="flex flex-col items-center justify-center border border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl p-8 cursor-pointer hover:border-neutral-500 transition-colors text-center">
                 <Upload size={24} className="text-neutral-400 mb-2" />
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">{uploading ? "Uploading..." : "Click to upload video (MP4, MOV)"}</span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                  {uploading
+                    ? `Uploading video directly to Cloudinary (${uploadProgress}%)...`
+                    : "Click to upload video (MP4, MOV)"}
+                </span>
                 <input type="file" accept="video/mp4,video/quicktime,video/*" onChange={handleVideoUpload} className="hidden" />
               </label>
             )}

@@ -129,6 +129,8 @@ function ReelCard({ reel }: { reel: { id: string; title: string | null; video_ur
         <video
           ref={videoRef}
           src={reel.video_url}
+          preload="none"
+          poster={reel.thumbnail_url || undefined}
           muted
           playsInline
           loop
@@ -226,6 +228,8 @@ function MobileReelCard({
       <video
         ref={videoRef}
         src={reel.video_url}
+        preload="none"
+        poster={reel.thumbnail_url || undefined}
         muted
         playsInline
         loop
@@ -606,7 +610,8 @@ export default function HomeClient({
                               className="h-full w-full object-cover opacity-90"
                               muted
                               loop
-                              autoPlay
+                              autoPlay={activeBanner === index}
+                              preload={activeBanner === index ? "metadata" : "none"}
                               playsInline
                             />
                             <div className="absolute bottom-6 right-6 text-neutral-400 p-2">
@@ -618,8 +623,8 @@ export default function HomeClient({
                             src={banner.media_url}
                             alt={banner.title || "Hero banner"}
                             className="h-full w-full object-cover"
-                            loading="eager"
-                            fetchPriority="high"
+                            loading={index === 0 ? "eager" : "lazy"}
+                            fetchPriority={index === 0 ? "high" : "low"}
                           />
                         )}
                       </div>
@@ -634,7 +639,8 @@ export default function HomeClient({
                                 className="h-full w-full object-cover opacity-90"
                                 muted
                                 loop
-                                autoPlay
+                                autoPlay={activeBanner === index}
+                                preload={activeBanner === index ? "metadata" : "none"}
                                 playsInline
                               />
                             </div>
