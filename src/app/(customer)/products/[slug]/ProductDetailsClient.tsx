@@ -7,6 +7,7 @@ import PurchaseSheet from "@/components/purchase/PurchaseSheet";
 import { loadDeliveryDetails } from "@/utils/localStorage";
 import CustomerProductCard from "@/components/ui/CustomerProductCard";
 import { useCart } from "@/context/CartContext";
+import { getCloudinaryUrl } from "@/utils/cloudinary";
 
 interface Product {
   id: string;
@@ -304,7 +305,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
 
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={galleryImages[activeImage]}
+                src={getCloudinaryUrl(galleryImages[activeImage], { width: 1000 })}
                 alt={`${product.title} - South Indian Jewelry by Nethiel Jewelry (View ${activeImage + 1})`}
                 className={`w-full h-full transition-transform duration-300 ease-out object-contain p-2 ${
                   zoomed ? "scale-150" : ""
@@ -352,7 +353,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={img}
+                      src={getCloudinaryUrl(img, { width: 150 })}
                       alt={`${product.title} Thumbnail ${idx + 1} - Nethiel Jewelry`}
                       className="h-full w-full object-cover"
                       loading="lazy"
@@ -622,7 +623,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
 
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={galleryImages[activeImage]}
+                src={getCloudinaryUrl(galleryImages[activeImage], { width: 1000 })}
                 alt={product.title}
                 className={`w-full h-full transition-transform duration-300 ease-out object-contain p-2 ${
                   zoomed ? "scale-150" : ""
@@ -703,7 +704,7 @@ export default function ProductDetailsClient({ product, recommendedProducts }: P
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={img}
+                      src={getCloudinaryUrl(img, { width: 150 })}
                       alt={`Thumbnail ${idx + 1}`}
                       className="h-full w-full object-cover"
                     />

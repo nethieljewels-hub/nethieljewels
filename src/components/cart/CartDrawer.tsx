@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { X, Trash2, ShoppingBag, ArrowRight, Plus, Minus } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
+import { getCloudinaryUrl } from "@/utils/cloudinary";
 
 export default function CartDrawer() {
   const {
@@ -111,7 +112,7 @@ export default function CartDrawer() {
                     {item.image ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
-                        src={item.image}
+                        src={getCloudinaryUrl(item.image, { width: 200 })}
                         alt={item.title}
                         className="w-full h-full object-cover"
                       />

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Testimonial } from "@/types/database.types";
+import { getCloudinaryUrl } from "@/utils/cloudinary";
 
 const SEED_TESTIMONIALS: Testimonial[] = [
   {
@@ -205,7 +206,7 @@ export default function TestimonialsSection({ testimonials }: TestimonialsSectio
                 <div className="flex items-center space-x-2.5 sm:space-x-3 pt-3 border-t border-neutral-100 dark:border-neutral-850 mt-2">
                   {t.avatar_url ? (
                     <img
-                      src={t.avatar_url}
+                      src={getCloudinaryUrl(t.avatar_url, { width: 150 })}
                       alt={t.customer_name}
                       className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-[#0284C7]/40 shrink-0"
                     />

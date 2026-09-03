@@ -8,6 +8,7 @@ import Modal from "@/components/ui/Modal";
 import { useToast } from "@/context/ToastContext";
 import CustomSelect from "@/components/ui/CustomSelect";
 import { Plus, Search, Trash2, Edit2, Star, CheckCircle2, XCircle, ShoppingBag } from "lucide-react";
+import { getCloudinaryUrl } from "@/utils/cloudinary";
 
 interface Product {
   id: string;
@@ -249,7 +250,7 @@ export default function ProductsPage() {
                       <div className="h-12 w-12 rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800 overflow-hidden flex items-center justify-center relative flex-shrink-0">
                         {mainImage ? (
                           <img
-                            src={mainImage}
+                            src={getCloudinaryUrl(mainImage, { width: 150 })}
                             alt={prod.title}
                             className="h-full w-full object-cover object-center"
                           />
