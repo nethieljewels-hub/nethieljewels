@@ -6,6 +6,7 @@ import CustomerProductCard from "@/components/ui/CustomerProductCard";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import { ArrowRight, ChevronLeft, ChevronRight, VolumeX, Volume2, ShieldCheck, Truck, Sparkles, MessageCircle, Image as ImageIcon, Layers, Play } from "lucide-react";
 import type { Testimonial } from "@/types/database.types";
+import { getCloudinaryUrl } from "@/utils/cloudinary";
 
 interface Banner {
   id: string;
@@ -118,7 +119,7 @@ function ReelCard({ reel }: { reel: { id: string; title: string | null; video_ur
       {/* Thumbnail shown before hover */}
       {reel.thumbnail_url && !playing && (
         <img
-          src={reel.thumbnail_url}
+          src={getCloudinaryUrl(reel.thumbnail_url, { width: 400 })}
           alt={reel.title || "Reel"}
           className="absolute inset-0 w-full h-full object-cover z-10"
         />
@@ -218,7 +219,7 @@ function MobileReelCard({
       {/* Thumbnail */}
       {reel.thumbnail_url && !playing && (
         <img
-          src={reel.thumbnail_url}
+          src={getCloudinaryUrl(reel.thumbnail_url, { width: 400 })}
           alt={reel.title || "Reel"}
           className="absolute inset-0 w-full h-full object-cover z-10"
         />
@@ -620,7 +621,7 @@ export default function HomeClient({
                           </div>
                         ) : (
                           <img
-                            src={banner.media_url}
+                            src={getCloudinaryUrl(banner.media_url, { width: 1600 })}
                             alt={banner.title || "Hero banner"}
                             className="h-full w-full object-cover"
                             loading={index === 0 ? "eager" : "lazy"}
@@ -646,7 +647,7 @@ export default function HomeClient({
                             </div>
                           ) : (
                             <img
-                              src={mobileUrl}
+                              src={getCloudinaryUrl(mobileUrl, { width: 800 })}
                               alt={banner.title || "Hero banner"}
                               className="h-full w-full object-cover"
                               loading="eager"
@@ -738,7 +739,7 @@ export default function HomeClient({
                   <div className="w-18 h-18 sm:w-22 sm:h-22 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-full overflow-hidden bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center">
                     {cat.image_url ? (
                       <img
-                        src={cat.image_url}
+                        src={getCloudinaryUrl(cat.image_url, { width: 300 })}
                         alt={`${cat.name} Jewelry Collection - Nethiel Jewelry`}
                         className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
                         loading="lazy"
@@ -912,7 +913,7 @@ export default function HomeClient({
               >
                 {imgUrl ? (
                   <img
-                    src={imgUrl}
+                    src={getCloudinaryUrl(imgUrl, { width: 400 })}
                     alt={product?.title || `Product look ${idx + 1}`}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
@@ -962,7 +963,7 @@ export default function HomeClient({
               >
                 {imgUrl ? (
                   <img
-                    src={imgUrl}
+                    src={getCloudinaryUrl(imgUrl, { width: 400 })}
                     alt={product?.title || `Product look ${idx + 1}`}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />

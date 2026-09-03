@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Heart, Image as ImageIcon, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { getCloudinaryUrl } from "@/utils/cloudinary";
 
 interface ProductCardProps {
   product: {
@@ -95,7 +96,7 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
               {/* Primary Cover Image */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={primaryImage}
+                src={getCloudinaryUrl(primaryImage, { width: 600 })}
                 alt={`${product.title} - Nethiel Jewelry`}
                 className={`h-full w-full object-cover transition-all duration-500 ease-out ${
                   secondaryImage ? "md:group-hover:opacity-0" : "group-hover:scale-105"
@@ -107,7 +108,7 @@ export default function CustomerProductCard({ product }: ProductCardProps) {
               {secondaryImage && (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
-                  src={secondaryImage}
+                  src={getCloudinaryUrl(secondaryImage, { width: 600 })}
                   alt={`${product.title} Angle View - Nethiel Jewelry`}
                   className={`hidden md:block absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out group-hover:scale-105 ${
                     product.is_out_of_stock ? "grayscale-[30%]" : ""
