@@ -7,6 +7,7 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import { ArrowRight, ChevronLeft, ChevronRight, VolumeX, Volume2, ShieldCheck, Truck, Sparkles, MessageCircle, Image as ImageIcon, Layers, Play } from "lucide-react";
 import type { Testimonial } from "@/types/database.types";
 import { getCloudinaryUrl } from "@/utils/cloudinary";
+import { parseVideoSource } from "@/utils/videoEmbed";
 
 interface Banner {
   id: string;
@@ -78,23 +79,25 @@ function isVideoMediaUrl(url: string | null | undefined, declaredType?: string |
   return declaredType === "video";
 }
 
-/** Self-contained reel card: plays video on hover, mute/unmute toggle */
+/** Self-contained reel card: plays video on hover / click, supports YouTube Shorts, Instagram & direct MP4 */
 function ReelCard({ reel }: { reel: { id: string; title: string | null; video_url: string; thumbnail_url: string | null } }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
 
-  const isVideo = isVideoMediaUrl(reel.video_url, "video");
+  const parsed = parseVideoSource(reel.video_url);
+  const isDirectVideo = parsed.platform === "direct" && isVideoMediaUrl(reel.video_url, "video");
+  const displayThumb = reel.thumbnail_url || parsed.thumbnailUrl;
 
   const handleMouseEnter = () => {
-    if (videoRef.current && isVideo) {
+    if (isDirectVideo && videoRef.current) {
       videoRef.current.play().catch(() => {});
-      setPlaying(true);
     }
+    setPlaying(true);
   };
 
   const handleMouseLeave = () => {
-    if (videoRef.current) {
+    if (isDirectVideo && videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     }
@@ -115,29 +118,51 @@ function ReelCard({ reel }: { reel: { id: string; title: string | null; video_ur
       className="relative flex-shrink-0 snap-start w-36 sm:w-44 md:w-48 aspect-[9/16] rounded-2xl overflow-hidden bg-neutral-900 cursor-pointer group border border-neutral-200/40 dark:border-neutral-800/60 shadow-md hover:shadow-xl transition-shadow duration-300"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={() => setPlaying((prev) => !prev)}
     >
-      {/* Thumbnail shown before hover */}
-      {reel.thumbnail_url && !playing && (
+      {/* Thumbnail shown before hover / play */}
+      {displayThumb && !playing && (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={getCloudinaryUrl(reel.thumbnail_url, { width: 400 })}
+          src={getCloudinaryUrl(displayThumb, { width: 400 })}
           alt={reel.title || "Reel"}
           className="absolute inset-0 w-full h-full object-cover z-10"
         />
       )}
 
-      {/* Video or Image */}
-      {isVideo ? (
+      {/* Video Content */}
+      {isDirectVideo ? (
         <video
           ref={videoRef}
           src={reel.video_url}
           preload="none"
-          poster={reel.thumbnail_url || undefined}
+          poster={displayThumb || undefined}
           muted
           playsInline
           loop
           className="w-full h-full object-cover"
         />
+      ) : parsed.embedUrl ? (
+        playing ? (
+          <iframe
+            src={parsed.embedUrl}
+            title={reel.title || "Reel Video"}
+            className="w-full h-full border-0 pointer-events-auto"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          displayThumb && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={getCloudinaryUrl(displayThumb, { width: 400 })}
+              alt={reel.title || "Reel"}
+              className="w-full h-full object-cover"
+            />
+          )
+        )
       ) : (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={reel.video_url}
           alt={reel.title || "Reel Media"}
@@ -155,7 +180,7 @@ function ReelCard({ reel }: { reel: { id: string; title: string | null; video_ur
       )}
 
       {/* Gradient overlay + title */}
-      <div className="absolute bottom-0 inset-x-0 z-30 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3">
+      <div className="absolute bottom-0 inset-x-0 z-30 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3 pointer-events-none">
         {reel.title && (
           <p className="text-white text-[10px] sm:text-xs font-semibold leading-tight line-clamp-2">
             {reel.title}
@@ -163,8 +188,8 @@ function ReelCard({ reel }: { reel: { id: string; title: string | null; video_ur
         )}
       </div>
 
-      {/* Mute toggle (shows on hover) */}
-      {playing && (
+      {/* Mute toggle (shows on hover for direct videos) */}
+      {playing && isDirectVideo && (
         <button
           type="button"
           onClick={toggleMute}
@@ -190,21 +215,29 @@ function MobileReelCard({
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
 
+  const parsed = parseVideoSource(reel.video_url);
+  const isDirectVideo = parsed.platform === "direct";
+  const displayThumb = reel.thumbnail_url || parsed.thumbnailUrl;
+
   // Play/pause based on active state
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (isActive) {
-      v.play().catch(() => { });
-      setPlaying(true);
+    if (isDirectVideo) {
+      const v = videoRef.current;
+      if (!v) return;
+      if (isActive) {
+        v.play().catch(() => {});
+        setPlaying(true);
+      } else {
+        v.pause();
+        v.currentTime = 0;
+        setPlaying(false);
+        setMuted(true);
+        v.muted = true;
+      }
     } else {
-      v.pause();
-      v.currentTime = 0;
-      setPlaying(false);
-      setMuted(true);
-      v.muted = true;
+      setPlaying(isActive);
     }
-  }, [isActive]);
+  }, [isActive, isDirectVideo]);
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -217,25 +250,54 @@ function MobileReelCard({
   return (
     <div className="relative w-full h-full rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-200/40 dark:border-neutral-800/60 shadow-lg">
       {/* Thumbnail */}
-      {reel.thumbnail_url && !playing && (
+      {displayThumb && !playing && (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={getCloudinaryUrl(reel.thumbnail_url, { width: 400 })}
+          src={getCloudinaryUrl(displayThumb, { width: 400 })}
           alt={reel.title || "Reel"}
           className="absolute inset-0 w-full h-full object-cover z-10"
         />
       )}
 
-      {/* Video */}
-      <video
-        ref={videoRef}
-        src={reel.video_url}
-        preload="none"
-        poster={reel.thumbnail_url || undefined}
-        muted
-        playsInline
-        loop
-        className="w-full h-full object-cover"
-      />
+      {/* Video Content */}
+      {isDirectVideo ? (
+        <video
+          ref={videoRef}
+          src={reel.video_url}
+          preload="none"
+          poster={displayThumb || undefined}
+          muted
+          playsInline
+          loop
+          className="w-full h-full object-cover"
+        />
+      ) : parsed.embedUrl ? (
+        playing ? (
+          <iframe
+            src={parsed.embedUrl}
+            title={reel.title || "Reel Video"}
+            className="w-full h-full border-0 pointer-events-auto"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          displayThumb && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={getCloudinaryUrl(displayThumb, { width: 400 })}
+              alt={reel.title || "Reel"}
+              className="w-full h-full object-cover"
+            />
+          )
+        )
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={reel.video_url}
+          alt={reel.title || "Reel Media"}
+          className="w-full h-full object-cover"
+        />
+      )}
 
       {/* Play icon when idle */}
       {!playing && (
@@ -247,7 +309,7 @@ function MobileReelCard({
       )}
 
       {/* Title gradient */}
-      <div className="absolute bottom-0 inset-x-0 z-30 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3">
+      <div className="absolute bottom-0 inset-x-0 z-30 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3 pointer-events-none">
         {reel.title && (
           <p className="text-white text-[10px] font-semibold leading-tight line-clamp-2">
             {reel.title}
@@ -255,8 +317,8 @@ function MobileReelCard({
         )}
       </div>
 
-      {/* Mute toggle */}
-      {playing && isActive && (
+      {/* Mute toggle for direct videos */}
+      {playing && isActive && isDirectVideo && (
         <button
           type="button"
           onClick={toggleMute}
@@ -621,7 +683,7 @@ export default function HomeClient({
                           </div>
                         ) : (
                           <img
-                            src={getCloudinaryUrl(banner.media_url, { width: 1600 })}
+                            src={getCloudinaryUrl(banner.media_url, { width: 2000, quality: "auto:best" })}
                             alt={banner.title || "Hero banner"}
                             className="h-full w-full object-cover"
                             loading={index === 0 ? "eager" : "lazy"}
@@ -647,7 +709,7 @@ export default function HomeClient({
                             </div>
                           ) : (
                             <img
-                              src={getCloudinaryUrl(mobileUrl, { width: 800 })}
+                              src={getCloudinaryUrl(mobileUrl, { width: 1000, quality: "auto:best" })}
                               alt={banner.title || "Hero banner"}
                               className="h-full w-full object-cover"
                               loading="eager"

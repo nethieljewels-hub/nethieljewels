@@ -63,54 +63,40 @@ export function isCloudinaryConfigured(): boolean {
 }
 
 /**
- * DIRECT CLIENT-TO-CLOUDINARY UPLOADER:
+ * DIRECT CLIENT-TO-CLOUDINARY UPLOADER (Unsigned Preset):
  *
- * HOW IT WORKS (IN SIMPLE TERMS):
- * 1. Step 1: The browser asks our server (/api/cloudinary-signature) for a "security permission slip" (signature).
- * 2. Step 2: The browser uploads the heavy video or image DIRECTLY to Cloudinary's servers.
- *
- * WHY THIS IS HUGE:
- * - Vercel will NEVER crash with "File too large" errors (bypasses Vercel's 4.5MB limit).
- * - Supabase Storage is NEVER touched (0 bytes of Supabase egress bandwidth used).
- * - Cloudinary compresses the video automatically for fast mobile streaming.
+ * HOW IT WORKS:
+ * - Browser uploads the file DIRECTLY to Cloudinary using an unsigned upload preset.
+ * - Zero bytes pass through Vercel (no API call, no size limits).
+ * - Zero bytes touch Supabase.
+ * - No signature or API secret needed — the preset handles permissions.
  */
 export async function uploadToCloudinary(
   file: File,
   folder: string = "products",
   onProgress?: (percent: number) => void
 ): Promise<string> {
-  // Check if file is a video or image
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+  if (!cloudName || !uploadPreset) {
+    throw new Error(
+      "Cloudinary cloud name or upload preset is missing. Check NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET in .env.local"
+    );
+  }
+
   const isVideo =
     file.type.startsWith("video/") ||
     Boolean(file.name.match(/\.(mp4|mov|webm|mkv|avi|m4v)$/i));
   const resourceType = isVideo ? "video" : "image";
 
-  // Step 1: Ask our Next.js API for the security signature (takes ~5 milliseconds)
-  const sigRes = await fetch("/api/cloudinary-signature", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ folder }),
-  });
-
-  if (!sigRes.ok) {
-    const errorData = await sigRes.json().catch(() => ({}));
-    throw new Error(
-      errorData.error || `Failed to obtain Cloudinary signature (${sigRes.status})`
-    );
-  }
-
-  const { signature, timestamp, apiKey, cloudName, folder: targetFolder } =
-    await sigRes.json();
-
-  // Step 2: Build the upload payload to send directly to Cloudinary
+  // Build the upload payload — no signature needed with unsigned preset
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("api_key", apiKey);
-  formData.append("timestamp", String(timestamp));
-  formData.append("signature", signature);
-  formData.append("folder", targetFolder);
+  formData.append("upload_preset", uploadPreset);
+  formData.append("folder", `nethiel_jewelry/${folder}`);
 
-  // Step 3: Stream the file directly from user's browser to Cloudinary
+  // Stream file directly from browser to Cloudinary
   return new Promise<string>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
