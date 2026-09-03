@@ -6,6 +6,7 @@ import { TableSkeleton } from "@/components/ui/Skeletons";
 import Modal from "@/components/ui/Modal";
 import { useToast } from "@/context/ToastContext";
 import { uploadToCloudinary, isCloudinaryConfigured } from "@/utils/cloudinary";
+import { parseVideoSource, YoutubeIcon, InstagramIcon } from "@/utils/videoEmbed";
 import {
   Plus,
   Trash2,
@@ -15,6 +16,8 @@ import {
   Video,
   Upload,
   ExternalLink,
+  Link2,
+  Film,
 } from "lucide-react";
 
 interface Reel {
@@ -42,12 +45,16 @@ export default function ReelsPage() {
   const [uploading, setUploading] = useState(false);
   const [thumbnailUploading, setThumbnailUploading] = useState(false);
 
-  // Form
+  // Form State
+  const [uploadMode, setUploadMode] = useState<"link" | "file">("link");
   const [formTitle, setFormTitle] = useState("");
   const [formVideoUrl, setFormVideoUrl] = useState<string | null>(null);
   const [formThumbnailUrl, setFormThumbnailUrl] = useState<string | null>(null);
   const [formActive, setFormActive] = useState(true);
   const [formSortOrder, setFormSortOrder] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const parsedCurrentVideo = parseVideoSource(formVideoUrl);
 
   const fetchReels = async () => {
     setLoading(true);
@@ -71,7 +78,9 @@ export default function ReelsPage() {
           setLoading(false);
         }
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -83,6 +92,8 @@ export default function ReelsPage() {
     setFormSortOrder(0);
     setSelectedId(null);
     setIsEditing(false);
+    setUploadMode("link");
+    setUploadProgress(0);
   };
 
   const openAddModal = () => {
@@ -98,10 +109,25 @@ export default function ReelsPage() {
     setFormSortOrder(reel.sort_order);
     setSelectedId(reel.id);
     setIsEditing(true);
+
+    const parsed = parseVideoSource(reel.video_url);
+    if (parsed.platform === "youtube" || parsed.platform === "instagram") {
+      setUploadMode("link");
+    } else {
+      setUploadMode("file");
+    }
+
     setModalOpen(true);
   };
 
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const handleLinkInput = (value: string) => {
+    setFormVideoUrl(value);
+    const parsed = parseVideoSource(value);
+    // Auto-fill YouTube thumbnail if thumbnail field is currently empty
+    if (parsed.platform === "youtube" && parsed.thumbnailUrl && !formThumbnailUrl) {
+      setFormThumbnailUrl(parsed.thumbnailUrl);
+    }
+  };
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -123,7 +149,9 @@ export default function ReelsPage() {
           upsert: true,
         });
         if (error) throw error;
-        const { data: { publicUrl } } = supabase.storage.from("banners").getPublicUrl(fileName);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("banners").getPublicUrl(fileName);
         setFormVideoUrl(publicUrl);
       }
       showToast("Video uploaded successfully", "success");
@@ -153,7 +181,9 @@ export default function ReelsPage() {
           upsert: true,
         });
         if (error) throw error;
-        const { data: { publicUrl } } = supabase.storage.from("banners").getPublicUrl(fileName);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("banners").getPublicUrl(fileName);
         setFormThumbnailUrl(publicUrl);
       }
       showToast("Thumbnail uploaded", "success");
@@ -167,23 +197,24 @@ export default function ReelsPage() {
 
   const handleSave = async () => {
     if (!formVideoUrl) {
-      showToast("Please upload a video or paste a video URL", "error");
+      showToast("Please provide a video (paste a link or upload a file)", "error");
       return;
     }
     setFormLoading(true);
 
     const payload = {
       title: formTitle || null,
-      video_url: formVideoUrl,
+      video_url: formVideoUrl.trim(),
       thumbnail_url: formThumbnailUrl || null,
       active: formActive,
       sort_order: formSortOrder,
       updated_at: new Date().toISOString(),
     };
 
-    const { error } = isEditing && selectedId
-      ? await supabase.from("reels").update(payload).eq("id", selectedId)
-      : await supabase.from("reels").insert([payload]);
+    const { error } =
+      isEditing && selectedId
+        ? await supabase.from("reels").update(payload).eq("id", selectedId)
+        : await supabase.from("reels").insert([payload]);
 
     if (error) {
       showToast("Save failed: " + error.message, "error");
@@ -228,11 +259,14 @@ export default function ReelsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-white tracking-tight">Video Reels</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white uppercase">
+            Storefront Reels
+          </h1>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-            Manage video reels shown on the homepage
+            Embed YouTube Shorts, Instagram Reels, or upload direct video files with 0 bandwidth limits
           </p>
         </div>
         <button
@@ -251,7 +285,11 @@ export default function ReelsPage() {
         <div className="border border-dashed border-neutral-200 dark:border-neutral-800 rounded-sm p-16 text-center">
           <Video size={28} className="mx-auto text-neutral-400 mb-3" strokeWidth={1.2} />
           <p className="text-sm text-neutral-500 dark:text-neutral-400">No reels added yet.</p>
-          <button type="button" onClick={openAddModal} className="mt-4 text-xs font-semibold text-black dark:text-white underline underline-offset-4 cursor-pointer">
+          <button
+            type="button"
+            onClick={openAddModal}
+            className="mt-4 text-xs font-semibold text-black dark:text-white underline underline-offset-4 cursor-pointer"
+          >
             Add your first reel
           </button>
         </div>
@@ -260,126 +298,354 @@ export default function ReelsPage() {
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-850">
               <tr>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Preview</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Title</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Order</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Status</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Actions</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Preview
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Title &amp; Source
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Order
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-850">
-              {reels.map((reel) => (
-                <tr key={reel.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="w-14 h-20 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                      {reel.thumbnail_url ? (
-                        <img src={reel.thumbnail_url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <video src={reel.video_url} className="w-full h-full object-cover" muted playsInline />
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-neutral-800 dark:text-neutral-200 font-medium">
-                        {reel.title || <span className="text-neutral-400 italic">Untitled</span>}
-                      </span>
-                      <a href={reel.video_url} target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-black dark:hover:text-white">
-                        <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400">{reel.sort_order}</td>
-                  <td className="px-4 py-3">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleActive(reel)}
-                      className={`inline-flex items-center space-x-1.5 text-xs font-semibold px-2.5 py-1 rounded-full cursor-pointer transition-colors ${
-                        reel.active
-                          ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400"
-                          : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
-                      }`}
-                    >
-                      {reel.active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-                      <span>{reel.active ? "Active" : "Inactive"}</span>
-                    </button>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="inline-flex items-center space-x-2">
-                      <button type="button" onClick={() => openEditModal(reel)} className="p-1.5 rounded-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
-                        <Edit2 size={14} />
+              {reels.map((reel) => {
+                const parsed = parseVideoSource(reel.video_url);
+                const displayThumb = reel.thumbnail_url || parsed.thumbnailUrl;
+
+                return (
+                  <tr key={reel.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="w-14 h-20 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 relative">
+                        {displayThumb ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={displayThumb} alt="" className="w-full h-full object-cover" />
+                        ) : parsed.platform === "direct" ? (
+                          <video src={reel.video_url} className="w-full h-full object-cover" muted playsInline />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-black text-white">
+                            <Film size={18} />
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-neutral-800 dark:text-neutral-200 font-medium">
+                            {reel.title || <span className="text-neutral-400 italic">Untitled Reel</span>}
+                          </span>
+                          <a
+                            href={reel.video_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-neutral-400 hover:text-black dark:hover:text-white"
+                          >
+                            <ExternalLink size={12} />
+                          </a>
+                        </div>
+                        <div>
+                          {parsed.platform === "youtube" ? (
+                            <span className="inline-flex items-center space-x-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400">
+                              <YoutubeIcon className="w-3 h-3" />
+                              <span>YouTube Shorts</span>
+                            </span>
+                          ) : parsed.platform === "instagram" ? (
+                            <span className="inline-flex items-center space-x-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-fuchsia-100 dark:bg-fuchsia-950/40 text-fuchsia-700 dark:text-fuchsia-400">
+                              <InstagramIcon className="w-3 h-3" />
+                              <span>Instagram Reel</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center space-x-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400">
+                              <Film size={11} />
+                              <span>Direct Video</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400">{reel.sort_order}</td>
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(reel)}
+                        className={`inline-flex items-center space-x-1.5 text-xs font-semibold px-2.5 py-1 rounded-full cursor-pointer transition-colors ${
+                          reel.active
+                            ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400"
+                            : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
+                        }`}
+                      >
+                        {reel.active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                        <span>{reel.active ? "Active" : "Inactive"}</span>
                       </button>
-                      <button type="button" onClick={() => confirmDelete(reel.id)} className="p-1.5 rounded-sm hover:bg-red-50 dark:hover:bg-red-950/20 text-neutral-500 hover:text-red-600 transition-colors cursor-pointer">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="inline-flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(reel)}
+                          className="p-1.5 rounded-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => confirmDelete(reel.id)}
+                          className="p-1.5 rounded-sm hover:bg-red-50 dark:hover:bg-red-950/20 text-neutral-500 hover:text-red-600 transition-colors cursor-pointer"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       )}
 
       {/* Add/Edit Modal */}
-      <Modal isOpen={modalOpen} onClose={() => { setModalOpen(false); resetForm(); }} title={isEditing ? "Edit Reel" : "Add Reel"}>
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          resetForm();
+        }}
+        title={isEditing ? "Edit Reel" : "Add New Reel"}
+      >
         <div className="space-y-5">
+          {/* Title */}
           <div>
-            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5">Title (optional)</label>
-            <input type="text" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} placeholder="e.g. Bridal Collection Reel" className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm px-3 py-2.5 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" />
+            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5">
+              Title (optional)
+            </label>
+            <input
+              type="text"
+              value={formTitle}
+              onChange={(e) => setFormTitle(e.target.value)}
+              placeholder="e.g. Traditional Jhumka Collection Reel"
+              className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm px-3 py-2.5 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white"
+            />
           </div>
 
+          {/* Upload Method Selector Tab */}
           <div>
-            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5">Video File *</label>
-            {formVideoUrl ? (
-              <div className="relative w-28 h-44 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-black">
-                <video src={formVideoUrl} className="w-full h-full object-cover" muted playsInline loop autoPlay />
-                <button type="button" onClick={() => setFormVideoUrl(null)} className="absolute top-1.5 right-1.5 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded-full hover:bg-black transition-colors cursor-pointer">Remove</button>
+            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5">
+              Choose Video Source *
+            </label>
+            <div className="flex rounded-lg p-1 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-750">
+              <button
+                type="button"
+                onClick={() => setUploadMode("link")}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                  uploadMode === "link"
+                    ? "bg-white dark:bg-neutral-900 text-black dark:text-white shadow-xs"
+                    : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+                }`}
+              >
+                <Link2 size={14} />
+                <span>Paste Link (YouTube / Instagram)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setUploadMode("file")}
+                className={`flex-1 flex items-center justify-center space-x-1.5 py-2 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                  uploadMode === "file"
+                    ? "bg-white dark:bg-neutral-900 text-black dark:text-white shadow-xs"
+                    : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+                }`}
+              >
+                <Upload size={14} />
+                <span>Upload Video File (MP4)</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mode 1: Paste Link */}
+          {uploadMode === "link" && (
+            <div className="space-y-3.5 p-4 rounded-xl bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5">
+                  YouTube Shorts or Instagram Reel URL *
+                </label>
+                <input
+                  type="url"
+                  value={formVideoUrl || ""}
+                  onChange={(e) => handleLinkInput(e.target.value)}
+                  placeholder="https://youtube.com/shorts/... or https://instagram.com/reel/..."
+                  className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm px-3 py-2 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white"
+                />
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1">
+                  Tip: YouTube Shorts stream with 0 bandwidth cost and zero storage limits!
+                </p>
               </div>
-            ) : (
-              <label className="flex flex-col items-center justify-center border border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl p-8 cursor-pointer hover:border-neutral-500 transition-colors text-center">
-                <Upload size={24} className="text-neutral-400 mb-2" />
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                  {uploading
-                    ? `Uploading video directly to Cloudinary (${uploadProgress}%)...`
-                    : "Click to upload video (MP4, MOV)"}
-                </span>
-                <input type="file" accept="video/mp4,video/quicktime,video/*" onChange={handleVideoUpload} className="hidden" />
-              </label>
-            )}
-            <input type="text" value={formVideoUrl || ""} onChange={(e) => setFormVideoUrl(e.target.value || null)} placeholder="Or paste a direct video URL..." className="mt-2 w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm px-3 py-2 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" />
-          </div>
 
+              {/* Live Detection Feedback */}
+              {parsedCurrentVideo.platform === "youtube" && (
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <YoutubeIcon className="w-4 h-4" />
+                    <span className="font-semibold">YouTube Shorts detected</span>
+                  </div>
+                  {parsedCurrentVideo.thumbnailUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setFormThumbnailUrl(parsedCurrentVideo.thumbnailUrl || null)}
+                      className="text-[11px] font-bold underline cursor-pointer hover:opacity-80"
+                    >
+                      Use YouTube Cover
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {parsedCurrentVideo.platform === "instagram" && (
+                <div className="flex items-center space-x-2 p-2.5 rounded-lg bg-fuchsia-50 dark:bg-fuchsia-950/20 border border-fuchsia-200 dark:border-fuchsia-900/40 text-fuchsia-700 dark:text-fuchsia-400 text-xs font-semibold">
+                  <InstagramIcon className="w-4 h-4" />
+                  <span>Instagram Reel link detected</span>
+                </div>
+              )}
+
+              {/* Preview */}
+              {parsedCurrentVideo.embedUrl && (
+                <div className="pt-2">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 block mb-1.5">
+                    Live Video Preview
+                  </span>
+                  <div className="relative w-36 aspect-[9/16] rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-black mx-auto shadow-md">
+                    <iframe
+                      src={parsedCurrentVideo.embedUrl}
+                      title="Reel Preview"
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Mode 2: Upload Video File */}
+          {uploadMode === "file" && (
+            <div className="space-y-3 p-4 rounded-xl bg-neutral-50/70 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
+              <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1">
+                Video File (MP4, MOV) *
+              </label>
+
+              {formVideoUrl && parsedCurrentVideo.platform === "direct" ? (
+                <div className="relative w-32 aspect-[9/16] rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-black mx-auto">
+                  <video src={formVideoUrl} className="w-full h-full object-cover" muted playsInline loop autoPlay />
+                  <button
+                    type="button"
+                    onClick={() => setFormVideoUrl(null)}
+                    className="absolute top-1.5 right-1.5 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded-full hover:bg-black transition-colors cursor-pointer"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center border border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl p-6 cursor-pointer hover:border-neutral-500 transition-colors text-center bg-white dark:bg-neutral-900">
+                  <Upload size={22} className="text-neutral-400 mb-2" />
+                  <span className="text-xs text-neutral-600 dark:text-neutral-300 font-medium">
+                    {uploading
+                      ? `Uploading directly to Cloudinary (${uploadProgress}%)...`
+                      : "Click to upload video file"}
+                  </span>
+                  <span className="text-[10px] text-neutral-400 mt-1">MP4, MOV under 10MB recommended</span>
+                  <input
+                    type="file"
+                    accept="video/mp4,video/quicktime,video/*"
+                    onChange={handleVideoUpload}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          )}
+
+          {/* Cover Thumbnail */}
           <div>
-            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5">Cover Thumbnail (optional)</label>
+            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5">
+              Cover Thumbnail (optional)
+            </label>
             {formThumbnailUrl ? (
               <div className="relative w-20 h-28 rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-800">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={formThumbnailUrl} alt="Thumbnail" className="w-full h-full object-cover" />
-                <button type="button" onClick={() => setFormThumbnailUrl(null)} className="absolute top-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded-full cursor-pointer">✕</button>
+                <button
+                  type="button"
+                  onClick={() => setFormThumbnailUrl(null)}
+                  className="absolute top-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded-full cursor-pointer hover:bg-black"
+                >
+                  ✕
+                </button>
               </div>
             ) : (
-              <label className="inline-flex items-center space-x-2 border border-dashed border-neutral-300 dark:border-neutral-700 rounded-sm px-4 py-2.5 cursor-pointer hover:border-neutral-500 transition-colors text-xs text-neutral-500">
+              <label className="inline-flex items-center space-x-2 border border-dashed border-neutral-300 dark:border-neutral-700 rounded-sm px-4 py-2.5 cursor-pointer hover:border-neutral-500 transition-colors text-xs text-neutral-500 bg-neutral-50 dark:bg-neutral-900">
                 <Upload size={14} />
-                <span>{thumbnailUploading ? "Uploading..." : "Upload thumbnail image"}</span>
+                <span>{thumbnailUploading ? "Uploading..." : "Upload custom thumbnail"}</span>
                 <input type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
               </label>
             )}
           </div>
 
+          {/* Order & Active */}
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5">Sort Order</label>
-              <input type="number" value={formSortOrder} onChange={(e) => setFormSortOrder(Number(e.target.value))} className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm px-3 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white" />
+              <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5">
+                Sort Order
+              </label>
+              <input
+                type="number"
+                value={formSortOrder}
+                onChange={(e) => setFormSortOrder(Number(e.target.value))}
+                className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-sm px-3 py-2 text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white"
+              />
             </div>
             <div className="flex items-center space-x-2 mt-5">
-              <input type="checkbox" id="reel-active" checked={formActive} onChange={(e) => setFormActive(e.target.checked)} className="cursor-pointer" />
-              <label htmlFor="reel-active" className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 cursor-pointer uppercase tracking-wider">Active</label>
+              <input
+                type="checkbox"
+                id="reel-active"
+                checked={formActive}
+                onChange={(e) => setFormActive(e.target.checked)}
+                className="cursor-pointer"
+              />
+              <label
+                htmlFor="reel-active"
+                className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 cursor-pointer uppercase tracking-wider"
+              >
+                Active
+              </label>
             </div>
           </div>
 
+          {/* Modal Actions */}
           <div className="flex items-center justify-end space-x-3 pt-2">
-            <button type="button" onClick={() => { setModalOpen(false); resetForm(); }} className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer">Cancel</button>
-            <button type="button" onClick={handleSave} disabled={formLoading} className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black text-xs font-semibold uppercase tracking-wider rounded-sm hover:opacity-80 transition-opacity disabled:opacity-50 cursor-pointer">
+            <button
+              type="button"
+              onClick={() => {
+                setModalOpen(false);
+                resetForm();
+              }}
+              className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={formLoading}
+              className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black text-xs font-semibold uppercase tracking-wider rounded-sm hover:opacity-80 transition-opacity disabled:opacity-50 cursor-pointer"
+            >
               {formLoading ? "Saving..." : isEditing ? "Save Changes" : "Add Reel"}
             </button>
           </div>
@@ -389,10 +655,24 @@ export default function ReelsPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} title="Delete Reel">
         <div className="space-y-5">
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">Are you sure you want to delete this reel? This cannot be undone.</p>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            Are you sure you want to delete this reel? This cannot be undone.
+          </p>
           <div className="flex justify-end space-x-3">
-            <button type="button" onClick={() => setDeleteModalOpen(false)} className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white cursor-pointer">Cancel</button>
-            <button type="button" onClick={handleDelete} className="px-5 py-2 bg-red-600 text-white text-xs font-semibold uppercase tracking-wider rounded-sm hover:bg-red-700 transition-colors cursor-pointer">Delete</button>
+            <button
+              type="button"
+              onClick={() => setDeleteModalOpen(false)}
+              className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="px-5 py-2 bg-red-600 text-white text-xs font-semibold uppercase tracking-wider rounded-sm hover:bg-red-700 transition-colors cursor-pointer"
+            >
+              Delete
+            </button>
           </div>
         </div>
       </Modal>
