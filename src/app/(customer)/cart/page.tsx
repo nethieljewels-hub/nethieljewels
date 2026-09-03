@@ -33,6 +33,7 @@ import {
   loadDeliveryDetails,
   type DeliveryDetails,
 } from "@/utils/localStorage";
+import { getCloudinaryUrl } from "@/utils/cloudinary";
 import { createClient } from "@/utils/supabase/client";
 
 const emptyForm: DeliveryDetails = {
@@ -392,7 +393,7 @@ export default function CartPage() {
                       {item.image ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
-                          src={item.image}
+                          src={getCloudinaryUrl(item.image, { width: 250 })}
                           alt={item.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />

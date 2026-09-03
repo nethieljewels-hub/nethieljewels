@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X, ChevronRight, ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { useData } from "@/context/DataContext";
+import { getCloudinaryUrl } from "@/utils/cloudinary";
 
 interface Category {
   id: string;
@@ -216,7 +217,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-neutral-200 dark:bg-neutral-700 flex-shrink-0">
                             {product.images?.[0] ? (
                               <img
-                                src={product.images[0]}
+                                src={getCloudinaryUrl(product.images[0], { width: 150 })}
                                 alt={product.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
@@ -306,7 +307,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-neutral-200 dark:bg-neutral-700 flex-shrink-0">
                             {product.images?.[0] ? (
                               <img
-                                src={product.images[0]}
+                                src={getCloudinaryUrl(product.images[0], { width: 150 })}
                                 alt={product.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />

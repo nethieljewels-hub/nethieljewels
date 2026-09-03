@@ -1,3 +1,54 @@
+export interface CloudinaryTransformOptions {
+  width?: number;
+  height?: number;
+  quality?: string | number;
+  crop?: string;
+  format?: string;
+}
+
+/**
+ * Automatically transforms Cloudinary URLs to include dynamic optimization parameters:
+ * - `f_auto`: Automatic webp/avif format selection based on browser capability
+ * - `q_auto`: Intelligent quality compression
+ * - `w_X`: Width scaling for responsive image delivery
+ *
+ * Example:
+ * `https://res.cloudinary.com/demo/image/upload/v12345/sample.jpg`
+ * -> `https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_800,c_limit/v12345/sample.jpg`
+ */
+export function getCloudinaryUrl(
+  url?: string | null,
+  options: CloudinaryTransformOptions = {}
+): string {
+  if (!url || typeof url !== "string") return "";
+
+  // Return non-cloudinary URLs, SVGs, or already-transformed URLs untouched
+  if (
+    !url.includes("res.cloudinary.com") ||
+    url.includes("/upload/f_auto") ||
+    url.endsWith(".svg")
+  ) {
+    return url;
+  }
+
+  // Do not apply image parameters to video resources
+  if (url.includes("/video/upload/")) {
+    return url;
+  }
+
+  const { width, height, quality = "auto", crop = "limit", format = "auto" } = options;
+
+  const transformations: string[] = [`f_${format}`, `q_${quality}`];
+
+  if (width) transformations.push(`w_${width}`);
+  if (height) transformations.push(`h_${height}`);
+  if (crop && (width || height)) transformations.push(`c_${crop}`);
+
+  const transformString = transformations.join(",");
+
+  return url.replace("/upload/", `/upload/${transformString}/`);
+}
+
 /**
  * Helper to check if valid Cloudinary credentials are configured.
  */

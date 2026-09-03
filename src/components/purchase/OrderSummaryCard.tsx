@@ -1,5 +1,7 @@
 "use client";
 
+import { getCloudinaryUrl } from "@/utils/cloudinary";
+
 interface OrderSummaryCardProps {
   productImage: string;
   productName: string;
@@ -42,7 +44,7 @@ export default function OrderSummaryCard({
         <div className="w-20 h-24 sm:w-24 sm:h-28 bg-neutral-100 dark:bg-neutral-800 rounded-sm overflow-hidden flex-shrink-0 border border-neutral-200 dark:border-neutral-800 shadow-2xs">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={productImage}
+            src={getCloudinaryUrl(productImage, { width: 300 })}
             alt={productName}
             className="w-full h-full object-cover"
           />
